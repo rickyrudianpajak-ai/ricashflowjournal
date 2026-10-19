@@ -175,6 +175,8 @@ main{flex:1;min-width:0;padding:0 16px calc(var(--tab-h) + 96px + env(safe-area-
 .sum3 div{border-radius:var(--r);padding:12px;min-width:0}
 .sum3 small{display:block;font-size:11.5px;font-weight:700;color:var(--ink-2)}
 .sum3 b{display:block;font-family:var(--f-display);font-size:16px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sum3 .s3-sub{display:block;font-style:normal;font-size:11px;font-weight:700;color:var(--lav-ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.chart-legend.wrap{flex-wrap:wrap;row-gap:4px}
 .chart{position:relative;width:100%;height:220px;touch-action:pan-y}
 .chart svg{display:block;width:100%;height:100%}
 .chart text{font-family:var(--f-body);font-size:10.5px;fill:var(--ink-3);font-weight:600}
@@ -788,9 +790,12 @@ body[data-dir="back"] .view{animation:viewBack .32s ease both}
 .pha-ut>summary{border-top:0}
 .pha-grand{border-top:3px double var(--ink-2);font-size:15.5px}
 .pha-flow .rp-l3>summary .rp-n,.pha-flow .rp-row .rp-n{white-space:normal;line-height:1.35}
-@media (max-width:560px){.pha-harta{--rc:3}.pha-harta .rp-head,.pha-harta summary,.pha-harta .rp-l4,.pha-harta .rp-tot,.pha-harta .rp-row{grid-template-columns:minmax(0,1fr) repeat(3,minmax(58px,auto));gap:6px}.pha-harta .rp-v{font-size:12px}.pha-harta .rp-l2>summary .rp-v{font-size:12.5px}}
+/* ponsel: tabel berkolom banyak → nama akun satu baris penuh, angka di baris bawahnya */
+@media (max-width:560px){.rp-multi .rp-head,.rp-multi summary,.rp-multi .rp-l4,.rp-multi .rp-tot,.rp-multi .rp-row{grid-template-columns:repeat(var(--rc),minmax(0,1fr));column-gap:8px;row-gap:2px}
+  .rp-multi .rp-n{grid-column:1/-1;white-space:normal;line-height:1.35}.rp-multi .rp-head>span:first-child{display:none}
+  .rp-multi .rp-v{font-size:12.5px}.rp-multi .rp-l2>summary .rp-v{font-size:13px}.rp-multi .rp-l4 .rp-v{color:var(--ink-2)}}
 .rep-sum{display:flex;flex-direction:column;gap:10px}.rep-sum>div{display:flex;justify-content:space-between;gap:12px;font-size:14px}
-.rep-sum>div span{color:var(--ink-2)}.rep-sum .tot{border-top:1.5px solid var(--line,rgba(60,60,67,.18));padding-top:10px;font-weight:800;font-size:15.5px}.rep-sum .tot span{color:var(--ink)}
+.rep-sum>div{align-items:baseline}.rep-sum>div span{color:var(--ink-2);flex:1;min-width:0}.rep-sum>div b{flex:none;white-space:nowrap;text-align:right}.rep-sum .tot{border-top:1.5px solid var(--line,rgba(60,60,67,.18));padding-top:10px;font-weight:800;font-size:15.5px}.rep-sum .tot span{color:var(--ink)}
 .neg-red{color:var(--warn,#D70015)}
 /* ---- formulir jurnal ---- */
 .jl{border:1.5px solid var(--line,rgba(60,60,67,.14));border-radius:var(--r,16px);padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--glass-in,rgba(255,255,255,.5))}
@@ -1057,6 +1062,21 @@ function sums(list) {
     else { s.trf += t.amt; if (kindOf(t) === 'save') s.save += t.amt; }
   });
   s.net = s.inc - s.exp; return s;
+}
+/* arus kas (basis kas): hanya transaksi yang menyentuh kas & setara kas (11).
+   inc/exp = pendapatan/beban; oin/oout = penerimaan/pengeluaran kas selain pendapatan & beban
+   (terima pinjaman, jual aset / bayar utang, beli aset). Pemindahan antar kas & setara kas tidak dihitung. */
+const kasNm = n => isCashNo((IDX.byName[n] || {}).no || '');
+function cashKind(t) {
+  if (t.ind === 'penerimaan') return kasNm(t.rek) ? 'inc' : null;
+  if (t.ind === 'pengeluaran') return kasNm(t.rek) ? 'exp' : null;
+  const dk = kasNm(t.akun), ck = kasNm(t.rek);
+  return dk && !ck ? 'oin' : ck && !dk ? 'oout' : null;
+}
+function cashSums(list) {
+  const c = { inc: 0, exp: 0, oin: 0, oout: 0 };
+  list.forEach(t => { const k = cashKind(t); if (k) c[k] += t.amt; });
+  c.tin = c.inc + c.oin; c.tout = c.exp + c.oout; c.net = c.tin - c.tout; return c;
 }
 function monthLabel(m) {
   if (m === 'all') return `Sepanjang ${IDX.year}`;
@@ -1643,7 +1663,7 @@ function treeHTML(nodes, o) {
   const cols = o.cols || [0], head = o.head;
   const nums = (v, cls = '') => cols.map(i => `<b class="num rp-v ${cls}${o.neg && o.neg(v[i], i) ? ' neg-red' : ''}">${o.fmt ? o.fmt(v[i], i) : fmtN(v[i])}</b>`).join('');
   const letter = i => String.fromCharCode(65 + i), low = i => String.fromCharCode(97 + i);
-  return `<div class="rp-t" style="--rc:${cols.length}">${head ? `<div class="rp-head"><span></span>${head.map(h => `<span class="num">${h}</span>`).join('')}</div>` : ''}${nodes.map((n2, i2) => `
+  return `<div class="rp-t${cols.length > 1 ? ' rp-multi' : ''}" style="--rc:${cols.length}">${head ? `<div class="rp-head"><span></span>${head.map(h => `<span class="num">${h}</span>`).join('')}</div>` : ''}${nodes.map((n2, i2) => `
     <details class="rp-l2" open><summary><span class="rp-n">${o.letters ? `<i>${letter(i2)}</i>` : ''}${esc(n2.c.nama)}</span>${nums(n2.v)}</summary>
       ${n2.kids.map((n3, i3) => `<details class="rp-l3"><summary><span class="rp-n">${o.letters ? `<i>${low(i3)}</i>` : ''}${esc(n3.c.nama)}</span>${nums(n3.v)}</summary>
         ${n3.kids.map(k => `<div class="rp-l4"><span class="rp-n">${accLink(k.c)}${o.sub ? o.sub(k) : ''}</span>${nums(k.v)}</div>`).join('')}</details>`).join('')}
@@ -1784,7 +1804,7 @@ function repPHA() {
       </section></div>
     <div class="rep-col">
       <section class="card"><div class="card-h"><h3>1. Rekapitulasi harta kekayaan</h3></div>
-        <div class="rp-t pha-harta" style="--rc:3"><div class="rp-head"><span>Uraian</span><span class="num">Saldo awal</span><span class="num">Saldo akhir</span><span class="num">Perubahan</span></div>
+        <div class="rp-t rp-multi pha-harta" style="--rc:3"><div class="rp-head"><span>Uraian</span><span class="num">Saldo awal</span><span class="num">Saldo akhir</span><span class="num">Perubahan</span></div>
           ${D.harta.map(h => hRow(h)).join('')}
           ${totRow('Sub total harta', D.subA, D.subE)}
           ${hRow({ L: 'G', t: 'Hutang', kids: D.ut.kids, a: D.ut.a, e: D.ut.e, debt: true }, 'pha-ut')}
@@ -1805,7 +1825,7 @@ function viewHist() {
 
 /* ---------- ANALISIS & RIWAYAT ---------- */
 function viewRingkas() {
-  const m = S.month, list = txIn(m), s = sums(list);
+  const m = S.month, list = txIn(m), s = sums(list), c = cashSums(list);
   const exp = list.filter(t => t.ind === 'pengeluaran');
   const byDay = {}; exp.forEach(t => { byDay[t.d] = (byDay[t.d] || 0) + t.amt; });
   const worst = Object.entries(byDay).sort((a, b) => b[1] - a[1])[0];
@@ -1822,13 +1842,14 @@ function viewRingkas() {
       <div class="sticky">
         <section class="card">
           <div class="card-h"><h3>${chartTitle}</h3>${isMonthly(m) ? '' : `<div class="seg small" data-seg="cm" style="width:180px"><span class="knob"></span><button data-val="cum" aria-pressed="${S.cm === 'cum'}">Kumulatif</button><button data-val="day" aria-pressed="${S.cm === 'day'}">Harian</button></div>`}</div>
-          <div class="chart" id="flowChart" role="img" aria-label="Grafik pemasukan dan pengeluaran"></div>
-          <div class="chart-legend"><span><i style="background:var(--mint-mid)"></i>Pemasukan</span><span><i style="background:var(--pink-mid)"></i>Pengeluaran</span></div>
+          <div class="chart" id="flowChart" role="img" aria-label="Grafik penerimaan dan pengeluaran kas"></div>
+          <div class="chart-legend wrap"><span><i style="background:var(--mint-mid)"></i>Pendapatan</span><span><i style="background:var(--lav-mid)"></i>Penerimaan lain</span><span><i style="background:var(--pink-mid)"></i>Beban</span><span><i style="background:var(--lav-ink)"></i>Pengeluaran lain</span></div>
+          <div class="b-foot" style="margin-top:8px">Hanya transaksi kas & setara kas. Lain-lain: terima pinjaman, jual aset, bayar utang (termasuk kartu kredit), beli aset.</div>
         </section>
         <div class="sum3">
-          <div style="background:var(--mint)"><small>Pemasukan</small><b class="num">${rpk(s.inc)}</b></div>
-          <div style="background:var(--pink)"><small>Pengeluaran</small><b class="num">${rpk(s.exp)}</b></div>
-          <div style="background:${s.net >= 0 ? 'var(--blue)' : 'var(--warn-bg)'}"><small>${s.net >= 0 ? 'Surplus' : 'Defisit'}</small><b class="num" style="${s.net < 0 ? 'color:var(--warn)' : ''}">${rpk(Math.abs(s.net))}</b></div>
+          <div style="background:var(--mint)"><small>Penerimaan kas</small><b class="num">${rpk(c.tin)}</b>${c.oin ? `<em class="s3-sub">lain ${rpk(c.oin)}</em>` : ''}</div>
+          <div style="background:var(--pink)"><small>Pengeluaran kas</small><b class="num">${rpk(c.tout)}</b>${c.oout ? `<em class="s3-sub">lain ${rpk(c.oout)}</em>` : ''}</div>
+          <div style="background:${c.net >= 0 ? 'var(--blue)' : 'var(--warn-bg)'}"><small>${c.net >= 0 ? 'Kenaikan kas' : 'Penurunan kas'}</small><b class="num" style="${c.net < 0 ? 'color:var(--warn)' : ''}">${c.net < 0 ? '−' : ''}${rpk(Math.abs(c.net))}</b></div>
         </div>
         <section class="card"><div class="b-group">
           ${factRow('calendar', 'Rata-rata pengeluaran per hari', rp(s.exp / Math.max(1, days)), `${days} hari berjalan`)}
@@ -2386,28 +2407,37 @@ function drawCharts() {
   const m = S.month, list = txIn(m);
   if (isMonthly(m)) {
     const ms = mset(m).map(k => +k.slice(5, 7) - 1), ix = {}; ms.forEach((mo, i) => { ix[mo] = i; });
-    const inc = Array(ms.length).fill(0), exp = Array(ms.length).fill(0);
-    list.forEach(t => { const i = ix[+t.d.slice(5, 7) - 1]; if (i == null) return; if (t.ind === 'penerimaan') inc[i] += t.amt; else if (t.ind === 'pengeluaran') exp[i] += t.amt; });
-    chart(el, { type: 'bar', labels: ms.map(mo => BLN[mo]), tip: i => BULAN[ms[i]], series: [{ name: 'Pemasukan', v: inc, fill: 'var(--mint-mid)', ink: 'var(--mint-ink)' }, { name: 'Pengeluaran', v: exp, fill: 'var(--pink-mid)', ink: 'var(--pink-ink)' }] });
+    const F = flowArr(ms.length); list.forEach(t => { const i = ix[+t.d.slice(5, 7) - 1], k = cashKind(t); if (i != null && k) F[k][i] += t.amt; });
+    chart(el, { type: 'bar', labels: ms.map(mo => BLN[mo]), tip: i => BULAN[ms[i]], series: flowSeries(F, 'mid'), extra: flowExtra(F) });
     return;
   }
   const y = +m.slice(0, 4), mo = +m.slice(5, 7), N = daysIn(y, mo), now = new Date();
   const lim = (y === now.getFullYear() && mo === now.getMonth() + 1) ? now.getDate() : N;
-  const inc = Array(N).fill(0), exp = Array(N).fill(0);
-  list.forEach(t => { const i = +t.d.slice(8, 10) - 1; if (t.ind === 'penerimaan') inc[i] += t.amt; else if (t.ind === 'pengeluaran') exp[i] += t.amt; });
+  const F = flowArr(N); list.forEach(t => { const k = cashKind(t); if (k) F[k][+t.d.slice(8, 10) - 1] += t.amt; });
   const labels = Array.from({ length: N }, (_, i) => String(i + 1));
   const tip = i => `${HARI[new Date(y, mo - 1, i + 1).getDay()]}, ${i + 1} ${BLN[mo - 1]}`;
   if (S.cm === 'cum') {
-    let a = 0, b = 0; const ci = inc.map((v, i) => i < lim ? (a += v) : null), ce = exp.map((v, i) => i < lim ? (b += v) : null);
-    chart(el, { type: 'line', labels, tip, series: [{ name: 'Pemasukan', v: ci, fill: 'var(--mint)', ink: 'var(--mint-ink)' }, { name: 'Pengeluaran', v: ce, fill: 'var(--pink)', ink: 'var(--pink-ink)' }] });
+    const C = {}; Object.keys(F).forEach(k => { let a = 0; C[k] = F[k].map((v, i) => i < lim ? (a += v) : null); });
+    chart(el, { type: 'line', labels, tip, series: flowSeries(C), extra: flowExtra(C) });
   } else {
-    chart(el, { type: 'bar', labels, tip, series: [{ name: 'Pemasukan', v: inc, fill: 'var(--mint-mid)', ink: 'var(--mint-ink)' }, { name: 'Pengeluaran', v: exp, fill: 'var(--pink-mid)', ink: 'var(--pink-ink)' }] });
+    chart(el, { type: 'bar', labels, tip, series: flowSeries(F, 'mid'), extra: flowExtra(F) });
   }
 }
+const flowArr = n => ({ inc: Array(n).fill(0), oin: Array(n).fill(0), exp: Array(n).fill(0), oout: Array(n).fill(0) });
+/* batang: pendapatan + penerimaan lain ditumpuk (g 0), beban + pengeluaran lain ditumpuk (g 1); lain-lain berwarna ungu */
+const flowSeries = (F, bar) => [
+  { name: 'Pendapatan', v: F.inc, g: 0, fill: bar ? 'var(--mint-mid)' : 'var(--mint)', ink: 'var(--mint-ink)' },
+  { name: 'Penerimaan lain', v: F.oin, g: 0, fill: bar ? 'var(--lav-mid)' : 'var(--lav)', ink: 'var(--lav-mid)' },
+  { name: 'Beban', v: F.exp, g: 1, fill: bar ? 'var(--pink-mid)' : 'var(--pink)', ink: 'var(--pink-ink)' },
+  { name: 'Pengeluaran lain', v: F.oout, g: 1, fill: bar ? 'var(--lav-ink)' : 'var(--lav)', ink: 'var(--lav-ink)', dash: true }];
+const flowExtra = F => i => { if (F.inc[i] == null) return ''; const n = F.inc[i] + F.oin[i] - F.exp[i] - F.oout[i];
+  return `<br><span class="k" style="background:var(--blue-mid)"></span>${n >= 0 ? 'Kenaikan' : 'Penurunan'} kas <b class="num">${n < 0 ? '−' : ''}${rp(Math.abs(n))}</b>`; };
 function chart(el, o) {
   const W = Math.max(280, el.clientWidth), H = el.clientHeight || 220, P = { l: 46, r: 8, t: 14, b: 24 };
   const n = o.labels.length, iw = W - P.l - P.r, ih = H - P.t - P.b;
-  const allV = o.series.flatMap(s => s.v.filter(v => v != null)).concat(o.bars ? o.bars.slots.flatMap(q => o.bars.series.map(b => q[b.k])) : []).concat(o.hline ? [o.hline.v] : []);
+  const stacked = o.type !== 'line' && o.series.some(s => s.g != null);
+  const stackV = stacked ? o.series.reduce((acc, s) => { s.v.forEach((v, i) => { const k = s.g + '_' + i; acc[k] = (acc[k] || 0) + Math.max(0, v || 0); }); return acc; }, {}) : {};
+  const allV = o.series.flatMap(s => s.v.filter(v => v != null)).concat(Object.values(stackV)).concat(o.bars ? o.bars.slots.flatMap(q => o.bars.series.map(b => q[b.k])) : []).concat(o.hline ? [o.hline.v] : []);
   const max = niceMax(Math.max(1, ...allV)), mn = Math.min(0, ...allV), lo = mn < 0 ? -niceMax(-mn) : 0;
   const Y = v => P.t + ih - (v - lo) / (max - lo) * ih;
   const band = iw / n;
@@ -2424,7 +2454,7 @@ function chart(el, o) {
       if (!pts.length) return;
       const d = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
       areas += `<path d="${d} L${pts[pts.length - 1][0].toFixed(1)} ${Y(0)} L${pts[0][0].toFixed(1)} ${Y(0)} Z" style="fill:${s.fill};opacity:${o.bars ? .4 : .55}"/>`;
-      marks += `<path d="${d}" fill="none" style="stroke:${s.ink}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>`;
+      marks += `<path d="${d}" fill="none" style="stroke:${s.ink}" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"${s.dash ? ' stroke-dasharray="6 4"' : ''}/>`;
       const e = pts[pts.length - 1]; marks += `<circle cx="${e[0].toFixed(1)}" cy="${e[1].toFixed(1)}" r="4.5" style="fill:var(--surface);stroke:${s.ink}" stroke-width="2.5"/>`;
     });
     if (o.bars) {
@@ -2434,6 +2464,12 @@ function chart(el, o) {
           const x = X(q.c) - gw / 2 + bi * bw, y0 = Y(0), y1 = Y(v), h = Math.max(1.5, y0 - y1);
           bars += `<rect x="${(x + .4).toFixed(1)}" y="${y1.toFixed(1)}" width="${Math.max(1, bw - .8).toFixed(1)}" height="${h.toFixed(1)}" rx="${Math.min(4, bw / 2.2).toFixed(1)}" style="fill:${b.fill}"/>`; }); });
     }
+  } else if (stacked) {
+    const ng = Math.max(...o.series.map(s => s.g)) + 1, gw = Math.min(band * .78, 46), bw = gw / ng, base = {};
+    o.series.forEach(s => s.v.forEach((v, i) => { if (!(v > 0)) return;
+      const k = s.g + '_' + i, b0 = base[k] || 0, x = P.l + i * band + (band - gw) / 2 + s.g * bw, y1 = Y(b0 + v), h = Math.max(1.5, Y(b0) - y1);
+      base[k] = b0 + v;
+      marks += `<rect x="${(x + .5).toFixed(1)}" y="${y1.toFixed(1)}" width="${Math.max(1, bw - 1).toFixed(1)}" height="${h.toFixed(1)}" rx="${Math.min(3, bw / 3).toFixed(1)}" style="fill:${s.fill};stroke:var(--surface);stroke-width:${b0 ? 1 : 0}"/>`; }));
   } else {
     const gw = Math.min(band * .78, 46), bw = gw / o.series.length;
     o.series.forEach((s, si) => s.v.forEach((v, i) => { if (!v) return;
