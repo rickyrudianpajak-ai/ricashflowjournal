@@ -12,7 +12,6 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:0}</style>
-
 <title>RicashFlow</title>
 <style>
 /* Layout: mobile = satu kolom + tab bar bawah + FAB; desktop (>=960px) = sidebar kiri + grid konten 2 kolom.
@@ -202,6 +201,9 @@ main{flex:1;min-width:0;padding:0 16px calc(var(--tab-h) + 96px + env(safe-area-
 .b-line{display:flex;justify-content:space-between;gap:8px;font-size:13.5px;margin-bottom:6px}
 .b-line b{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .b-line span{white-space:nowrap;font-weight:600;color:var(--ink-2);font-size:12.5px}
+.b-line .bud-ed{display:inline-grid;place-items:center;width:26px;height:26px;margin:-4px -4px -4px 2px;border-radius:50%;color:var(--ink-3);vertical-align:middle}
+.b-line .bud-ed:hover{background:var(--surface-2);color:var(--blue-ink)}
+.b-line .bud-ed svg.i{width:14px;height:14px}
 .b-foot{font-size:11.5px;color:var(--ink-3);font-weight:600;margin-top:4px}
 .b-foot.over{color:var(--warn)}
 .rep-col{display:flex;flex-direction:column;gap:inherit;min-width:0}
@@ -248,7 +250,8 @@ main{flex:1;min-width:0;padding:0 16px calc(var(--tab-h) + 96px + env(safe-area-
 .sheet .grab{width:42px;height:5px;border-radius:9px;background:#D9D9E0;margin:10px auto 0;flex:none}
 .sheet-h{display:flex;align-items:center;justify-content:space-between;padding:10px 18px 6px;flex:none}
 .sheet-h h2{font-size:20px}
-.sheet-b{overflow-y:auto;padding:6px 18px 18px;display:flex;flex-direction:column;gap:18px;overscroll-behavior:contain}
+.sheet-b{flex:1 1 auto;min-height:0;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:6px 18px 18px;display:flex;flex-direction:column;gap:18px;overscroll-behavior:contain}
+.sheet-b>*{flex-shrink:0}
 .sheet-f{padding:12px 18px calc(14px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--line);background:var(--bg);flex:none}
 
 .type-seg button[aria-pressed="true"]{color:var(--ink)}
@@ -302,6 +305,11 @@ main{flex:1;min-width:0;padding:0 16px calc(var(--tab-h) + 96px + env(safe-area-
 .btn-ghost{height:48px;border-radius:var(--r);padding:0 16px;font-weight:700;background:var(--surface-2);display:inline-flex;align-items:center;justify-content:center;gap:8px}
 .btn-danger{background:var(--warn-bg);color:var(--warn)}
 .form-err{background:var(--warn-bg);color:var(--warn);border-radius:var(--r);padding:10px 12px;font-size:13px;font-weight:700}
+.bud-acc{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);padding:12px 14px}
+.bud-acc .bub{width:40px;height:40px;flex:none}
+.bud-acc b{display:block;font-size:15px;overflow:hidden;text-overflow:ellipsis}
+.bud-acc small{display:block;font-size:12px;font-weight:600;color:var(--ink-3)}
+@media (max-width:959px){.d-only{display:none}.topbar .set-add:has(.d-only){width:42px;height:42px;padding:0;justify-content:center;flex:none}}
 
 .detail-hero{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:6px 0 4px}
 .detail-hero .bub{width:64px;height:64px}
@@ -310,7 +318,8 @@ main{flex:1;min-width:0;padding:0 16px calc(var(--tab-h) + 96px + env(safe-area-
 .dl{display:grid;grid-template-columns:auto 1fr;gap:10px 16px;background:var(--surface);border-radius:var(--r-lg);padding:16px;font-size:14px}
 .dl dt{color:var(--ink-3);font-weight:600}
 .dl dd{margin:0;font-weight:700;text-align:right;overflow-wrap:anywhere}
-.btn-row{display:flex;gap:10px}
+.btn-row{display:flex;gap:10px;flex-wrap:wrap}
+.btn-row>.btn-ghost{flex:1 1 0;min-width:0;white-space:nowrap;padding-left:10px;padding-right:10px}
 .btn-row>*{flex:1}
 
 .toast{position:fixed;left:50%;bottom:calc(var(--tab-h) + 24px + env(safe-area-inset-bottom,0px));transform:translate(-50%,30px);opacity:0;z-index:60;background:var(--ink);color:#fff;border-radius:var(--r);padding:12px 14px 12px 16px;display:flex;align-items:center;gap:14px;font-size:13.5px;font-weight:600;box-shadow:var(--shadow-lg);transition:all .3s;pointer-events:none;max-width:calc(100% - 32px)}
@@ -349,7 +358,10 @@ main{flex:1;min-width:0;padding:0 16px calc(var(--tab-h) + 96px + env(safe-area-
   .view{gap:22px;padding-top:22px}
   .hello{font-size:30px}
   .page-title{font-size:30px}
-  .home-grid{display:grid;grid-template-columns:minmax(0,1.25fr) minmax(0,1fr);gap:22px;align-items:start}
+  .home-grid{display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:22px;align-items:start}
+  .home-grid .hc{display:flex;flex-direction:column;gap:22px;min-width:0}
+  .home-grid .hscroll{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));overflow:visible}
+  .home-grid .hscroll .wallet{width:auto}
   .home-grid .span2{grid-column:1/-1}
   .hist-grid{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:22px;align-items:start}
   .hist-grid .sticky{position:sticky;top:22px;display:flex;flex-direction:column;gap:22px}
@@ -360,7 +372,7 @@ main{flex:1;min-width:0;padding:0 16px calc(var(--tab-h) + 96px + env(safe-area-
   .ins{flex:auto}
   .chart{height:260px}
 }
-@media (max-width:960px){ .home-grid,.hist-grid,.budget-grid{display:flex;flex-direction:column;gap:18px} .hist-grid .sticky{display:flex;flex-direction:column;gap:18px} }
+@media (max-width:960px){ .home-grid .hc{display:contents} .home-grid>.hc>*{order:var(--o)} .home-grid,.hist-grid,.budget-grid{display:flex;flex-direction:column;gap:18px} .hist-grid .sticky{display:flex;flex-direction:column;gap:18px} }
 @media (max-width:560px){ .donut-wrap{grid-template-columns:1fr;justify-items:center} .legend{width:100%} }
 @media (max-width:380px){ .cat-grid{grid-template-columns:repeat(3,1fr)} .acc-flow{grid-template-columns:1fr 1fr} }
 @media (min-width:960px){.m-only{display:none}}
@@ -379,6 +391,41 @@ main{flex:1;min-width:0;padding:0 16px calc(var(--tab-h) + 96px + env(safe-area-
 article.card.acc[data-acc]{cursor:pointer;transition:transform .15s,box-shadow .15s}
 article.card.acc[data-acc]:hover{transform:translateY(-2px);box-shadow:0 1px 2px rgba(38,40,54,.05),0 14px 30px -14px rgba(38,40,54,.22)}
 .acc-more{align-self:flex-end;margin-top:-4px}
+.acc-mini{display:grid;grid-template-columns:1fr;gap:8px}
+.acc-mini button{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--line);text-align:left;min-width:0}
+.acc-mini button:hover{border-color:var(--blue-ink)}
+.acc-mini .bub{width:36px;height:36px;flex:none}
+.acc-mini .mid{flex:1;min-width:0}
+.acc-mini .nm{display:block;font-weight:800;font-size:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acc-mini .tg{display:block;font-size:12px;color:var(--ink-3);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acc-mini .sal{font-weight:800;font-size:15px;white-space:nowrap}
+@media (min-width:640px){.acc-mini{grid-template-columns:1fr 1fr}}
+@media (min-width:1200px){.acc-mini{grid-template-columns:1fr 1fr 1fr}}
+.acc-grid+.acc-mini{margin-top:10px}
+.rek-top{display:flex;flex-direction:column;gap:16px}
+.nw-card{display:flex;flex-direction:column;gap:6px}
+.nw-bar{height:10px;border-radius:99px;background:var(--pink-mid,#FF2D55);overflow:hidden;margin:8px 0 4px;opacity:.9}
+.nw-bar i{display:block;height:100%;background:var(--mint-mid,#34C759);border-radius:99px}
+.nw-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.nw-row small{display:block;font-size:11.5px;font-weight:700;color:var(--ink-3)}
+.nw-row b{font-size:15px;font-weight:800}
+.nw-groups{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.nw-groups button{display:flex;align-items:center;gap:8px;padding:8px;border-radius:14px;background:var(--surface-2);text-align:left;min-width:0}
+.nw-groups button:hover{background:var(--blue)}
+.nw-groups .bub{width:30px;height:30px;flex:none}
+.nw-groups .bub svg.i{width:15px;height:15px}
+.nw-groups .g-t{flex:1;min-width:0}
+.nw-groups small{display:block;font-size:11.5px;font-weight:700;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.nw-groups b{display:block;font-size:13.5px;font-weight:800;white-space:nowrap}
+.rek-tools{display:flex;flex-direction:column;gap:10px;scroll-margin-top:12px}
+.rek-tools .rep-tabs{margin-bottom:0}
+.cnt{display:inline-block;min-width:20px;padding:0 6px;margin-left:4px;border-radius:99px;font-size:11px;font-weight:800;line-height:18px;text-align:center;background:rgba(120,120,128,.14);color:var(--ink-2);vertical-align:1px}
+[aria-selected="true"]>.cnt{background:rgba(255,255,255,.28);color:inherit}
+.rek-sec{display:flex;flex-direction:column}
+.rek-h{margin:10px 4px 10px}
+.rek-h h3{display:flex;align-items:center;gap:6px}
+.idle-h{font-size:12px;font-weight:700;margin:12px 4px 8px}
+@media (min-width:960px){ .rek-top{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.2fr);gap:22px;align-items:stretch} .rek-top .tot-slides{flex-direction:column;overflow:visible;gap:14px} .rek-top .tot-s .chart{height:170px} .rek-top .tot-dots{display:none} .rek-tools{flex-direction:row;align-items:center} .rek-tools .rep-tabs{flex:1;min-width:0;margin:0} .rek-tools .search{width:340px;flex:none} }
 .acc-hero{border-radius:var(--r-xl);padding:20px;box-shadow:var(--shadow);position:relative;overflow:hidden}
 .acc-hero::after{content:"";position:absolute;right:-50px;bottom:-60px;width:170px;height:170px;border-radius:50%;border:26px solid rgba(255,255,255,.35)}
 .acc-hero-top{display:flex;align-items:center;gap:12px;position:relative;z-index:1}
@@ -648,8 +695,9 @@ body.scrolled .topbar .hello-sub{display:none}
 .pop.open{opacity:1;transform:none;pointer-events:auto}
 .mp-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;padding:8px 10px 6px;font-size:14px}
 .mp-h .faint{font-size:12px;font-weight:600}
-.mp-quick{display:flex;gap:8px;padding:2px 6px 8px}
-.mp-quick button{flex:1;background:var(--fill);border-radius:999px;padding:9px 10px;font-weight:600;font-size:12.5px;color:var(--blue-ink)}
+.mp-quick{display:flex;flex-wrap:wrap;gap:6px;padding:2px 6px 8px}
+.mp-quick button[aria-pressed="true"]{background:var(--blue);box-shadow:0 0 0 1.5px var(--blue-ink) inset}
+.mp-quick button{flex:1 1 auto;white-space:nowrap;background:var(--fill);border-radius:999px;padding:9px 10px;font-weight:600;font-size:12.5px;color:var(--blue-ink)}
 .mp-row{display:flex;align-items:center;gap:12px;width:100%;padding:11px 10px;border-radius:12px;text-align:left;font-weight:500;font-size:15px}
 .mp-row:hover{background:var(--fill)}
 .mp-box{width:22px;height:22px;border-radius:7px;border:1.5px solid var(--ink-3);display:grid;place-items:center;color:transparent;flex:none}
@@ -730,12 +778,34 @@ body[data-dir="back"] .view{animation:viewBack .32s ease both}
 .rp-t summary .rp-n::before{content:"";display:inline-block;width:7px;height:7px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);transform:rotate(-45deg);margin-right:9px;transition:transform .15s;vertical-align:2px}
 .rp-t details[open]>summary .rp-n::before{transform:rotate(45deg)}
 .rp-tot{border-top:1.5px solid var(--ink-3);padding:11px 2px 2px;font-weight:800}
+.rp-row{display:grid;grid-template-columns:minmax(0,1fr) repeat(var(--rc),minmax(74px,auto));align-items:center;gap:10px;padding:11px 2px;min-height:44px;color:var(--ink-3)}
+.rp-l2>.rp-row,.rp-row.rp-l3{font-size:14px;font-weight:600}
+.rp-t>.rp-row{font-weight:700;font-size:15px;border-top:1px solid var(--line,rgba(60,60,67,.12))}
+.rp-row .rp-n{padding-left:16px}
+.rp-n em{font-style:normal;font-weight:700;color:var(--ink-3);margin-right:6px}
+.rp-l3 .rp-n{white-space:normal}
+.pha-harta .rp-tot{margin-bottom:6px}
+.pha-ut>summary{border-top:0}
+.pha-grand{border-top:3px double var(--ink-2);font-size:15.5px}
+.pha-flow .rp-l3>summary .rp-n,.pha-flow .rp-row .rp-n{white-space:normal;line-height:1.35}
+@media (max-width:560px){.pha-harta{--rc:3}.pha-harta .rp-head,.pha-harta summary,.pha-harta .rp-l4,.pha-harta .rp-tot,.pha-harta .rp-row{grid-template-columns:minmax(0,1fr) repeat(3,minmax(58px,auto));gap:6px}.pha-harta .rp-v{font-size:12px}.pha-harta .rp-l2>summary .rp-v{font-size:12.5px}}
 .rep-sum{display:flex;flex-direction:column;gap:10px}.rep-sum>div{display:flex;justify-content:space-between;gap:12px;font-size:14px}
 .rep-sum>div span{color:var(--ink-2)}.rep-sum .tot{border-top:1.5px solid var(--line,rgba(60,60,67,.18));padding-top:10px;font-weight:800;font-size:15.5px}.rep-sum .tot span{color:var(--ink)}
 .neg-red{color:var(--warn,#D70015)}
 /* ---- formulir jurnal ---- */
 .jl{border:1.5px solid var(--line,rgba(60,60,67,.14));border-radius:var(--r,16px);padding:12px;display:flex;flex-direction:column;gap:10px;background:var(--glass-in,rgba(255,255,255,.5))}
 .jl-top{display:flex;gap:8px;align-items:center}
+.acpick{position:relative}
+.acpick .search{height:48px;background:var(--surface);border:1.5px solid var(--line)}
+.acpick .search:focus-within{border-color:var(--blue-ink)}
+.acpick .search small{font-size:11.5px;font-weight:700;color:var(--ink-3);flex:none}
+.ac-list{margin-top:6px;max-height:280px;overflow-y:auto;overscroll-behavior:contain;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);padding:4px;box-shadow:var(--shadow-sm,0 8px 24px -12px rgba(30,40,70,.3))}
+.ac-g{font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-3);padding:10px 10px 4px}
+.ac-o{display:flex;gap:10px;align-items:center;width:100%;text-align:left;padding:9px 10px;border-radius:12px;font-size:14px;font-weight:600}
+.ac-o small{font-size:12px;color:var(--ink-3);font-weight:700;min-width:44px}
+.ac-o:hover,.ac-o.on{background:var(--surface-2)}
+.ac-o[aria-selected="true"]{background:var(--blue);color:var(--blue-ink)}
+.ac-none{padding:12px 10px;font-size:13px;color:var(--ink-3)}
 .dk-seg{display:inline-flex;border-radius:999px;background:rgba(120,120,128,.14);padding:2px;flex:none}
 .dk-seg button{border:0;background:transparent;border-radius:999px;padding:6px 12px;font-size:12.5px;font-weight:700;color:var(--ink-2);cursor:pointer}
 .dk-seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.14)}
@@ -759,6 +829,7 @@ body[data-dir="back"] .view{animation:viewBack .32s ease both}
 .set-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;background:transparent;padding:10px 2px;cursor:pointer;min-height:48px;border-top:1px solid var(--line,rgba(60,60,67,.1))}
 .set-row .mid{flex:1;min-width:0}.set-row .t1{font-weight:600;font-size:15px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.set-row .t2{font-size:12.5px;color:var(--ink-3);font-weight:500;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .set-row .amt{font-weight:700;font-size:14px;text-align:right}
+.tag.tag-ut{background:rgba(255,149,0,.16);color:#b25f00}.tag.tag-as{background:rgba(175,82,222,.14);color:#8a3db5}
 .tag{display:inline-block;border-radius:6px;padding:1px 7px;font-size:11px;font-weight:700;margin-left:6px;background:rgba(0,122,255,.12);color:#0a5ad4;vertical-align:1px}.tag.off{background:rgba(120,120,128,.18);color:var(--ink-2)}
 .yn{display:flex;gap:8px}.yn .chip{flex:1;justify-content:center}
 .sheet-b textarea.text-field{height:auto;min-height:72px;padding-top:12px;resize:vertical}
@@ -785,6 +856,7 @@ body[data-dir="back"] .view{animation:viewBack .32s ease both}
 <section class="sheet" id="formSheet" role="dialog" aria-modal="true" aria-labelledby="formTitle"></section>
 <section class="sheet" id="detailSheet" role="dialog" aria-modal="true" aria-label="Detail transaksi"></section>
 <section class="sheet" id="setSheet" role="dialog" aria-modal="true" aria-label="Tambah data"></section>
+<section class="sheet" id="budSheet" role="dialog" aria-modal="true" aria-label="Anggaran"></section>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script>
 'use strict';
@@ -857,15 +929,13 @@ const rekOf = n => (IDX && IDX.rekBy && IDX.rekBy[n]) || null;
 /* 'bank' = kas & rekening bank (biru); selain itu 'save' (ungu): deposito, investasi, harta, piutang, utang */
 const accType = n => { const a = rekOf(n); return a && /^11[12]/.test(a.ano) ? 'bank' : (a ? 'save' : 'bank'); };
 const accIcon = n => { const a = rekOf(n); return a ? accIconNo(a.ano) : 'landmark'; };
-const accTag = n => { const a = rekOf(n); return a ? ((IDX.A[a.ano.slice(0, 3)] || {}).nama || 'Rekening') : 'Rekening'; };
-/* kelompok halaman Rekening: kas & setara kas, investasi, piutang, utang */
+const accTag = n => { const a = rekOf(n); return a ? ((IDX.A[a.ano.slice(0, 3)] || {}).nama || 'Rekening').replace(/\s*\(.*\)\s*$/, '') : 'Rekening'; };
+/* kelompok halaman Rekening = akun Level 2 neraca: kas & setara kas, investasi, harta bergerak, harta tidak bergerak, piutang, utang */
+const REK_GROUPS = [['kas', 'Kas & setara kas', 'wallet'], ['invest', 'Investasi', 'trending-up'], ['bergerak', 'Harta bergerak', 'car'], ['tetap', 'Harta tidak bergerak', 'house'], ['piutang', 'Piutang', 'hand-coins'], ['utang', 'Utang', 'credit-card']];
 function rekGroup(a) {
   const n = a.ano;
-  if (n.startsWith('11')) return 'kas';
-  if (n.startsWith('12') || n.startsWith('131')) return 'invest';
-  if (n.startsWith('15')) return 'piutang';
   if (n.startsWith('2')) return 'utang';
-  return null;
+  return { '11': 'kas', '12': 'invest', '13': 'bergerak', '14': 'tetap', '15': 'piutang' }[n.slice(0, 2)] || null;
 }
 function kindOf(t) {
   if (t.ind === 'penerimaan') return 'in';
@@ -884,7 +954,7 @@ ICONS['scale'] = '<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><p
 ICONS['laptop'] = '<path d="M20 16V7a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v9m16 0H4m16 0 1.28 2.55a1 1 0 0 1-.9 1.45H3.62a1 1 0 0 1-.9-1.45L4 16"/>';
 
 /* ---------- state ---------- */
-const S = { data: null, raw: null, view: 'home', month: null, hf: 'all', hq: '', cm: 'cum', dg: 'akun', rk: 'out', rg: 'akun', sort: 'new', ak: null, akBack: 'hist', kq: '', acc: null, af: 'all', aq: '', rep: 'ringkas', stab: 'aset', loading: true, err: '' };
+const S = { data: null, raw: null, view: 'home', month: null, hf: 'all', hq: '', cm: 'cum', dg: 'akun', rk: 'out', rg: 'akun', sort: 'new', ak: null, akBack: 'hist', kq: '', acc: null, af: 'all', aq: '', ap: 'all', rq: '', rf: 'all', rep: 'ringkas', stab: '1', loading: true, err: '' };
 let IDX = null; // cache turunan
 
 /* ===== Model data: jurnal double entry (db_coa, db_bud, db_jnl) → bentuk yang dipakai tampilan =====
@@ -892,13 +962,7 @@ let IDX = null; // cache turunan
    beban ↔ rekening = pengeluaran · pendapatan ↔ rekening = penerimaan · neraca ↔ neraca = transfer */
 const clsOf = no => String(no).charAt(0);
 const isPLno = no => { const c = clsOf(no); return c === '4' || c === '5'; };
-const cleanNote = (memo, det) => {
-  let s = String(memo || '').replace(/\s*\[IDTX\s*\d+\]/i, '').trim();
-  const d = String(det || '').trim().toLowerCase();
-  if (d && s.toLowerCase() === d) return '';
-  if (d && s.toLowerCase().startsWith(d + ' ')) s = s.slice(d.length).trim();
-  return s;
-};
+const cleanNote = memo => String(memo || '').replace(/\s*\[IDTX\s*\d+\]/i, '').trim();
 function pairLines(lines, A) {
   const pl = l => A[l.no] && isPLno(l.no);
   const mk = dk => lines.filter(l => l.dk === dk).map(l => ({ l, r: l.amt })).sort((x, y) => (pl(y.l) ? 1 : 0) - (pl(x.l) ? 1 : 0));
@@ -941,15 +1005,15 @@ function derive(raw) {
   const trx = []; let rowN = 1;
   jorder.forEach(jid => {
     if (jid === openId) return;
-    const lines = byJ[jid], det = (lines.find(l => l.detail) || {}).detail || '', jenis = (lines.find(l => l.jenis) || {}).jenis || '';
+    const lines = byJ[jid];
     const idtx = ((lines[0].memo || '').match(/\[IDTX\s*(\d+)\]/i) || [])[1] || '';
     pairLines(lines, A).forEach(p => {
       const dPL = isPLno(p.d.no), cPL = isPLno(p.c.no), a = (n => (A[n] || {}).nama || n);
       let t;
-      if (dPL && !cPL) t = p.d.no.charAt(0) === '5' ? { ind: 'pengeluaran', akun: a(p.d.no), rek: a(p.c.no), amt: p.amt, note: cleanNote(p.d.memo, det) } : { ind: 'penerimaan', akun: a(p.d.no), rek: a(p.c.no), amt: -p.amt, note: cleanNote(p.d.memo, det) };
-      else if (cPL && !dPL) t = p.c.no.charAt(0) === '4' ? { ind: 'penerimaan', akun: a(p.c.no), rek: a(p.d.no), amt: p.amt, note: cleanNote(p.c.memo, det) } : { ind: 'pengeluaran', akun: a(p.c.no), rek: a(p.d.no), amt: -p.amt, note: cleanNote(p.c.memo, det) };
-      else t = { ind: 'transfer', akun: a(p.d.no), rek: a(p.c.no), amt: p.amt, note: cleanNote(p.d.memo, det) };
-      trx.push(Object.assign(t, { row: rowN++, j: jid, d: lines[0].d, idtx, jenis, det, f: '', nlines: lines.length }));
+      if (dPL && !cPL) t = p.d.no.charAt(0) === '5' ? { ind: 'pengeluaran', akun: a(p.d.no), rek: a(p.c.no), amt: p.amt, note: cleanNote(p.d.memo) } : { ind: 'penerimaan', akun: a(p.d.no), rek: a(p.c.no), amt: -p.amt, note: cleanNote(p.d.memo) };
+      else if (cPL && !dPL) t = p.c.no.charAt(0) === '4' ? { ind: 'penerimaan', akun: a(p.c.no), rek: a(p.d.no), amt: p.amt, note: cleanNote(p.c.memo) } : { ind: 'pengeluaran', akun: a(p.c.no), rek: a(p.d.no), amt: -p.amt, note: cleanNote(p.c.memo) };
+      else t = { ind: 'transfer', akun: a(p.d.no), rek: a(p.c.no), amt: p.amt, note: cleanNote(p.d.memo) };
+      trx.push(Object.assign(t, { row: rowN++, j: jid, d: lines[0].d, idtx, f: '', nlines: lines.length }));
     });
   });
   const budget = {};
@@ -1020,7 +1084,7 @@ function balances(upto) {
 /* Dana Tersedia = jumlah (saldo − saldo minimal − saldo dikunci) semua rekening yang ditandai dompet */
 const usable = a => a.saldo - a.saldoMin - a.dikunci;
 function danaTersedia(b) {
-  return Object.values(b).reduce((s, a) => s + (a.dompet && a.aktif ? usable(a) : 0), 0);
+  return Object.values(b).reduce((s, a) => s + (a.dompet && a.aktif && a.sign > 0 ? usable(a) : 0), 0);
 }
 const isCurMonth = m => m !== 'all' && m === ymd(new Date()).slice(0, 7);
 /* Estimasi kelebihan / (kekurangan) dana = Dana tersedia + penerimaan belum terealisasi − pengeluaran & tabungan belum terealisasi.
@@ -1108,10 +1172,27 @@ const demoOps = {
     lines.forEach(l => { const a = A[String(l.no)]; if (!a) throw new Error('Akun ' + l.no + ' tidak ada.'); if (a.tipe !== 'Detail') throw new Error('Akun ' + l.no + ' adalah akun induk.'); if (l.dk === 'd') dr += Math.round(l.amt * 100); else kr += Math.round(l.amt * 100); });
     if (dr !== kr) throw new Error('Jurnal tidak seimbang: debit ≠ kredit.');
     const mx = (k, p) => R.jnl.reduce((m, x) => Math.max(m, parseInt(String(x[k]).replace(/\D/g, ''), 10) || 0), 0);
-    let maxL = mx('id'), id = j.id;
-    if (id) { if (!R.jnl.some(x => x.j === id)) throw new Error('Jurnal ' + id + ' tidak ditemukan.'); R.jnl = R.jnl.filter(x => x.j !== id); } else id = 'J-' + String(mx('j') + 1).padStart(6, '0');
-    lines.forEach((l, i) => R.jnl.push({ id: 'L-' + String(maxL + 1 + i).padStart(6, '0'), j: id, d: j.tanggal, no: String(l.no), memo: l.memo || '', dk: l.dk === 'd' ? 'd' : 'k', amt: Number(l.amt), jenis: l.jenis || '', detail: l.detail || '' }));
+    let maxL = mx('id'), nomor = mx('j') + 1;
+    if (j.id) { if (!R.jnl.some(x => x.j === j.id)) throw new Error('Jurnal ' + j.id + ' tidak ditemukan.'); R.jnl = R.jnl.filter(x => x.j !== j.id); nomor = parseInt(String(j.id).replace(/\D/g, ''), 10) || nomor; }
+    const id = demoOps.kode(lines) + '-' + String(nomor).padStart(6, '0');
+    let at = R.jnl.length; while (at > 0 && R.jnl[at - 1].d > j.tanggal) at--;
+    R.jnl.splice(at, 0, ...lines.map((l, i) => ({ id: 'L-' + String(maxL + 1 + i).padStart(6, '0'), j: id, d: j.tanggal, no: String(l.no), memo: l.memo || '', dk: l.dk === 'd' ? 'd' : 'k', amt: Number(l.amt) })));
     demoStore.save(); return { data: R, id };
+  },
+  // sama dengan kodeJurnal_ di Code.gs: P penerimaan, B pengeluaran, T transfer, A beli aset, U bayar utang, J jurnal bebas
+  kode(lines) {
+    const D = [], K = []; lines.forEach(l => (l.dk === 'd' ? D : K).push(String(l.no)));
+    const all = D.concat(K), kas = n => n.startsWith('11'), naset = n => n[0] === '1' && !kas(n), ut = n => n[0] === '2';
+    if (all.includes('31101')) return 'J';
+    const h4 = all.some(n => n[0] === '4'), h5 = all.some(n => n[0] === '5');
+    if (h4 && h5) return 'J';
+    if (h4) return 'P';
+    if (h5) return D.some(ut) && K.every(kas) ? 'U' : 'B';
+    if (all.every(kas)) return 'T';
+    if (D.some(ut) && K.every(n => n[0] === '1')) return 'U';
+    if (D.some(naset) && !K.some(naset)) return 'A';
+    if (D.every(kas) && K.every(n => ut(n) || naset(n))) return 'P';
+    return 'J';
   },
   deleteJurnal(id) {
     const R = S.raw; if (id === IDX.openId) throw new Error('Jurnal saldo awal tidak dapat dihapus. Ubah saldo awal lewat Pengaturan → akun.');
@@ -1152,7 +1233,7 @@ const demoOps = {
     const dk = me.kelas === 'Aset' ? 'd' : 'k', mine = R.jnl.find(l => l.j === oid && l.no === no);
     if (mine && amt === 0) R.jnl = R.jnl.filter(l => l !== mine);
     else if (mine) { mine.amt = amt; mine.dk = dk; }
-    else if (amt !== 0) { const f = R.jnl.find(l => l.j === oid); const mx = R.jnl.reduce((m, x) => Math.max(m, parseInt(String(x.id).replace(/\D/g, ''), 10) || 0), 0); R.jnl.push({ id: 'L-' + String(mx + 1).padStart(6, '0'), j: oid, d: f.d, no, memo: 'Saldo awal', dk, amt, jenis: '', detail: '' }); }
+    else if (amt !== 0) { const f = R.jnl.find(l => l.j === oid); const mx = R.jnl.reduce((m, x) => Math.max(m, parseInt(String(x.id).replace(/\D/g, ''), 10) || 0), 0); R.jnl.push({ id: 'L-' + String(mx + 1).padStart(6, '0'), j: oid, d: f.d, no, memo: 'Saldo awal', dk, amt }); }
     let d = 0, k = 0; R.jnl.forEach(l => { if (l.j === oid && l.no !== '31101') { if (l.dk === 'd') d += l.amt; else k += l.amt; } });
     const eq = R.jnl.find(l => l.j === oid && l.no === '31101'); if (eq) { eq.amt = Math.abs(d - k); eq.dk = d - k >= 0 ? 'k' : 'd'; }
   },
@@ -1168,7 +1249,8 @@ const demoOps = {
     R.coa = R.coa.filter(c => c.no !== no); R.bud = R.bud.filter(b => b.no !== no);
     demoStore.save(); return { data: R };
   },
-  setBudget(no, amt) { const R = S.raw, b = R.bud.find(x => x.no === String(no)); if (b) b.budget = Number(amt) || 0; else R.bud.push({ no: String(no), budget: Number(amt) || 0 }); demoStore.save(); return { data: R }; }
+  setBudget(no, amt) { const R = S.raw, b = R.bud.find(x => x.no === String(no)); if (b) b.budget = Number(amt) || 0; else R.bud.push({ no: String(no), budget: Number(amt) || 0 }); demoStore.save(); return { data: R }; },
+  deleteBudget(no) { const R = S.raw; R.bud = R.bud.filter(x => x.no !== String(no)); demoStore.save(); return { data: R }; }
 };
 const api = {
   async load() {
@@ -1181,7 +1263,8 @@ const api = {
   async deleteJurnal(id) { return LIVE ? gas('deleteJurnal', id) : demoOps.deleteJurnal(id); },
   async saveAkun(a) { return LIVE ? gas('saveAkun', a) : demoOps.saveAkun(a); },
   async deleteAkun(no) { return LIVE ? gas('deleteAkun', no) : demoOps.deleteAkun(no); },
-  async setBudget(no, amt) { return LIVE ? gas('setBudget', no, amt) : demoOps.setBudget(no, amt); }
+  async setBudget(no, amt) { return LIVE ? gas('setBudget', no, amt) : demoOps.setBudget(no, amt); },
+  async deleteBudget(no) { return LIVE ? gas('deleteBudget', no) : demoOps.deleteBudget(no); }
 };
 
 /* ---------- shell ---------- */
@@ -1389,8 +1472,9 @@ function viewHome() {
       <div class="grow"><div class="hello-sub">${greet()}</div><h1 class="hello">Halo, ${esc(nama)}!</h1></div>
       ${monthSelect('mHome')}
     </header>
-    <div class="home-grid" style="grid-template-areas:'hero budget' 'wallets wallets' 'donut ins' 'recent ins'">
-      <section class="hero" style="grid-area:hero" aria-label="Dana tersedia">
+    <div class="home-grid">
+      <div class="hc hc-l">
+      <section class="hero" style="--o:1" aria-label="Dana tersedia">
         <div class="hero-label">${ic('wallet')} Dana Tersedia <span class="hero-period">${monthLabel(m)}</span></div>
         <div class="hero-amt num" ${dana < 0 ? 'style="color:var(--warn)"' : ''}><span class="rp">${dana < 0 ? '−Rp' : 'Rp'}</span>${nf.format(Math.abs(Math.round(dana)))}</div>
         <div class="hero-note">${dom.length ? `Saldo ${dom.length} dompet dikurangi saldo minimal ${rpk(minTot)}${lockTot ? ` dan saldo dikunci ${rpk(lockTot)}` : ''}. ` : 'Belum ada rekening yang ditandai sebagai dompet (Pengaturan → akun kas → Dompet). '}Total kas dan setara kas <b class="num">${rp(kas)}</b>.</div>
@@ -1400,7 +1484,7 @@ function viewHome() {
           <div class="hero-chip ${net >= 0 ? 'sur' : 'def'}"><span class="dot">${ic(net >= 0 ? 'trending-up' : 'trending-down')}</span><span style="min-width:0"><small>${net >= 0 ? 'Surplus' : 'Defisit'}</small><b class="num">${net < 0 ? '−' : ''}${rpk(Math.abs(net))}</b></span></div>
         </div>
       </section>
-      <section style="grid-area:wallets;min-width:0" aria-label="Dompet dan rekening">
+      <section style="--o:2;min-width:0" aria-label="Dompet dan rekening">
         <div class="card-h" style="margin-bottom:10px"><h3>Dompet & rekening</h3><button class="link" data-nav="rek">Semua ${ic('chevron-right')}</button></div>
         <div class="hscroll">
           ${dom.map(a => `<button class="wallet t-${accType(a.nama)}" data-acc="${esc(a.nama)}" aria-label="Lihat mutasi ${esc(pretty(a.nama))}">
@@ -1410,16 +1494,19 @@ function viewHome() {
           <button class="wallet empty" data-nav="rek"><span class="w-ic" style="background:var(--surface-2)">${ic(dom.length ? 'chevron-right' : 'plus')}</span><span style="font-size:12.5px;font-weight:700">${dom.length ? (rest ? `${rest} rekening<br>lainnya` : 'Semua<br>rekening') : 'Atur<br>dompet'}</span></button>
         </div>
       </section>
-      <section class="card" style="grid-area:budget">${budgetMini(m, bs)}</section>
-      <section class="card" style="grid-area:donut">${donutCard(m, list, s)}</section>
-      <section style="grid-area:ins;min-width:0">
-        <div class="card-h" style="margin-bottom:10px"><h3>Catatan kecil untukmu</h3></div>
-        <div class="insights">${insights(m).map(x => `<article class="ins tone-${x.tone}"><span class="ins-ic">${ic(x.icon)}</span><span class="ins-k">${x.k}</span><p>${x.html}</p></article>`).join('')}</div>
-      </section>
-      <section class="card" style="grid-area:recent">
+      <section class="card" style="--o:4">${donutCard(m, list, s)}</section>
+      <section class="card" style="--o:6">
         <div class="card-h"><h3>Transaksi terakhir</h3><button class="link" data-act="see-all">Lihat semua ${ic('chevron-right')}</button></div>
         <div class="tx-list">${IDX.sorted.slice(0, 6).map(t => txRow(t, { date: true })).join('') || emptyState('Belum ada transaksi. Tekan tombol + untuk mencatat yang pertama.')}</div>
       </section>
+      </div>
+      <div class="hc hc-r">
+      <section class="card" style="--o:3">${budgetMini(m, bs)}</section>
+      <section style="--o:5;min-width:0">
+        <div class="card-h" style="margin-bottom:10px"><h3>Catatan kecil untukmu</h3></div>
+        <div class="insights">${insights(m).map(x => `<article class="ins tone-${x.tone}"><span class="ins-ic">${ic(x.icon)}</span><span class="ins-k">${x.k}</span><p>${x.html}</p></article>`).join('')}</div>
+      </section>
+      </div>
     </div>
     ${MODE === 'api' && installEvt && !isStandalone() ? `<button class="install-banner m-only" data-act="install"><span class="brand-mark">${ic('sprout')}</span><span style="flex:1;text-align:left"><b>Pasang RicashFlow</b><small>Buka langsung dari layar utama, tanpa browser</small></span>${ic('download')}</button>` : ''}
     <div class="m-only">${statusHTML()}</div>
@@ -1507,7 +1594,7 @@ function insights(m) {
 }
 
 /* ---------- LAPORAN KEUANGAN (dihitung langsung dari baris jurnal) ---------- */
-const REPS = [['ringkas', 'Ringkasan'], ['lr', 'Surplus/Defisit'], ['neraca', 'Neraca'], ['kas', 'Arus Kas'], ['harta', 'Perubahan Harta'], ['lhkpn', 'Penerimaan & Pengeluaran']];
+const REPS = [['ringkas', 'Ringkasan'], ['lr', 'Surplus/Defisit'], ['neraca', 'Neraca'], ['pha', 'Perubahan Harta & Arus Kas']];
 function laporanHead() {
   return `<header class="topbar"><div class="grow"><div class="hello-sub">${S.rep === 'ringkas' ? 'Pantau polanya' : 'Laporan keuangan'}</div><h1 class="page-title">Laporan</h1></div>${monthSelect('mHist')}</header>
   <div class="rep-tabs" role="tablist" aria-label="Jenis laporan">${REPS.map(([v, l]) => `<button type="button" role="tab" data-rep="${v}" aria-selected="${S.rep === v}">${l}</button>`).join('')}</div>`;
@@ -1609,95 +1696,107 @@ function repNeraca() {
   </div>`;
 }
 
-/* ===== Arus Kas ===== */
-function repKas() {
-  const p = periodRange(S.month), A = IDX.A, isCash = no => no.startsWith('11');
-  const SEC = { op: 'Kegiatan operasional', inv: 'Kegiatan investasi dan harta', fin: 'Kegiatan pendanaan (utang)' };
-  const secs = {}; Object.keys(SEC).forEach(k => { secs[k] = { in: 0, out: 0, groups: {} }; });
+/* ===== Perubahan Harta & Arus Kas (format LHKPN) =====
+   1. Rekapitulasi harta kekayaan: saldo awal, saldo akhir, perubahan per kelompok harta.
+   2–3. Penerimaan & pengeluaran kas: setiap pasangan jurnal yang menyentuh kas & setara kas (11x) dengan akun non-kas,
+   dikelompokkan menurut akun lawannya. Perpindahan antar kas tidak dihitung, sehingga penerimaan bersih = perubahan kas. */
+const PHA_HARTA = [
+  ['A', 'Harta tidak bergerak', ['14']], ['B', 'Harta bergerak (alat transportasi dan mesin)', ['132']], ['C', 'Harta bergerak lainnya', ['131', '133']],
+  ['D', 'Surat berharga', ['12']], ['E', 'Kas dan setara kas', ['11']], ['F', 'Harta lainnya', ['15']]
+];
+const PHA_IN = [
+  ['A', 'Penerimaan dari pekerjaan', [['411', 'Gaji dan tunjangan'], ['prof', 'Penghasilan dari profesi/keahlian'], ['412', 'Honorarium'], ['413', 'Tantiem, bonus, jasa produksi, THR'], ['414', 'Penerimaan dari pekerjaan lainnya']]],
+  ['B', 'Penerimaan dari usaha dan kekayaan', [['421', 'Hasil investasi dalam surat berharga'], ['422', 'Hasil usaha/sewa'], ['423', 'Bunga tabungan/deposito dan lainnya'], ['424', 'Penjualan atau pelepasan harta'], ['425', 'Penerimaan lainnya']]],
+  ['C', 'Penerimaan lainnya', [['utang', 'Penerimaan hutang'], ['waris', 'Penerimaan warisan'], ['hibah', 'Penerimaan hibah/hadiah'], ['lain', 'Lainnya']]]
+];
+const PHA_OUT = [
+  ['A', 'Pengeluaran rutin', [['511', 'Biaya rumah tangga (termasuk transportasi, pendidikan, kesehatan, rekreasi, pembayaran kartu kredit)'], ['512', 'Biaya sosial (antara lain keagamaan, zakat, infaq, sumbangan lain)'], ['513', 'Pembayaran pajak (antara lain PBB, kendaraan, pajak daerah, pajak lain)'], ['514', 'Pengeluaran rutin lainnya']]],
+  ['B', 'Pengeluaran harta', [['beli', 'Pembelian/perolehan harta baru'], ['521', 'Pemeliharaan/modifikasi/rehabilitasi harta'], ['53', 'Pengeluaran non rutin lainnya']]],
+  ['C', 'Pengeluaran lainnya', [['wh', 'Biaya pengurusan waris/hibah'], ['utang', 'Pelunasan/angsuran hutang'], ['lain', 'Pengeluaran lainnya']]]
+];
+const isCashNo = no => String(no).startsWith('11');
+/* akun lawan → [sisi, pos] ; sisi 'in' = penerimaan, 'out' = pengeluaran */
+function phaKey(no, inflow) {
+  const c = clsOf(no), p2 = no.slice(0, 2), p3 = no.slice(0, 3);
+  if (c === '4') return ['in', p2 === '41' ? (['411', '412', '413', '414'].includes(p3) ? p3 : '414') : p2 === '42' ? (['421', '422', '423', '424', '425'].includes(p3) ? p3 : '425') : no === '43102' ? 'hibah' : 'lain'];
+  if (c === '5') return ['out', p2 === '51' ? (['511', '512', '513', '514'].includes(p3) ? p3 : '514') : p2 === '52' ? '521' : p2 === '53' ? '53' : p2 === '54' ? 'utang' : 'lain'];
+  if (c === '1') return inflow ? ['in', '424'] : ['out', 'beli'];
+  if (c === '2') return [inflow ? 'in' : 'out', 'utang'];
+  return [inflow ? 'in' : 'out', 'lain'];
+}
+function phaData(m) {
+  const p = periodRange(m), A = IDX.A, val = { in: {}, out: {} }, det = { in: {}, out: {} };
   let internal = 0;
   IDX.jorder.forEach(jid => {
     if (jid === IDX.openId) return;
     const lines = IDX.byJ[jid]; if (!p.ms.includes(lines[0].d.slice(0, 7))) return;
     pairLines(lines, A).forEach(pr => {
-      const dc = isCash(pr.d.no), cc = isCash(pr.c.no);
+      const dc = isCashNo(pr.d.no), cc = isCashNo(pr.c.no);
       if (dc && cc) { internal += pr.amt; return; }
       if (!dc && !cc) return;
-      const cl = dc ? pr.d : pr.c, other = dc ? pr.c : pr.d, inflow = dc, oc = clsOf(other.no);
-      const sec = secs[(oc === '4' || oc === '5') ? 'op' : oc === '1' ? 'inv' : 'fin'];
-      const jenis = cl.jenis || ((oc === '4' || oc === '5') ? (A[other.no.slice(0, 2)] || {}).nama : 'Transfer') || 'Lainnya';
-      const det = cap(cl.detail || (A[other.no] || {}).nama || other.no);
-      const gr = sec.groups[jenis] || (sec.groups[jenis] = { in: 0, out: 0, rows: {} }), r = gr.rows[det] || (gr.rows[det] = { in: 0, out: 0 });
-      if (inflow) { sec.in += pr.amt; gr.in += pr.amt; r.in += pr.amt; } else { sec.out += pr.amt; gr.out += pr.amt; r.out += pr.amt; }
+      const inflow = dc, other = dc ? pr.c : pr.d, [side, key] = phaKey(other.no, inflow);
+      // arah berlawanan dengan sisi pos (mis. pengembalian beban) mengurangi pos tersebut
+      const v = (side === 'in') === inflow ? pr.amt : -pr.amt;
+      val[side][key] = (val[side][key] || 0) + v;
+      const dk = (det[side][key] = det[side][key] || {}); dk[other.no] = (dk[other.no] || 0) + v;
     });
   });
-  const cashNos = S.raw.coa.filter(c => c.level === 4 && isCash(c.no)).map(c => c.no);
   const gO = agg(l => ldate(l) < p.from), gE = agg(l => ldate(l) <= p.to);
-  const awal = cashNos.reduce((x, n) => x + natBal(n, gO), 0), akhirD = cashNos.reduce((x, n) => x + natBal(n, gE), 0);
-  const net = Object.values(secs).reduce((x, s) => x + s.in - s.out, 0), akhir = awal + net;
-  const ok = !p.contiguous || Math.abs(akhir - akhirD) < 1;
-  const secCard = (k) => {
-    const s = secs[k], n = s.in - s.out, gs = Object.entries(s.groups).sort((a, b) => (b[1].in + b[1].out) - (a[1].in + a[1].out));
-    return `<section class="card"><div class="card-h"><h3>${SEC[k]}</h3><b class="num" style="${n < 0 ? 'color:var(--warn)' : ''}">${n < 0 ? '−' : n > 0 ? '+' : ''}${rp(Math.abs(n))}</b></div>
-      ${gs.length ? `<div class="rp-t" style="--rc:2"><div class="rp-head"><span></span><span class="num">Masuk</span><span class="num">Keluar</span></div>${gs.map(([jn, gr]) => `
-        <details class="rp-l2"><summary><span class="rp-n">${esc(jn)}</span><b class="num rp-v">${gr.in ? fmtN(gr.in) : '–'}</b><b class="num rp-v">${gr.out ? fmtN(gr.out) : '–'}</b></summary>
-        ${Object.entries(gr.rows).sort((a, b) => (b[1].in + b[1].out) - (a[1].in + a[1].out)).map(([dn, r]) => `<div class="rp-l4"><span class="rp-n">${esc(dn)}</span><b class="num rp-v">${r.in ? fmtN(r.in) : '–'}</b><b class="num rp-v">${r.out ? fmtN(r.out) : '–'}</b></div>`).join('')}</details>`).join('')}
-        <div class="rp-tot"><span>Jumlah</span><b class="num rp-v">${fmtN(s.in)}</b><b class="num rp-v">${fmtN(s.out)}</b></div></div>` : repEmpty('Tidak ada arus kas di periode ini.')}</section>`;
+  const l4 = S.raw.coa.filter(c => c.level === 4);
+  const hartaRow = prefixes => {
+    const kids = l4.filter(c => prefixes.some(px => c.no.startsWith(px))).map(c => ({ c, a: natBal(c.no, gO), e: natBal(c.no, gE) })).filter(k => Math.abs(k.a) >= .5 || Math.abs(k.e) >= .5);
+    return { kids, a: kids.reduce((x, k) => x + k.a, 0), e: kids.reduce((x, k) => x + k.e, 0) };
   };
+  const harta = PHA_HARTA.map(([L, t, px]) => ({ L, t, ...hartaRow(px) }));
+  const ut = hartaRow(['2']);
+  const subA = harta.reduce((x, h) => x + h.a, 0), subE = harta.reduce((x, h) => x + h.e, 0);
+  const sec = (defs, side) => defs.map(([L, t, items]) => { const its = items.map(([k, lbl]) => ({ k, lbl, v: val[side][k] || 0, det: Object.entries(det[side][k] || {}).filter(x => Math.abs(x[1]) >= .5).sort((a, b) => b[1] - a[1]) })); return { L, t, items: its, v: its.reduce((x, i) => x + i.v, 0) }; });
+  const pin = sec(PHA_IN, 'in'), pout = sec(PHA_OUT, 'out');
+  const tin = pin.reduce((x, g) => x + g.v, 0), tout = pout.reduce((x, g) => x + g.v, 0);
+  const kas = harta.find(h => h.L === 'E');
+  return { p, harta, ut, subA, subE, totA: subA - ut.a, totE: subE - ut.e, pin, pout, tin, tout, net: tin - tout, dKas: kas.e - kas.a, internal };
+}
+function repPHA() {
+  const D = phaData(S.month), p = D.p, dTot = D.totE - D.totA, ok = Math.abs(D.net - D.dKas) < 1;
+  const n = v => Math.abs(v) < .5 ? '–' : fmtN(v), dv = v => Math.abs(v) < .5 ? '–' : (v > 0 ? '+' : '') + fmtN(v);
+  const bad = (v, debt) => debt ? v > .5 : v < -.5;
+  const hRow = (h, cls) => h.kids.length ? `<details class="rp-l2 ${cls || ''}"><summary><span class="rp-n"><i>${h.L}</i>${esc(h.t)}</span><b class="num rp-v">${n(h.a)}</b><b class="num rp-v">${n(h.e)}</b><b class="num rp-v${bad(h.e - h.a, h.debt) ? ' neg-red' : ''}">${dv(h.e - h.a)}</b></summary>
+      ${h.kids.map(k => `<div class="rp-l4"><span class="rp-n">${accLink(k.c)}<small>${k.c.no}</small></span><b class="num rp-v">${n(k.a)}</b><b class="num rp-v">${n(k.e)}</b><b class="num rp-v${bad(k.e - k.a, h.debt) ? ' neg-red' : ''}">${dv(k.e - k.a)}</b></div>`).join('')}</details>`
+    : `<div class="rp-row ${cls || ''}"><span class="rp-n"><i>${h.L}</i>${esc(h.t)}</span><b class="num rp-v">–</b><b class="num rp-v">–</b><b class="num rp-v">–</b></div>`;
+  const totRow = (t, a, e, cls) => `<div class="rp-tot ${cls || ''}"><span>${t}</span><b class="num rp-v">${fmtN(a)}</b><b class="num rp-v">${fmtN(e)}</b><b class="num rp-v${e - a < -.5 ? ' neg-red' : ''}">${dv(e - a)}</b></div>`;
+  const flowSec = (groups, tot, label) => `<div class="rp-t pha-flow" style="--rc:1"><div class="rp-head"><span>Uraian</span><span class="num">Jumlah</span></div>
+    ${groups.map(g => `<details class="rp-l2" open><summary><span class="rp-n"><i>${g.L}</i>${esc(g.t)}</span><b class="num rp-v">${n(g.v)}</b></summary>
+      ${g.items.map((it, i) => it.det.length ? `<details class="rp-l3"><summary><span class="rp-n"><em>${i + 1}.</em>${esc(it.lbl)}</span><b class="num rp-v">${n(it.v)}</b></summary>
+        ${it.det.map(([no, v]) => `<div class="rp-l4"><span class="rp-n">${accLink(IDX.A[no] || { nama: no, cls: clsOf(no) })}<small>${no}</small></span><b class="num rp-v">${n(v)}</b></div>`).join('')}</details>`
+        : `<div class="rp-row rp-l3"><span class="rp-n"><em>${i + 1}.</em>${esc(it.lbl)}</span><b class="num rp-v">–</b></div>`).join('')}</details>`).join('')}
+    <div class="rp-tot"><span>${label}</span><b class="num rp-v">${fmtN(tot)}</b></div></div>`;
   return `<div class="rep-grid">
-    <div class="sticky"><section class="hero rep-hero"><div class="hero-label">${ic('arrow-left-right')} Arus kas bersih <span class="hero-period">${monthLabel(S.month)}</span></div>
-      <div class="hero-amt num" ${net < 0 ? 'style="color:var(--warn)"' : ''}><span class="rp">${net < 0 ? '−Rp' : 'Rp'}</span>${nf.format(Math.abs(Math.round(net)))}</div>
-      <div class="hero-note">Kas dan setara kas: tunai, rekening bank, dan deposito. Perpindahan antar kas (${rpk(internal)}) tidak dihitung. ${p.contiguous ? balBadge(ok, 'Cocok dengan saldo', 'Selisih ' + rp(akhirD - akhir)) : ''}</div>
-      <div class="rep-flow num"><div><small>Saldo awal kas</small><b>${rp(awal)}</b></div><span aria-hidden="true">${ic('arrow-right')}</span><div><small>Saldo akhir kas</small><b>${rp(akhir)}</b></div></div></section></div>
-    <div class="rep-col">${secCard('op')}${secCard('inv')}${secCard('fin')}
-      <section class="card rep-sum num"><div><span>Saldo awal kas</span><b>${rp(awal)}</b></div>${Object.keys(SEC).map(k => { const n = secs[k].in - secs[k].out; return `<div><span>${SEC[k]}</span><b style="${n < 0 ? 'color:var(--warn)' : ''}">${n < 0 ? '−' : ''}${rp(Math.abs(n))}</b></div>`; }).join('')}<div class="tot"><span>Saldo akhir kas</span><b>${rp(akhir)}</b></div></section></div>
+    <div class="sticky"><section class="hero rep-hero"><div class="hero-label">${ic('scale')} Perubahan harta kekayaan <span class="hero-period">${monthLabel(S.month)}</span></div>
+      <div class="hero-amt num" ${dTot < 0 ? 'style="color:var(--warn)"' : ''}><span class="rp">${dTot < 0 ? '−Rp' : '+Rp'}</span>${nf.format(Math.abs(Math.round(dTot)))}</div>
+      <div class="hero-note">Total harta kekayaan (harta − hutang) dari <b class="num">${rp(D.totA)}</b> menjadi <b class="num">${rp(D.totE)}</b>.</div>
+      <div class="hero-row"><div class="hero-chip"><span class="dot b-in">${ic('arrow-down-left')}</span><span style="min-width:0"><small>Penerimaan kas</small><b class="num">${rpk(D.tin)}</b></span></div>
+        <div class="hero-chip"><span class="dot b-out">${ic('arrow-up-right')}</span><span style="min-width:0"><small>Pengeluaran kas</small><b class="num">${rpk(D.tout)}</b></span></div>
+        <div class="hero-chip ${D.net >= 0 ? 'sur' : 'def'}"><span class="dot">${ic(D.net >= 0 ? 'trending-up' : 'trending-down')}</span><span style="min-width:0"><small>Penerimaan bersih</small><b class="num">${D.net < 0 ? '−' : ''}${rpk(Math.abs(D.net))}</b></span></div></div></section>
+      <section class="card pha-check">
+        <div class="card-h"><h3>Pemeriksaan</h3>${p.contiguous ? balBadge(ok, 'Cocok', 'Selisih ' + rp(D.net - D.dKas)) : ''}</div>
+        <div class="rep-sum num"><div><span>Penerimaan bersih</span><b>${D.net < 0 ? '−' : ''}${rp(Math.abs(D.net))}</b></div><div><span>Kenaikan/(penurunan) kas dan setara kas</span><b>${D.dKas < 0 ? '−' : ''}${rp(Math.abs(D.dKas))}</b></div></div>
+        <div class="b-foot" style="margin-top:10px">${p.contiguous ? (ok ? 'Penerimaan bersih sama dengan perubahan kas dan setara kas.' : 'Ada selisih: periksa jurnal yang menyentuh kas dan setara kas.') : 'Pemeriksaan hanya berlaku untuk bulan yang berurutan.'} Pemindahan antar kas & setara kas (${rpk(D.internal)}) tidak dihitung sebagai penerimaan atau pengeluaran.</div>
+      </section></div>
+    <div class="rep-col">
+      <section class="card"><div class="card-h"><h3>1. Rekapitulasi harta kekayaan</h3></div>
+        <div class="rp-t pha-harta" style="--rc:3"><div class="rp-head"><span>Uraian</span><span class="num">Saldo awal</span><span class="num">Saldo akhir</span><span class="num">Perubahan</span></div>
+          ${D.harta.map(h => hRow(h)).join('')}
+          ${totRow('Sub total harta', D.subA, D.subE)}
+          ${hRow({ L: 'G', t: 'Hutang', kids: D.ut.kids, a: D.ut.a, e: D.ut.e, debt: true }, 'pha-ut')}
+          ${totRow('Total harta kekayaan', D.totA, D.totE, 'pha-grand')}</div>
+        <div class="b-foot" style="margin-top:8px">Saldo awal = posisi sebelum ${dLong(p.from)}; saldo akhir = posisi ${dLong(p.to)}. Ketuk baris untuk melihat akun.</div></section>
+      <section class="card"><div class="card-h"><h3>2. Penerimaan kas</h3><b class="num">${rp(D.tin)}</b></div>${flowSec(D.pin, D.tin, 'Total penerimaan')}</section>
+      <section class="card"><div class="card-h"><h3>3. Pengeluaran kas</h3><b class="num">${rp(D.tout)}</b></div>${flowSec(D.pout, D.tout, 'Total pengeluaran')}
+        <div class="rep-sum num" style="margin-top:14px"><div class="tot"><span>Penerimaan bersih (2 − 3)</span><b style="${D.net < 0 ? 'color:var(--warn)' : ''}">${D.net < 0 ? '−' : ''}${rp(Math.abs(D.net))}</b></div></div></section>
+    </div>
   </div>`;
 }
-
-/* ===== Laporan Perubahan Harta (gaya LHKPN: akun Level 2 & 3) ===== */
-function repHarta() {
-  const p = periodRange(S.month), gO = agg(l => ldate(l) < p.from), gE = agg(l => ldate(l) <= p.to);
-  const gP = agg(l => l.j !== IDX.openId && p.ms.includes(l.d.slice(0, 7)) && isPLno(l.no));
-  const vec = no => { const a = natBal(no, gO), e = natBal(no, gE); return [a, e - a, e]; };
-  const A = buildTree(['1'], vec), L = buildTree(['2'], vec);
-  const ta = [0, 1, 2].map(i => treeSum(A, i)), tl = [0, 1, 2].map(i => treeSum(L, i)), hb = ta.map((x, i) => x - tl[i]);
-  let sur = 0; Object.keys(gP).forEach(no => { sur += (clsOf(no) === '4' ? 1 : -1) * natBal(no, gP); });
-  const lain = hb[1] - sur;
-  const o = { cols: [0, 1, 2], head: ['Awal', 'Mutasi', 'Akhir'], neg: (v, i) => i === 1 && v < 0 };
-  const card = (t, nodes, tot) => `<section class="card"><div class="card-h"><h3>${t}</h3><b class="num">${rp(tot[2])}</b></div>${nodes.length ? treeHTML(nodes, o) : repEmpty('Belum ada saldo.')}
-    <div class="rp-t" style="--rc:3"><div class="rp-tot"><span>Jumlah</span>${tot.map(v => `<b class="num rp-v">${fmtN(v)}</b>`).join('')}</div></div></section>`;
-  return `<div class="rep-grid">
-    <div class="sticky"><section class="hero rep-hero"><div class="hero-label">${ic('scale')} Perubahan harta bersih <span class="hero-period">${monthLabel(S.month)}</span></div>
-      <div class="hero-amt num" ${hb[1] < 0 ? 'style="color:var(--warn)"' : ''}><span class="rp">${hb[1] < 0 ? '−Rp' : 'Rp'}</span>${nf.format(Math.abs(Math.round(hb[1])))}</div>
-      <div class="hero-note">Harta bersih = total harta − total utang. Dari <b class="num">${rp(hb[0])}</b> menjadi <b class="num">${rp(hb[2])}</b>.</div></section></div>
-    <div class="rep-col">${card('Harta', A, ta)}${card('Utang', L, tl)}
-      <section class="card"><div class="card-h"><h3>Harta bersih</h3></div><div class="rp-t" style="--rc:3"><div class="rp-head"><span></span><span class="num">Awal</span><span class="num">Mutasi</span><span class="num">Akhir</span></div>
-        <div class="rp-tot"><span>Harta − Utang</span>${hb.map(v => `<b class="num rp-v">${fmtN(v)}</b>`).join('')}</div></div>
-        <div class="rep-sum num" style="margin-top:12px"><div><span>Surplus/defisit periode</span><b style="${sur < 0 ? 'color:var(--warn)' : ''}">${sur < 0 ? '−' : ''}${rp(Math.abs(sur))}</b></div><div><span>Perubahan lain (revaluasi, ekuitas)</span><b>${rp(lain)}</b></div><div class="tot"><span>Perubahan harta bersih</span><b>${rp(hb[1])}</b></div></div></section></div>
-  </div>`;
-}
-
-/* ===== Penerimaan dan Pengeluaran (gaya LHKPN: akun Level 2 & 3) ===== */
-function repLhkpn() {
-  const p = periodRange(S.month), g = agg(l => l.j !== IDX.openId && p.ms.includes(l.d.slice(0, 7)));
-  const inc = buildTree(['4'], no => [natBal(no, g)]), exp = buildTree(['5'], no => [natBal(no, g)]);
-  const ti = treeSum(inc), te = treeSum(exp), net = ti - te;
-  const mk = (nodes, tot) => nodes.map(n2 => { const f = x => x; return n2; });
-  const o = tot => ({ letters: true, cols: [0, 1], head: ['Jumlah', '%'], fmt: (v, i) => i === 1 ? '' : fmtN(v), });
-  const withPct = (nodes, tot) => { const add = n => { n.v = [n.v[0], tot ? n.v[0] / tot * 100 : 0]; (n.kids || []).forEach(add); }; nodes.forEach(add); return nodes; };
-  const fmtC = (v, i) => i === 0 ? fmtN(v) : (Math.round(v) + '%');
-  const card = (t, nodes, tot, bud) => { withPct(nodes, tot); return `<section class="card"><div class="card-h"><h3>${t}</h3><b class="num">${rp(tot)}</b></div>
-    ${nodes.length ? treeHTML(nodes, { letters: true, cols: [0, 1], head: ['Jumlah', '%'], fmt: fmtC }) : repEmpty('Belum ada data di periode ini.')}</section>`; };
-  return `<div class="rep-grid">
-    <div class="sticky"><section class="hero rep-hero"><div class="hero-label">${ic('file-text')} Penerimaan − pengeluaran <span class="hero-period">${monthLabel(S.month)}</span></div>
-      <div class="hero-amt num" ${net < 0 ? 'style="color:var(--warn)"' : ''}><span class="rp">${net < 0 ? '−Rp' : 'Rp'}</span>${nf.format(Math.abs(Math.round(net)))}</div>
-      <div class="hero-note">Disusun seperti LHKPN: penerimaan dari pekerjaan, usaha dan kekayaan, serta lainnya; pengeluaran rutin, harta, dan non rutin. Ketuk baris untuk melihat akun.</div>
-      <div class="hero-row"><div class="hero-chip"><span class="dot b-in">${ic('arrow-down-left')}</span><span style="min-width:0"><small>Penerimaan</small><b class="num">${rpk(ti)}</b></span></div>
-      <div class="hero-chip"><span class="dot b-out">${ic('arrow-up-right')}</span><span style="min-width:0"><small>Pengeluaran</small><b class="num">${rpk(te)}</b></span></div></div></section></div>
-    <div class="rep-col">${card('Penerimaan', inc, ti)}${card('Pengeluaran', exp, te)}
-      <section class="card rep-sum num"><div><span>Total penerimaan</span><b>${rp(ti)}</b></div><div><span>Total pengeluaran</span><b>${rp(te)}</b></div><div class="tot"><span>${net >= 0 ? 'Penerimaan lebih besar' : 'Pengeluaran lebih besar'}</span><b style="${net < 0 ? 'color:var(--warn)' : ''}">${rp(Math.abs(net))}</b></div></section></div>
-  </div>`;
-}
-const REPVIEWS = { lr: repLR, neraca: repNeraca, kas: repKas, harta: repHarta, lhkpn: repLhkpn };
+const REPVIEWS = { lr: repLR, neraca: repNeraca, pha: repPHA };
 function viewHist() {
   if (S.rep === 'ringkas' || !REPVIEWS[S.rep]) return viewRingkas();
   return `<div class="view">${laporanHead()}${REPVIEWS[S.rep]()}</div>`;
@@ -1752,9 +1851,14 @@ function viewRingkas() {
 }
 function breakdownCard(m, list) {
   const isIn = S.rk === 'in', ind = isIn ? 'penerimaan' : 'pengeluaran', byGrup = S.rg === 'grup';
+  /* pengeluaran kas yang bukan beban: bayar utang & beli aset (transfer dari kas & setara kas ke akun utang/aset non-kas) */
+  const anoOf = n => (IDX.rekBy[n] || {}).ano || '';
+  const kasOut = isIn ? [] : list.filter(t => t.ind === 'transfer' && isCashNo(anoOf(t.rek)) && anoOf(t.akun) && !isCashNo(anoOf(t.akun)));
+  const kindK = t => (rekOf(t.akun) || {}).sign < 0 ? 'utang' : 'aset';
   const rows = list.filter(t => t.ind === ind);
-  const key = byGrup ? (t => (IDX.coaBy[ind + '_' + t.akun] || {}).grup || t.akun) : (t => t.akun);
-  const g = {}; rows.forEach(t => { const k = key(t); g[k] = (g[k] || 0) + t.amt; });
+  const key = byGrup ? (t => t.ind === 'transfer' ? ((IDX.A[anoOf(t.akun).slice(0, 3)] || {}).nama || t.akun) : (IDX.coaBy[ind + '_' + t.akun] || {}).grup || t.akun) : (t => t.akun);
+  const g = {}, kind = {}; rows.concat(kasOut).forEach(t => { const k = key(t); g[k] = (g[k] || 0) + t.amt; if (t.ind === 'transfer') kind[k] = kindK(t); });
+  const sumK = k => kasOut.filter(t => kindK(t) === k).reduce((x, t) => x + t.amt, 0), bu = sumK('utang'), ba = sumK('aset');
   const arr = Object.entries(g).filter(x => x[1] > 0).sort((a, b) => b[1] - a[1]);
   const tot = arr.reduce((x, a) => x + a[1], 0), top = arr.slice(0, 10), rest = arr.slice(10);
   if (rest.length) top.push([`${rest.length} ${byGrup ? 'grup' : 'akun'} lainnya`, rest.reduce((x, a) => x + a[1], 0), true]);
@@ -1764,8 +1868,9 @@ function breakdownCard(m, list) {
     <div class="card-h"><h3>${isIn ? 'Penerimaan' : 'Pengeluaran'} per ${byGrup ? 'grup' : 'akun'}</h3></div>
     <div class="bd-ctrl">${seg('rk', [['out', 'Pengeluaran'], ['in', 'Penerimaan']])}${seg('rg', [['akun', 'Akun'], ['grup', 'Grup']], 130)}</div>
     ${tot ? `<div class="bd-tot"><span>Total ${monthLabel(m)}</span><b class="num">${rp(tot)}</b></div>
-    <div class="b-group">${top.map(([name, v, isRest]) => `<div class="bd-row"><div class="b-line"><b title="${esc(pretty(name))}">${isRest ? esc(name) : byGrup ? esc(pretty(name)) : akLink(name)}</b><span class="num">${rpk(v)} · ${pct(v, tot)}%</span></div>
-      <div class="meter ${isIn ? 'mint' : ''}"><i style="width:${Math.max(2, v / max * 100)}%"></i></div></div>`).join('')}</div>`
+    ${bu || ba ? `<div class="b-foot" style="margin:-4px 0 12px">Termasuk ${[bu ? `pembayaran utang <b class="num">${rp(bu)}</b>` : '', ba ? `pembelian aset <b class="num">${rp(ba)}</b>` : ''].filter(Boolean).join(' dan ')} dari kas & setara kas, selain beban.</div>` : ''}
+    <div class="b-group">${top.map(([name, v, isRest]) => `<div class="bd-row"><div class="b-line"><b title="${esc(pretty(name))}">${isRest ? esc(name) : byGrup ? esc(pretty(name)) : kind[name] ? `<span class="lnk-ak" data-acc="${esc(name)}">${esc(pretty(name))}</span>` : akLink(name)}${kind[name] ? `<span class="tag ${kind[name] === 'utang' ? 'tag-ut' : 'tag-as'}">${kind[name] === 'utang' ? 'Bayar utang' : 'Beli aset'}</span>` : ''}</b><span class="num">${rpk(v)} · ${pct(v, tot)}%</span></div>
+      <div class="meter ${isIn ? 'mint' : kind[name] ? 'lav' : ''}"><i style="width:${Math.max(2, v / max * 100)}%"></i></div></div>`).join('')}</div>`
     : emptyState(`Belum ada ${ind} di periode ini.`, 'chart-pie')}
   </section>`;
 }
@@ -1806,12 +1911,12 @@ function viewBudget() {
   const row = (x, tone) => {
     const ind = x.c.induk, p = x.b ? x.r / x.b * 100 : (x.r ? 100 : 0), ov = ind !== 'penerimaan' && x.r > x.b, noB = !x.b && x.r;
     return `<div class="b-row"><span class="bub ${ind === 'penerimaan' ? 'b-in' : 'b-out'}">${ic(ICON_AKUN[x.c.akun] || 'circle')}</span><div style="min-width:0">
-      <div class="b-line"><b>${akLink(x.c.akun)}</b><span class="num">${rpk(x.r)} / ${x.b ? rpk(x.b) : '–'}</span></div>
+      <div class="b-line"><b>${akLink(x.c.akun)}</b><span class="num">${rpk(x.r)} / ${x.b ? rpk(x.b) : '–'}${IDX.byName[x.c.akun] ? `<button type="button" class="bud-ed" data-bud="${IDX.byName[x.c.akun].no}" aria-label="${x.b ? 'Ubah' : 'Atur'} anggaran ${esc(pretty(x.c.akun))}">${ic(x.b ? 'pencil' : 'plus')}</button>` : ''}</span></div>
       <div class="meter ${tone || ''} ${ov ? 'over' : ''}"><i style="width:${Math.min(100, p)}%"></i></div>
       <div class="b-foot ${ov ? 'over' : ''} num">${ov ? `Lewat ${rp(x.r - x.b)}` : ind === 'penerimaan' ? (noB || x.r >= x.b ? 'Sudah diterima' : `Belum diterima ${rp(x.b - x.r)}`) : `Sisa ${rp(x.b - x.r)}`}</div></div></div>`;
   };
   return `<div class="view">
-    <header class="topbar"><div class="grow"><div class="hello-sub">${k > 1 ? `Anggaran bulanan × ${k} bulan` : 'Rencana & realisasi'}</div><h1 class="page-title">Anggaran</h1></div>${monthSelect('mBud')}</header>
+    <header class="topbar"><div class="grow"><div class="hello-sub">${k > 1 ? `Anggaran bulanan × ${k} bulan` : 'Rencana & realisasi'}</div><h1 class="page-title">Anggaran</h1></div><button class="set-add" data-bud="new" aria-label="Tambah anggaran">${ic('plus')}<span class="d-only">Tambah anggaran</span></button>${monthSelect('mBud')}</header>
     <div class="budget-grid">
       <div style="display:flex;flex-direction:column;gap:inherit">
         ${proyeksiCard(m)}
@@ -1847,6 +1952,64 @@ function viewBudget() {
   </div>`;
 }
 
+/* ---------- tambah / ubah / hapus anggaran (db_bud) ---------- */
+let BF = null;
+const budAccts = () => S.raw.coa.filter(c => c.level === 4 && c.cls !== '3' && (c.on || IDX.budMap[c.no]));
+function openBudForm(arg) {
+  const edit = arg && arg !== 'new' && IDX.budMap[arg] > 0;
+  BF = { no: arg && arg !== 'new' ? arg : '', edit, amt: arg && IDX.budMap[arg] ? numStr(IDX.budMap[arg]) : '', q: '', confirmDel: false, err: '' };
+  renderBudForm(); openSheet('#budSheet');
+  setTimeout(() => { const a = $(BF.no ? '#bAmt' : '#bQ'); if (a && matchMedia('(pointer:fine)').matches) a.focus(); }, 320);
+}
+function budOptHTML() {
+  const toks = qToks(BF.q), A = IDX.A;
+  const list = budAccts().filter(c => !(IDX.budMap[c.no] > 0)).filter(c => qMatch(`${c.no} ${c.nama} ${(A[c.induk] || {}).nama || ''}`, toks));
+  if (!list.length) return `<div class="ac-none">${toks.length ? `Tidak ada akun yang cocok dengan “${esc(BF.q)}”.` : 'Semua akun sudah punya anggaran.'}</div>`;
+  let last = null;
+  return list.slice(0, 120).map(c => { const g = (A[c.induk] || {}).nama || ''; const h = g !== last ? `<div class="ac-g">${esc(g)}</div>` : ''; last = g;
+    return h + `<button type="button" class="ac-o" data-bopt="${c.no}" aria-selected="${BF.no === c.no}"><small class="num">${c.no}</small><span>${esc(c.nama)}</span></button>`; }).join('');
+}
+function renderBudForm() {
+  const sh = $('#budSheet'), c = BF.no ? IDX.A[BF.no] : null, A = IDX.A;
+  sh.innerHTML = `<div class="grab"></div>
+    <div class="sheet-h"><h2>${BF.edit ? 'Ubah anggaran' : 'Tambah anggaran'}</h2><button class="icon-btn" data-act="close" aria-label="Tutup">${ic('x')}</button></div>
+    <form class="sheet-b" id="budForm" novalidate>
+      ${c ? `<div class="bud-acc"><span class="bub ${c.cls === '4' ? 'b-in' : c.cls === '5' ? 'b-out' : 'b-save'}">${ic(ICON_AKUN[c.nama] || accIconNo(c.no))}</span><span style="min-width:0;flex:1"><b>${esc(c.nama)}</b><small>${c.no} · ${esc((A[c.induk] || {}).nama || '')}</small></span>${BF.edit ? '' : `<button type="button" class="link" data-act="bud-change">Ganti</button>`}</div>`
+        : `<div><div class="field-l">Pilih akun</div><label class="search">${ic('search')}<input id="bQ" placeholder="Cari nama atau nomor akun…" value="${esc(BF.q)}" autocomplete="off"></label><div class="ac-list" id="bList" style="max-height:340px">${budOptHTML()}</div></div>`}
+      ${c ? `<div><label class="field-l" for="bAmt">Anggaran per bulan</label><div class="amount-line set-amt"><span class="rp">Rp</span><input id="bAmt" inputmode="numeric" placeholder="0" value="${esc(BF.amt)}" autocomplete="off"></div>
+        <div class="b-foot" style="margin-top:6px">Berlaku untuk setiap bulan. Pada pilihan beberapa bulan, anggaran dikalikan jumlah bulannya.</div></div>` : ''}
+      <div id="bErr" ${BF.err ? '' : 'hidden'} class="form-err">${esc(BF.err)}</div>
+      ${BF.edit ? `<button type="button" class="btn-ghost btn-danger" data-act="bud-del">${ic('trash-2')}${BF.confirmDel ? 'Ketuk lagi untuk menghapus anggaran' : 'Hapus anggaran'}</button>` : ''}
+    </form>
+    <div class="sheet-f"><button class="btn-primary" id="bSave" type="submit" form="budForm" ${c ? '' : 'disabled'}>${ic('check')}Simpan anggaran</button></div>`;
+}
+async function saveBudForm() {
+  const err = m => { BF.err = m; const e = $('#bErr'); e.textContent = m; e.hidden = false; };
+  if (!BF.no) return err('Pilih akun terlebih dulu.');
+  const amt = parseNum(BF.amt); if (!(amt > 0)) return err('Isi anggaran per bulan (lebih dari 0). Untuk menghapus, pakai tombol Hapus anggaran.');
+  const btn = $('#bSave'); btn.disabled = true; btn.innerHTML = `${ic('refresh-cw')}Menyimpan…`;
+  try { const res = await api.setBudget(BF.no, amt); setData(res.data); closeSheets(); render(); toast(`Anggaran ${akByNo(BF.no)} ${rp(amt)}/bulan tersimpan`); }
+  catch (e) { btn.disabled = false; btn.innerHTML = `${ic('check')}Simpan anggaran`; err(e.message || 'Gagal menyimpan.'); }
+}
+async function deleteBud() {
+  if (!BF.confirmDel) { BF.confirmDel = true; renderBudForm(); return; }
+  try { const res = await api.deleteBudget(BF.no); setData(res.data); closeSheets(); render(); toast(`Anggaran ${akByNo(BF.no)} dihapus`); }
+  catch (e) { BF.confirmDel = false; BF.err = /Fungsi tidak dikenal/.test(e.message || '') ? 'Server belum diperbarui. Tempel Code.gs terbaru lalu Deploy → Versi baru.' : (e.message || 'Gagal menghapus.'); renderBudForm(); }
+}
+document.addEventListener('click', e => {
+  const T = e.target, b = T.closest('[data-bud]');
+  if (b) { e.stopImmediatePropagation(); e.preventDefault(); openBudForm(b.dataset.bud); return; }
+  const o = T.closest('[data-bopt]');
+  if (o && BF) { e.stopImmediatePropagation(); BF.no = o.dataset.bopt; BF.amt = IDX.budMap[BF.no] ? numStr(IDX.budMap[BF.no]) : ''; BF.err = ''; renderBudForm(); setTimeout(() => { const a = $('#bAmt'); if (a) a.focus(); }, 30); return; }
+  const a = T.closest('[data-act="bud-change"],[data-act="bud-del"]');
+  if (a && BF) { e.stopImmediatePropagation(); if (a.dataset.act === 'bud-del') deleteBud(); else { BF.no = ''; BF.q = ''; renderBudForm(); } }
+}, true);
+document.addEventListener('input', e => {
+  const t = e.target; if (!BF) return;
+  if (t.id === 'bQ') { BF.q = t.value; $('#bList').innerHTML = budOptHTML(); }
+  else if (t.id === 'bAmt') { const f = fmtNum(t.value); if (t.value !== f) t.value = f; BF.amt = f; }
+});
+document.addEventListener('submit', e => { if (e.target.id === 'budForm') { e.preventDefault(); saveBudForm(); } });
 function proyeksiCard(m) {
   if (!isCurMonth(m)) return '';
   const p = proyeksi(m), neg = p.est < 0;
@@ -1866,7 +2029,7 @@ function proyeksiCard(m) {
 /* ---------- REKENING ---------- */
 function viewRek() {
   const b = balances(), all = Object.values(b).filter(a => rekGroup(a) && a.aktif);
-  const GROUPS = [['kas', 'Kas & setara kas', 'wallet'], ['invest', 'Investasi', 'trending-up'], ['piutang', 'Piutang', 'hand-coins'], ['utang', 'Utang', 'credit-card']];
+  const harta = all.filter(a => a.sign > 0).reduce((x, a) => x + a.saldo, 0), utang = all.filter(a => a.sign < 0).reduce((x, a) => x + a.saldo, 0);
   const kas = all.filter(a => rekGroup(a) === 'kas'), tot = kas.reduce((x, a) => x + a.saldo, 0), awal = kas.reduce((x, a) => x + a.awal, 0);
   const sumBy = rx => kas.filter(a => rx.test(a.ano)).reduce((x, a) => x + a.saldo, 0);
   const comp = [
@@ -1874,47 +2037,73 @@ function viewRek() {
     { k: 'Rekening bank', v: sumBy(/^112/), col: 'var(--blue-mid)' },
     { k: 'Deposito', v: sumBy(/^113/), col: 'var(--lav-mid)' }
   ].filter(c => c.v > 0);
+  const groups = REK_GROUPS.filter(([g]) => all.some(a => rekGroup(a) === g));
+  if (S.rf !== 'all' && !groups.some(([g]) => g === S.rf)) S.rf = 'all';
+  return `<div class="view">
+    <header class="topbar"><div class="grow"><div class="hello-sub">Harta, utang & mutasi</div><h1 class="page-title">Rekening</h1></div><button class="set-add" data-setadd="rek" aria-label="Tambah rekening atau akun">${ic('plus')}<span class="d-only">Tambah akun</span></button></header>
+    <div class="rek-top">
+      <section class="card nw-card">
+        <div class="eyebrow">Kekayaan bersih</div><div class="big-num num">${rp(harta - utang)}</div>
+        <div class="nw-bar" aria-hidden="true"><i style="width:${harta ? Math.max(0, Math.min(100, (harta - utang) / harta * 100)) : 0}%"></i></div>
+        <div class="nw-row num"><div><small>Total harta</small><b>${rp(harta)}</b></div><div><small>Total utang</small><b>${rp(utang)}</b></div></div>
+        <div class="nw-groups">${groups.map(([g, l, icon]) => { const v = all.filter(a => rekGroup(a) === g).reduce((x, a) => x + a.saldo, 0); return `<button type="button" data-rf="${g}"><span class="bub ${g === 'utang' ? 'b-out' : g === 'kas' ? 'b-trf' : 'b-save'}">${ic(icon)}</span><span class="g-t"><small>${l}</small><b class="num">${rpk(v)}</b></span></button>`; }).join('')}</div>
+      </section>
+      <section class="card tot-card">
+        <div class="tot-slides" id="totSlides">
+          <div class="tot-s">
+            <div class="budget-top"><div><div class="eyebrow">Total kas & setara kas</div><div class="big-num num">${rp(tot)}</div></div>
+            <div class="num" style="font-size:12.5px;font-weight:700;color:${tot >= awal ? 'var(--mint-ink)' : 'var(--warn)'}">${tot >= awal ? '+' : '−'}${rpk(Math.abs(tot - awal))} sejak saldo awal</div></div>
+            <div class="stack">${comp.map(c => `<i style="width:${c.v / Math.max(1, comp.reduce((x, y) => x + y.v, 0)) * 100}%;background:${c.col}" title="${c.k}"></i>`).join('')}</div>
+            <div class="chart-legend" style="flex-wrap:wrap">${comp.map(c => `<span><i style="background:${c.col}"></i>${c.k} <b class="num">${pct(c.v, comp.reduce((x, y) => x + y.v, 0))}%</b></span>`).join('')}</div>
+          </div>
+          <div class="tot-s">
+            <div class="card-h"><h3>Saldo per bulan</h3><span class="faint" style="font-size:12.5px;font-weight:700">Kas & setara kas</span></div>
+            <div class="chart" id="totChart" role="img" aria-label="Grafik saldo kas dan setara kas per bulan"></div>
+            <div class="chart-legend"><span><i class="ln" style="background:var(--blue-ink)"></i>Saldo</span><span><i style="background:var(--mint-mid)"></i>Penerimaan</span><span><i style="background:var(--pink-mid)"></i>Pengeluaran</span></div>
+          </div>
+        </div>
+        <div class="tot-dots" aria-hidden="true"><i class="on"></i><i></i></div>
+      </section>
+    </div>
+    <div class="rek-tools">
+      <div class="rep-tabs rek-filter" role="tablist" aria-label="Filter kelompok akun">${[['all', 'Semua', 'layout-grid'], ...groups].map(([g, l]) => `<button type="button" role="tab" data-rf="${g}" aria-selected="${S.rf === g}">${l} <span class="cnt">${g === 'all' ? all.length : all.filter(a => rekGroup(a) === g).length}</span></button>`).join('')}</div>
+      <label class="search">${ic('search')}<input id="rq" type="search" placeholder="Cari nama akun, nomor rekening, atau bank…" value="${esc(S.rq)}" autocomplete="off"></label>
+    </div>
+    <div id="rekList">${rekList(b)}</div>
+    <div class="faint" style="font-size:12.5px;font-weight:600;margin:14px 4px 0">Semua akun aset dan utang yang aktif. Nilai harta tanpa transaksi (kendaraan, tanah, perabot) mengikuti saldo awalnya. Akun nonaktif dapat dilihat di Pengaturan.</div>
+  </div>`;
+}
+function rekList(b) {
+  b = b || balances();
+  const q = S.rq.trim(), toks = qToks(q);
+  const all = Object.values(b).filter(a => rekGroup(a) && a.aktif && (S.rf === 'all' || rekGroup(a) === S.rf))
+    .filter(a => { const c = a.c || {}; return qMatch([a.nama, a.ano, a.no, c.lembaga, c.atas, accTag(a.nama)].join(' '), toks); });
+  if (!all.length) return emptyState(q ? `Tidak ada akun yang cocok dengan “${esc(S.rq)}”.` : 'Belum ada akun di kelompok ini.', 'search');
   const now = new Date(), months = [];
   for (let m = 1; m <= IDX.lastMonth; m++) { const last = (IDX.year === now.getFullYear() && m === IDX.lastMonth) ? ymd(now) : `${IDX.year}-${pad2(m)}-${pad2(daysIn(IDX.year, m))}`; months.push(balances(last)); }
   const card = a => {
     const debt = a.sign < 0, pts = months.map(mb => mb[a.nama] ? mb[a.nama].saldo : 0), up = a.masuk + a.tin, down = a.keluar + a.tout;
     const dl = a.saldo - a.awal, good = debt ? dl < 0 : dl > 0, bad = debt ? dl > 0 : dl < 0;
-    return `<article class="card acc" data-acc="${esc(a.nama)}" role="button" tabindex="0" aria-label="Lihat mutasi ${esc(pretty(a.nama))}"><div class="acc-top"><span class="bub ${accType(a.nama) === 'bank' ? 'b-trf' : 'b-save'}">${ic(accIcon(a.nama))}</span>
-        <div class="mid"><div class="nm">${esc(pretty(a.nama))}</div><div class="tg">${esc(accTag(a.nama))}${a.no ? ' · ' + esc(a.no) : ''}${a.dompet ? ' · Dompet' : ''}</div></div>
+    return `<article class="card acc" data-acc="${esc(a.nama)}" role="button" tabindex="0" aria-label="Lihat mutasi ${esc(pretty(a.nama))}"><div class="acc-top"><span class="bub ${debt ? 'b-out' : accType(a.nama) === 'bank' ? 'b-trf' : 'b-save'}">${ic(accIcon(a.nama))}</span>
+        <div class="mid"><div class="nm">${esc(pretty(a.nama))}</div><div class="tg">${esc(accTag(a.nama))}${a.no ? ' · ' + esc(a.no) : ''}${a.dompet ? ' <span class="tag">Dompet</span>' : ''}</div></div>
         <div class="sal num"${(a.saldo < 0 && !debt) ? ' style="color:var(--warn)"' : ''}>${rpk(a.saldo)}</div></div>
-        <div class="spark">${spark(pts, accType(a.nama) === 'bank' ? 'var(--blue-ink)' : 'var(--lav-ink)')}</div>
-        <div class="acc-flow num"><div><small>${debt ? 'Utang awal' : 'Saldo awal'}</small><b>${rpk(a.awal)}</b></div><div><small>${debt ? 'Dibayar' : 'Masuk'}</small><b class="pos">${rpk(debt ? up : up)}</b></div><div><small>${debt ? 'Bertambah' : 'Keluar'}</small><b>${rpk(down)}</b></div><div><small>Delta</small><b class="${good ? 'pos' : bad ? 'neg-red' : ''}">${dl > 0 ? '+' : dl < 0 ? '−' : ''}${rpk(Math.abs(dl))}</b></div></div>
+        <div class="spark">${spark(pts, debt ? 'var(--pink-ink)' : accType(a.nama) === 'bank' ? 'var(--blue-ink)' : 'var(--lav-ink)')}</div>
+        <div class="acc-flow num"><div><small>${debt ? 'Utang awal' : 'Saldo awal'}</small><b>${rpk(a.awal)}</b></div><div><small>${debt ? 'Dibayar' : 'Masuk'}</small><b class="pos">${rpk(up)}</b></div><div><small>${debt ? 'Bertambah' : 'Keluar'}</small><b>${rpk(down)}</b></div><div><small>Delta</small><b class="${good ? 'pos' : bad ? 'neg-red' : ''}">${dl > 0 ? '+' : dl < 0 ? '−' : ''}${rpk(Math.abs(dl))}</b></div></div>
         <span class="link acc-more">Lihat mutasi ${ic('chevron-right')}</span></article>`;
   };
-  const sections = GROUPS.map(([g, label, icon]) => {
-    const rows = all.filter(a => rekGroup(a) === g), act = rows.filter(a => Math.round(a.saldo) !== 0 || a.n).sort((x, y) => y.saldo - x.saldo), idle = rows.filter(a => !(Math.round(a.saldo) !== 0 || a.n));
-    if (!rows.length) return '';
+  /* akun bersaldo tanpa mutasi (mis. kendaraan, tanah, deposito lama): baris ringkas berisi nilainya */
+  const mini = a => `<button data-acc="${esc(a.nama)}"><span class="bub ${a.sign < 0 ? 'b-out' : accType(a.nama) === 'bank' ? 'b-trf' : 'b-save'}">${ic(accIcon(a.nama))}</span>
+      <span class="mid"><span class="nm">${esc(pretty(a.nama))}</span><span class="tg">${esc(accTag(a.nama))}${a.no ? ' · ' + esc(a.no) : ''}${a.c && a.c.atas ? ' · ' + esc(a.c.atas.split(' ')[0]) : ''}</span></span>
+      <span class="sal num">${rpk(a.saldo)}</span></button>`;
+  return REK_GROUPS.map(([g, label, icon]) => {
+    const rows = all.filter(a => rekGroup(a) === g); if (!rows.length) return '';
+    const act = rows.filter(a => a.n).sort((x, y) => y.saldo - x.saldo), still = rows.filter(a => !a.n && Math.round(a.saldo) !== 0).sort((x, y) => y.saldo - x.saldo), idle = rows.filter(a => !a.n && Math.round(a.saldo) === 0);
     const sub = rows.reduce((x, a) => x + a.saldo, 0);
-    return `<div class="rek-sec"><div class="card-h" style="margin:6px 4px 10px"><h3>${ic(icon)} ${label}</h3><span class="num faint" style="font-weight:800">${rp(sub)}</span></div>
-      ${act.length ? `<div class="acc-grid">${act.map(card).join('')}</div>` : emptyState(`Belum ada saldo di ${label.toLowerCase()}.`, icon)}
-      ${idle.length ? `<div class="chip-row" style="margin:10px 4px 0">${idle.map(a => `<button class="chip" data-acc="${esc(a.nama)}">${ic(accIcon(a.nama))}${esc(pretty(a.nama))}</button>`).join('')}</div>` : ''}</div>`;
+    return `<div class="rek-sec"><div class="card-h rek-h"><h3>${ic(icon)} ${label} <span class="cnt">${rows.length}</span></h3><span class="num" style="font-weight:800">${rp(sub)}</span></div>
+      ${act.length ? `<div class="acc-grid">${act.map(card).join('')}</div>` : ''}
+      ${still.length ? `<div class="acc-mini">${still.map(mini).join('')}</div>` : ''}
+      ${idle.length ? `<div class="idle-h faint">Saldo nol, belum ada mutasi</div><div class="chip-row">${idle.map(a => `<button class="chip" data-acc="${esc(a.nama)}">${ic(accIcon(a.nama))}${esc(pretty(a.nama))}</button>`).join('')}</div>` : ''}</div>`;
   }).join('');
-  return `<div class="view">
-    <header class="topbar"><div class="grow"><div class="hello-sub">Saldo & mutasi</div><h1 class="page-title">Rekening</h1></div><button class="icon-btn" data-setadd="rek" aria-label="Tambah rekening atau akun">${ic('plus')}</button></header>
-    <section class="card tot-card">
-      <div class="tot-slides" id="totSlides">
-        <div class="tot-s">
-      <div class="budget-top"><div><div class="eyebrow">Total kas & setara kas</div><div class="big-num num">${rp(tot)}</div></div>
-      <div class="num" style="font-size:12.5px;font-weight:700;color:${tot >= awal ? 'var(--mint-ink)' : 'var(--warn)'}">${tot >= awal ? '+' : '−'}${rpk(Math.abs(tot - awal))} sejak saldo awal</div></div>
-      <div class="stack">${comp.map(c => `<i style="width:${c.v / Math.max(1, comp.reduce((x, y) => x + y.v, 0)) * 100}%;background:${c.col}" title="${c.k}"></i>`).join('')}</div>
-      <div class="chart-legend" style="flex-wrap:wrap">${comp.map(c => `<span><i style="background:${c.col}"></i>${c.k} <b class="num">${pct(c.v, comp.reduce((x, y) => x + y.v, 0))}%</b></span>`).join('')}</div>
-        </div>
-        <div class="tot-s">
-          <div class="card-h"><h3>Saldo per bulan</h3><span class="faint" style="font-size:12.5px;font-weight:700">Kas & setara kas</span></div>
-          <div class="chart" id="totChart" role="img" aria-label="Grafik saldo kas dan setara kas per bulan"></div>
-          <div class="chart-legend"><span><i class="ln" style="background:var(--blue-ink)"></i>Saldo</span><span><i style="background:var(--mint-mid)"></i>Penerimaan</span><span><i style="background:var(--pink-mid)"></i>Pengeluaran</span></div>
-        </div>
-      </div>
-      <div class="tot-dots" aria-hidden="true"><i class="on"></i><i></i></div>
-    </section>
-    ${sections}
-    <div class="faint" style="font-size:12.5px;font-weight:600;margin:14px 4px 0">Halaman ini hanya menampilkan kas & setara kas, investasi, piutang, dan utang. Harta lain (kendaraan, tanah, perabot) ada di Laporan → Neraca.</div>
-  </div>`;
 }
 function spark(pts, col) {
   if (pts.length < 2) return '';
@@ -1990,7 +2179,7 @@ function drawAkChart() {
     chart(el, { type: 'bar', labels: Array.from({ length: N }, (_, i) => String(i + 1)), tip: i => `${HARI[new Date(y, mo - 1, i + 1).getDay()]}, ${i + 1} ${BLN[mo - 1]}`, hline: { v: avg, ink: 'var(--blue-ink)', label: 'Rata-rata', name: 'Rata-rata per hari' }, series: [{ name: pretty(S.ak), v, fill, ink }] });
   }
 }
-function openAcc(name) { S.acc = name; S.af = 'all'; S.aq = ''; go('acc'); }
+function openAcc(name) { S.acc = name; S.af = 'all'; S.aq = ''; S.ap = 'all'; go('acc'); }
 /* buku besar 1 rekening: semua baris yang menyentuh rekening ini, urut waktu, dengan saldo berjalan
    (sama dengan rumus sheet Rekening: awal + penerimaan − pengeluaran + transfer masuk − transfer keluar) */
 function accLedger(name) {
@@ -2073,6 +2262,8 @@ function viewAcc() {
         </section>` : ''}
       </div>
       <section class="card o-list" style="padding-bottom:8px">
+        <div class="card-h" style="margin-bottom:10px"><h3 style="white-space:nowrap">Riwayat</h3>
+          <div class="seg small" data-seg="ap" style="width:170px"><span class="knob"></span><button data-val="all" aria-pressed="${S.ap !== 'per'}">Semua</button><button data-val="per" aria-pressed="${S.ap === 'per'}">${esc(periodShort(m))}</button></div></div>
         <div class="seg" data-seg="af" style="margin-bottom:12px"><span class="knob"></span>
           ${[['all', 'Semua'], ['in', 'Masuk'], ['out', 'Keluar'], ['trf', 'Transfer']].map(([v, l]) => `<button data-val="${v}" aria-pressed="${S.af === v}">${l}</button>`).join('')}</div>
         ${searchRow('aq', 'Cari di mutasi ' + esc(pretty(A.name)) + '…', S.aq)}
@@ -2083,8 +2274,8 @@ function viewAcc() {
 }
 function accList(A) {
   A = A || accData();
-  const q = S.aq.trim().toLowerCase();
-  const f = A.rows.slice().reverse().filter(e => {
+  const q = S.aq.trim().toLowerCase(), src = S.ap === 'per' ? A.rows : A.led;
+  const f = src.slice().reverse().filter(e => {
     if (S.af === 'in' && !(e.delta > 0)) return false;
     if (S.af === 'out' && !(e.delta < 0)) return false;
     if (S.af === 'trf' && e.t.ind !== 'transfer') return false;
@@ -2092,9 +2283,9 @@ function accList(A) {
     return true;
   });
   if (S.sort === 'old') f.reverse(); else if (flatSort()) f.sort((x, y) => S.sort === 'big' ? Math.abs(y.delta) - Math.abs(x.delta) : Math.abs(x.delta) - Math.abs(y.delta));
-  if (!f.length) return emptyState(q ? `Tidak ada mutasi yang cocok dengan “${esc(S.aq)}”.` : `Belum ada mutasi di ${monthLabel(S.month).toLowerCase().startsWith('sepanjang') ? 'tahun ini' : monthLabel(S.month)}.`, 'search');
+  if (!f.length) return emptyState(q ? `Tidak ada mutasi yang cocok dengan “${esc(S.aq)}”.` : S.ap !== 'per' ? 'Belum ada mutasi di rekening ini.' : `Belum ada mutasi di ${monthLabel(S.month).toLowerCase().startsWith('sepanjang') ? 'tahun ini' : monthLabel(S.month)}.`, 'search');
   // saldo akhir per hari diambil dari buku besar lengkap (bukan hasil filter)
-  const eod = {}; A.rows.forEach(e => { eod[e.t.d] = e.bal; });
+  const eod = {}; A.led.forEach(e => { eod[e.t.d] = e.bal; });
   let html = '', cur = null, buf = [];
   const flush = () => {
     if (!cur) return;
@@ -2282,43 +2473,39 @@ function placeKnobs(root = document) {
 /* ---------- FORM: Pengeluaran · Penerimaan · Jurnal ---------- */
 const TYPE_TONE = { pengeluaran: 'var(--pink)', penerimaan: 'var(--mint)', jurnal: 'var(--lav)' };
 let F = null;
-/* jenis arus kas mengikuti kelompok akun Level 2 (sama dengan data hasil migrasi) */
-const JENIS = { '41': 'Penerimaan dari Pekerjaan', '42': 'Penerimaan dari Usaha/Kekayaan', '43': 'Penerimaan Lainnya', '51': 'Pengeluaran Rutin', '52': 'Pengeluaran Harta', '53': 'Pengeluaran Non Rutin Lainnya', '54': 'Pengeluaran Lainnya' };
-const jenisOf = no => JENIS[String(no).slice(0, 2)] || 'Transfer';
-const isCashNo = no => String(no).startsWith('11');
+/* rekening sumber/penerima di formulir Catat Pengeluaran & Penerimaan = akun yang ditandai dompet
+   (ditambah rekening transaksi yang sedang diubah agar tetap terpilih) */
 function rekChoices() {
-  const bal = balances(), all = S.data.rek.filter(a => a.aktif);
-  const base = all.filter(a => rekGroup(a) === 'kas' || a.ano.startsWith('21'));
-  const list = F.allRek ? all : base.filter(a => a.dompet || (IDX.rekFreq[a.nama] || 0) > 0 || Math.round((bal[a.nama] || {}).saldo || 0) !== 0 || a.nama === F.rek);
+  const list = S.data.rek.filter(a => (a.aktif && a.dompet) || a.nama === F.rek);
   return list.map(a => a.nama).sort((x, y) => (IDX.rekFreq[y] || 0) - (IDX.rekFreq[x] || 0));
 }
 function defaultRek() {
-  const d = S.data.rek.filter(a => a.aktif && a.dompet && rekGroup(a) === 'kas').sort((x, y) => (IDX.rekFreq[y.nama] || 0) - (IDX.rekFreq[x.nama] || 0))[0];
-  return d ? d.nama : ((S.data.rek.find(a => a.aktif && rekGroup(a) === 'kas') || {}).nama || '');
+  const d = S.data.rek.filter(a => a.aktif && a.dompet).sort((x, y) => (IDX.rekFreq[y.nama] || 0) - (IDX.rekFreq[x.nama] || 0))[0];
+  return d ? d.nama : '';
 }
 const FEES = { gratis: ['Gratis', 0], bifast: ['BI Fast', 2500], online: ['Online', 6500] };
 const adminNo = '51405';
-const newLine = (dk, no = '') => ({ dk, no, amt: '', jenis: '', detail: '', memo: '' });
+const newLine = (dk, no = '') => ({ dk, no, amt: '', memo: '' });
 function openForm(tab) {
-  F = { mode: 'new', jid: null, ind: tab || 'pengeluaran', amt: '', rek: defaultRek(), akun: null, d: ymd(new Date()), note: '', all: false, allRek: false, err: '', fee: 'gratis', lines: [newLine('d'), newLine('k', (IDX.rekBy[defaultRek()] || {}).ano || '')], idtx: '', tpl: '' };
+  F = { mode: 'new', jid: null, ind: tab || 'pengeluaran', amt: '', rek: defaultRek(), akun: null, d: ymd(new Date()), note: '', all: false, err: '', fee: 'gratis', lines: [newLine('d'), newLine('k', (IDX.rekBy[defaultRek()] || {}).ano || '')], idtx: '', tpl: '' };
   renderForm(); openSheet('#formSheet');
   setTimeout(() => { const a = $('#fAmt'); if (a && matchMedia('(pointer:fine)').matches) a.focus(); }, 320);
 }
-/* ubah: jurnal sederhana (1 akun laba rugi + 1 rekening) → formulir biasa; selain itu → formulir jurnal */
-function editJournal(jid) {
+/* ubah: jurnal sederhana (1 akun laba rugi + 1 rekening) → formulir biasa; selain itu → formulir jurnal.
+   again = "Catat lagi": jurnal baru dengan susunan akun yang sama, tanggal hari ini */
+function editJournal(jid, again) {
   const L = IDX.byJ[jid]; if (!L) return;
-  const idtx = ((L[0].memo || '').match(/\[IDTX\s*(\d+)\]/i) || [])[1] || '';
-  const det = (L.find(l => l.detail) || {}).detail || '';
+  const idtx = again ? '' : ((L[0].memo || '').match(/\[IDTX\s*(\d+)\]/i) || [])[1] || '';
   const plL = L.filter(l => isPLno(l.no)), bsL = L.filter(l => !isPLno(l.no) && IDX.rekBy[IDX.A[l.no] ? IDX.A[l.no].nama : '']);
   const simple = L.length === 2 && plL.length === 1 && bsL.length === 1 && ((plL[0].no[0] === '5' && plL[0].dk === 'd' && bsL[0].dk === 'k') || (plL[0].no[0] === '4' && plL[0].dk === 'k' && bsL[0].dk === 'd'));
-  F = { mode: 'edit', jid, d: L[0].d, idtx, all: false, allRek: false, err: '', fee: 'gratis', tpl: '' };
+  F = again ? { mode: 'new', again: true, jid: null, d: ymd(new Date()), idtx: '', all: false, err: '', fee: 'gratis', tpl: '' } : { mode: 'edit', jid, d: L[0].d, idtx, all: false, err: '', fee: 'gratis', tpl: '' };
   if (simple) {
     const p = plL[0], b = bsL[0];
-    Object.assign(F, { ind: p.no[0] === '5' ? 'pengeluaran' : 'penerimaan', amt: fmtExpr(String(p.amt)), rek: IDX.A[b.no].nama, akun: IDX.A[p.no].nama, note: cleanNote(p.memo, det), lines: [] });
+    Object.assign(F, { ind: p.no[0] === '5' ? 'pengeluaran' : 'penerimaan', amt: fmtExpr(String(p.amt)), rek: IDX.A[b.no].nama, akun: IDX.A[p.no].nama, note: cleanNote(p.memo), lines: [] });
   } else {
-    Object.assign(F, { ind: 'jurnal', amt: '', rek: defaultRek(), akun: null, note: cleanNote(L[0].memo, det), lines: L.map(l => ({ dk: l.dk, no: l.no, amt: fmtExpr(String(l.amt)), jenis: l.jenis || '', detail: l.detail || '', memo: l.memo || '' })) });
+    Object.assign(F, { ind: 'jurnal', amt: '', rek: defaultRek(), akun: null, note: cleanNote(L[0].memo), lines: L.map(l => ({ dk: l.dk, no: l.no, amt: fmtExpr(String(l.amt)), memo: again ? cleanNote(l.memo) : (l.memo || ''), manual: true })) });
   }
-  closeSheets(); setTimeout(() => { renderForm(); openSheet('#formSheet'); }, 120);
+  closeSheets(); setTimeout(() => { renderForm(); openSheet('#formSheet'); if (again) { const a = $(F.ind === 'jurnal' ? '[data-jl-amt="0"]' : '#fAmt'); if (a && matchMedia('(pointer:fine)').matches) { a.focus(); a.select(); } } }, 120);
 }
 function feeHTML() {
   return `<div><div class="field-l">Biaya transfer</div><div class="fee-chips" id="fFee" role="radiogroup" aria-label="Biaya transfer">${Object.entries(FEES).map(([k, [l, v]]) => `<button type="button" class="chip" role="radio" data-fee="${k}" aria-pressed="${F.fee === k}" aria-checked="${F.fee === k}">${l}${v ? ' ' + rp(v) : ''}</button>`).join('')}</div>
@@ -2330,15 +2517,37 @@ function dateFieldHTML(label, col) {
         <button type="button" class="chip" data-date="0" id="dToday">Hari ini</button><button type="button" class="chip" data-date="1" id="dYest">Kemarin</button></div>
         <div class="cal" id="cal" role="dialog" aria-label="Pilih tanggal" hidden></div></div>`;
 }
-/* --- opsi akun Level 4 untuk formulir jurnal --- */
-function acctOptions(sel) {
-  const A = IDX.A; let html = '<option value="">Pilih akun…</option>';
+/* --- pemilih akun Level 4 yang bisa dicari (formulir jurnal) --- */
+/* pencarian: setiap kata yang diketik harus cocok dengan awal salah satu kata (nama, nomor, grup) */
+const qMatch = (hay, toks) => { const ws = String(hay).toLowerCase().split(/[^a-z0-9]+/).filter(Boolean); return toks.every(t => ws.some(w => w.startsWith(t))); };
+const qToks = q => String(q || '').toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+const acLabel = no => { const c = IDX.A[no]; return c ? c.nama : ''; };
+function acMatches(q, sel) {
+  const toks = qToks(q), out = [];
   S.raw.coa.filter(c => c.level === 3).forEach(g => {
-    const kids = S.raw.coa.filter(c => c.level === 4 && c.induk === g.no && (c.on || c.no === sel));
-    if (!kids.length) return;
-    html += `<optgroup label="${esc(g.nama)}">${kids.map(c => `<option value="${c.no}"${c.no === sel ? ' selected' : ''}>${c.no} · ${esc(c.nama)}</option>`).join('')}</optgroup>`;
+    const kids = S.raw.coa.filter(c => c.level === 4 && c.induk === g.no && (c.on || c.no === sel))
+      .filter(c => qMatch(`${c.no} ${c.nama} ${g.nama}`, toks));
+    if (kids.length) out.push({ g, kids });
   });
-  return html;
+  return out;
+}
+function acListHTML(i, q) {
+  const sel = F.lines[i] ? F.lines[i].no : '', groups = acMatches(q, sel);
+  if (!groups.length) return `<div class="ac-none">Tidak ada akun yang cocok dengan “${esc(q)}”.</div>`;
+  let n = 0;
+  return groups.map(({ g, kids }) => `<div class="ac-g">${esc(g.nama)}</div>` + kids.map(c => `<button type="button" class="ac-o${n++ === 0 && q ? ' on' : ''}" role="option" data-jl-opt="${i}" data-no="${c.no}" aria-selected="${c.no === sel}"><small class="num">${c.no}</small><span>${esc(c.nama)}</span></button>`).join('')).join('');
+}
+function acOpen(i, q) {
+  const box = $(`#acl${i}`); if (!box) return;
+  box.innerHTML = acListHTML(i, q); box.hidden = false;
+  const s = box.querySelector('[aria-selected="true"]'); if (s && !q) s.scrollIntoView({ block: 'nearest' });
+}
+function acPick(i, no) {
+  const l = F.lines[i]; if (!l) return;
+  l.no = no; const inp = $(`[data-jl-q="${i}"]`); if (inp) inp.value = acLabel(no);
+  const sm = $(`[data-jl="${i}"] .acpick small`); if (sm) sm.textContent = no;
+  const box = $(`#acl${i}`); if (box) box.hidden = true;
+  refreshJlSum();
 }
 function jlTotals() {
   let d = 0, k = 0; F.lines.forEach(l => { const v = evalExpr(l.amt) || 0; if (l.dk === 'd') d += v; else k += v; });
@@ -2365,7 +2574,7 @@ function jurnalHTML() {
 function jlLineHTML(l, i) {
   return `<div class="jl" data-jl="${i}"><div class="jl-top"><div class="dk-seg" role="group" aria-label="Debit atau kredit"><button type="button" data-dk="d" data-i="${i}" aria-pressed="${l.dk === 'd'}">Debit</button><button type="button" data-dk="k" data-i="${i}" aria-pressed="${l.dk === 'k'}">Kredit</button></div>
       <span class="grow"></span>${F.lines.length > 2 ? `<button type="button" class="icon-btn sm" data-jl-del="${i}" aria-label="Hapus baris">${ic('trash-2')}</button>` : ''}</div>
-    <select class="text-field" data-jl-no="${i}" aria-label="Akun baris ${i + 1}">${acctOptions(l.no)}</select>
+    <div class="acpick"><label class="search">${ic('search')}<input data-jl-q="${i}" value="${esc(acLabel(l.no))}" placeholder="Cari nama atau nomor akun…" autocomplete="off" role="combobox" aria-expanded="false" aria-controls="acl${i}" aria-label="Akun baris ${i + 1}"><small class="num">${l.no || ''}</small></label><div class="ac-list" id="acl${i}" role="listbox" hidden></div></div>
     <label class="jl-amt"><span class="rp">Rp</span><input inputmode="numeric" data-jl-amt="${i}" value="${esc(l.amt)}" placeholder="0" autocomplete="off" aria-label="Jumlah baris ${i + 1}"></label></div>`;
 }
 function simpleHTML() {
@@ -2386,7 +2595,7 @@ function simpleHTML() {
 function renderForm() {
   const sh = $('#formSheet'), jr = F.ind === 'jurnal';
   sh.innerHTML = `<div class="grab"></div>
-    <div class="sheet-h"><h2 id="formTitle">${F.mode === 'edit' ? (jr ? 'Ubah jurnal' : 'Ubah transaksi') : 'Catat transaksi'}</h2><button class="icon-btn" data-act="close" aria-label="Tutup">${ic('x')}</button></div>
+    <div class="sheet-h"><h2 id="formTitle">${F.mode === 'edit' ? (jr ? 'Ubah jurnal' : 'Ubah transaksi') : F.again ? 'Catat lagi' : 'Catat transaksi'}</h2><button class="icon-btn" data-act="close" aria-label="Tutup">${ic('x')}</button></div>
     <form class="sheet-b" id="txForm" novalidate>
       <div class="seg type-seg" data-seg="ind" data-tone="${TYPE_TONE[F.ind]}"><span class="knob"></span>
         ${[['pengeluaran', 'Pengeluaran'], ['penerimaan', 'Penerimaan'], ['jurnal', 'Jurnal']].map(([v, l]) => `<button type="button" data-val="${v}" aria-pressed="${F.ind === v}">${l}</button>`).join('')}</div>
@@ -2402,7 +2611,7 @@ const saveLabel = () => F.mode === 'edit' ? 'Simpan perubahan' : F.ind === 'jurn
 function renderRekChips() {
   const b = balances(), el = $('#fRek'); if (!el) return;
   el.innerHTML = rekChoices().map(n => `<button type="button" class="acc-chip" data-rek="${esc(n)}" aria-pressed="${F.rek === n}"><span class="bub ${accType(n) === 'bank' ? 'b-trf' : 'b-save'}">${ic(accIcon(n))}</span><span><b>${esc(pretty(n))}</b><small class="num">${rpk(b[n] ? b[n].saldo : 0)}</small></span></button>`).join('')
-    + `<button type="button" class="acc-chip" data-act="rek-all" aria-pressed="${F.allRek}"><span class="bub">${ic(F.allRek ? 'chevron-left' : 'layout-grid')}</span><span><b>${F.allRek ? 'Lebih sedikit' : 'Semua akun'}</b></span></button>`;
+    + (rekChoices().length ? '' : `<div class="b-foot" style="padding:6px 2px">Belum ada akun dompet. Tandai rekening sebagai dompet di Pengaturan → akun → Dompet: Ya.</div>`);
 }
 function catsFor(ind) { return S.data.coa.filter(c => c.induk === ind && (c.aktif || c.akun === F.akun)); }
 function renderCats() {
@@ -2426,15 +2635,6 @@ function applyTpl(v) {
   F.tpl = v; const kas = (IDX.rekBy[F.rek] || {}).ano || '';
   F.lines = v === 'transfer' ? [newLine('d'), newLine('k', kas)] : v === 'utang' ? [newLine('d'), newLine('k', kas)] : v === 'aset' ? [newLine('d'), newLine('k', kas)] : [newLine('d'), newLine('k')];
   renderForm();
-}
-/* jenis & rincian arus kas otomatis untuk baris pada akun kas yang belum terisi */
-function autoCash(lines) {
-  const pl = lines.filter(l => isPLno(l.no)), A = IDX.A, jn = pl.length ? jenisOf(pl[0].no) : 'Transfer', allCash = lines.every(l => isCashNo(l.no));
-  lines.forEach(l => {
-    if (!isCashNo(l.no) || (allCash && l.dk === 'd')) return;
-    if (!l.jenis) l.jenis = jn;
-    if (!l.detail) { const o = lines.filter(x => x !== l && x.dk !== l.dk).sort((a, b) => b.amt - a.amt)[0]; l.detail = pl.length ? A[pl[0].no].nama : ((o && A[o.no]) || {}).nama || ''; }
-  });
 }
 
 /* kalender buatan sendiri: kalender bawaan browser (showPicker) diblokir di dalam iframe Apps Script & pratinjau */
@@ -2508,14 +2708,14 @@ async function saveForm() {
       if (!l.no && !l.amt) continue;
       if (!l.no) return err(`Pilih akun untuk baris ${i + 1}.`);
       if (!l.amt || isNaN(v) || v <= 0) return err(`Isi jumlah untuk baris ${i + 1} (angka positif).`);
-      lines.push({ no: l.no, dk: l.dk, amt: v, jenis: l.jenis, detail: l.detail, memo: (F.noteTouched || !l.memo) ? (note + suffix).trim() : l.memo });
+      lines.push({ no: l.no, dk: l.dk, amt: v, memo: (F.noteTouched || !l.memo) ? (note + suffix).trim() : l.memo });
     }
     if (lines.length < 2) return err('Jurnal minimal terdiri dari 2 baris.');
     const t = jlTotals(); if (Math.abs(t.diff) >= 0.5) return err(`Jurnal belum seimbang: debit ${rp(t.d)}, kredit ${rp(t.k)}.`);
-    autoCash(lines); total = t.d; label = 'Jurnal';
+    total = t.d; label = 'Jurnal';
     if (F.mode === 'new' && transferLike()) {
       const fee = (FEES[F.fee] || FEES.gratis)[1], src = lines.filter(l => l.dk === 'k').sort((a, b) => b.amt - a.amt)[0];
-      if (fee && src) feeJ = { tanggal: F.d, lines: [{ no: adminNo, dk: 'd', amt: fee, memo: 'trf' }, { no: src.no, dk: 'k', amt: fee, memo: 'trf', jenis: jenisOf(adminNo), detail: akByNo(adminNo) }] };
+      if (fee && src) feeJ = { tanggal: F.d, lines: [{ no: adminNo, dk: 'd', amt: fee, memo: 'trf' }, { no: src.no, dk: 'k', amt: fee, memo: 'trf' }] };
     }
   } else {
     const amt = evalExpr(F.amt);
@@ -2523,10 +2723,10 @@ async function saveForm() {
     if (!F.rek) return err(F.ind === 'penerimaan' ? 'Pilih rekening penerima.' : 'Pilih rekening sumber.');
     if (!F.akun) return err('Pilih kategori transaksi.');
     const pl = IDX.byName[F.akun], rk = IDX.rekBy[F.rek]; if (!pl || !rk) return err('Akun tidak ditemukan. Muat ulang data.');
-    const memo = (note + suffix).trim(), jenis = jenisOf(pl.no);
+    const memo = (note + suffix).trim();
     lines = F.ind === 'pengeluaran'
-      ? [{ no: pl.no, dk: 'd', amt, memo }, { no: rk.ano, dk: 'k', amt, memo, jenis, detail: pl.nama }]
-      : [{ no: rk.ano, dk: 'd', amt, memo, jenis, detail: pl.nama }, { no: pl.no, dk: 'k', amt, memo }];
+      ? [{ no: pl.no, dk: 'd', amt, memo }, { no: rk.ano, dk: 'k', amt, memo }]
+      : [{ no: rk.ano, dk: 'd', amt, memo }, { no: pl.no, dk: 'k', amt, memo }];
     total = amt; label = pretty(F.akun);
   }
   const btn = $('#fSave'); btn.disabled = true; btn.innerHTML = `${ic('refresh-cw')}Menyimpan…`;
@@ -2565,13 +2765,12 @@ function openDetail(row) {
         ${t.ind === 'transfer' ? `<dt>${(rekOf(t.akun) || {}).sign < 0 ? 'Utang dibayar' : 'Rekening tujuan'}</dt><dd>${isRekAkun ? `<button class="link" data-acc="${esc(t.akun)}">${esc(pretty(t.akun))} ${ic('chevron-right')}</button>` : esc(pretty(t.akun))}</dd>`
           : `<dt>${t.ind === 'penerimaan' ? 'Sumber' : 'Akun'}</dt><dd><button class="link" data-openakun="${esc(t.akun)}">${esc(pretty(t.akun))} ${ic('chevron-right')}</button></dd>`}
         ${grup ? `<dt>Kelompok</dt><dd>${esc(grup)}<br><span class="faint">${esc(kat)}</span></dd>` : ''}
-        ${t.jenis ? `<dt>Jenis arus kas</dt><dd>${esc(t.jenis)}${t.det ? `<br><span class="faint">${esc(cap(t.det))}</span>` : ''}</dd>` : ''}
         <dt>Catatan</dt><dd>${t.note ? esc(t.note) : '<span class="faint">–</span>'}</dd>
       </dl>
       <div class="field-l" style="margin-top:14px">Jurnal</div>
       <div class="jr-t num"><div class="jr-h"><span>Akun</span><span>Debit</span><span>Kredit</span></div>
         ${L.map(l => `<div class="jr-r"><span>${esc((IDX.A[l.no] || {}).nama || l.no)}<small>${esc(l.no)}</small></span><span>${l.dk === 'd' ? fmtN(l.amt) : ''}</span><span>${l.dk === 'k' ? fmtN(l.amt) : ''}</span></div>`).join('')}</div>
-      <div class="btn-row" id="detBtns"><button class="btn-ghost" data-act="edit" data-row="${t.row}">${ic('pencil')}Ubah</button><button class="btn-ghost btn-danger" data-act="ask-del">${ic('trash-2')}Hapus</button></div>
+      <div class="btn-row" id="detBtns"><button class="btn-ghost btn-again" data-act="again" data-row="${t.row}">${ic('copy')}Catat lagi</button><button class="btn-ghost" data-act="edit" data-row="${t.row}">${ic('pencil')}Ubah</button><button class="btn-ghost btn-danger" data-act="ask-del">${ic('trash-2')}Hapus</button></div>
     </div>`;
   sh.dataset.row = t.row;
   openSheet('#detailSheet');
@@ -2606,10 +2805,11 @@ function simpleToLines() {
   F.lines = F.ind === 'pengeluaran' ? [{ ...newLine('d', pl.no), amt: a, manual: true }, { ...newLine('k', rk.ano), amt: a, manual: true }] : [{ ...newLine('d', rk.ano), amt: a, manual: true }, { ...newLine('k', pl.no), amt: a, manual: true }];
 }
 document.addEventListener('click', e => {
-  const t = e.target.closest('[data-copy],[data-rep],[data-stab],[data-tpl],[data-dk],[data-jl-del],[data-syn],[data-day],[data-cal],[data-acc],[data-nav],[data-act],[data-tx],[data-val],[data-filter-akun],[data-rek],[data-akun],[data-add],[data-op],[data-date],[data-note]');
+  const t = e.target.closest('[data-copy],[data-rep],[data-rf],[data-stab],[data-tpl],[data-dk],[data-jl-del],[data-syn],[data-day],[data-cal],[data-acc],[data-nav],[data-act],[data-tx],[data-val],[data-filter-akun],[data-rek],[data-akun],[data-add],[data-op],[data-date],[data-note]');
   if (!t) return;
   if (t.dataset.rep) { S.rep = t.dataset.rep; render(); window.scrollTo(0, 0); const sel = $('.rep-tabs [aria-selected="true"]'); if (sel) sel.scrollIntoView({ inline: 'center', block: 'nearest' }); return; }
   if (t.dataset.stab) { S.stab = t.dataset.stab; render(); return; }
+  if (t.dataset.rf) { S.rf = t.dataset.rf; $$('.rek-filter [data-rf]').forEach(x => x.setAttribute('aria-selected', x.dataset.rf === S.rf)); $('#rekList').innerHTML = rekList(); const sel = $('.rek-filter [aria-selected="true"]'); if (sel) sel.scrollIntoView({ inline: 'center', block: 'nearest' }); if (t.closest('.nw-groups')) $('.rek-tools').scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
   if (t.dataset.syn && SF) { SF[t.dataset.syn] = t.dataset.v; renderSetForm(); return; }
   if (t.dataset.tpl && F) { applyTpl(t.dataset.tpl); return; }
   if (t.dataset.dk && F) { F.lines[+t.dataset.i].dk = t.dataset.dk; $$(`[data-jl="${t.dataset.i}"] [data-dk]`).forEach(b => b.setAttribute('aria-pressed', b.dataset.dk === t.dataset.dk)); refreshJlSum(); return; }
@@ -2630,7 +2830,7 @@ document.addEventListener('click', e => {
     }
     S[key] = t.dataset.val; placeKnobs(sg.parentElement);
     if (key === 'hf') { $('#histList').innerHTML = histList(txIn(S.month)); return; }
-    if (key === 'af') { $('#accList').innerHTML = accList(); return; }
+    if (key === 'af' || key === 'ap') { $('#accList').innerHTML = accList(); return; }
     render(); return;
   }
   if (t.dataset.rek && F) { F.rek = t.dataset.rek; $$('#fRek .acc-chip').forEach(b => b.setAttribute('aria-pressed', b === t)); return; }
@@ -2653,8 +2853,7 @@ document.addEventListener('click', e => {
   else if (act === 'see-all') { S.hf = 'all'; S.hq = ''; S.rep = 'ringkas'; go('hist'); }
   else if (act === 'cats-all') { F.all = true; renderCats(); }
   else if (act === 'cats-less') { F.all = false; renderCats(); }
-  else if (act === 'rek-all') { F.allRek = !F.allRek; renderRekChips(); }
-  else if (act === 'jl-add') { F.lines.push(newLine(jlTotals().diff > 0 ? 'k' : 'd')); refreshJl(); const sel = $$('#jlLines select'); sel[sel.length - 1].focus(); }
+  else if (act === 'jl-add') { F.lines.push(newLine(jlTotals().diff > 0 ? 'k' : 'd')); refreshJl(); const sel = $$('#jlLines [data-jl-q]'); sel[sel.length - 1].focus(); }
   else if (act === 'jl-bal') {
     const tt = jlTotals(), need = Math.abs(tt.diff), dk = tt.diff > 0 ? 'k' : 'd';
     let l = F.lines.slice().reverse().find(x => x.dk === dk && !evalExpr(x.amt));
@@ -2669,7 +2868,7 @@ document.addEventListener('click', e => {
     store.set('rcf-api', null); store.set('rcf-cache', null); S.data = null; S.raw = null; IDX = null; S.loading = false; renderShell(); render();
   }
   else if (act === 'reset-demo') { setData(demoStore.reset()); renderShell(); render(); toast('Data pratinjau dikembalikan ke isi db_ricashflowjournal'); }
-  else if (act === 'edit') { const row = +t.dataset.row; const tx = S.data.trx.find(x => x.row === row); if (tx) editJournal(tx.j); }
+  else if (act === 'edit' || act === 'again') { const row = +t.dataset.row; const tx = S.data.trx.find(x => x.row === row); if (tx) editJournal(tx.j, act === 'again'); }
   else if (act === 'ask-del') { const tx = S.data.trx.find(x => x.row === +$('#detailSheet').dataset.row), n = tx ? (IDX.byJ[tx.j] || []).length : 0; $('#detBtns').innerHTML = `<div class="b-foot" style="flex-basis:100%;margin:0 0 8px">Seluruh jurnal ${esc(tx ? tx.j : '')} (${n} baris) akan dihapus.</div><button class="btn-ghost" data-act="cancel-del">Batal</button><button class="btn-ghost btn-danger" data-act="do-del">${ic('trash-2')}Ya, hapus</button>`; }
   else if (act === 'cancel-del') openDetail(+$('#detailSheet').dataset.row);
   else if (act === 'do-del') { const tx = S.data.trx.find(x => x.row === +$('#detailSheet').dataset.row); if (tx) removeJ(tx.j); }
@@ -2684,14 +2883,44 @@ document.addEventListener('input', e => {
     if (F.lines.length === 2) { const o = F.lines[1 - i]; if (!o.manual) { o.amt = l.amt; const oi = $(`[data-jl-amt="${1 - i}"]`); if (oi) oi.value = o.amt; } }
     refreshJlSum();
   }
+  else if (t.dataset && t.dataset.jlQ != null && F) { acOpen(+t.dataset.jlQ, t.value.trim()); t.setAttribute('aria-expanded', 'true'); }
   else if (t.id === 'hq') { S.hq = t.value; $('#histList').innerHTML = histList(txIn(S.month)); }
   else if (t.id === 'aq') { S.aq = t.value; $('#accList').innerHTML = accList(); }
+  else if (t.id === 'rq') { S.rq = t.value; $('#rekList').innerHTML = rekList(); }
 });
 document.addEventListener('change', e => {
   const t = e.target;
   if (t.matches('[data-month]')) { S.month = t.value; render(); }
-  else if (t.dataset && t.dataset.jlNo != null && F) { const l = F.lines[+t.dataset.jlNo]; l.no = t.value; l.jenis = ''; l.detail = ''; refreshJlSum(); }
+  else if (t.dataset && t.dataset.jlNo != null && F) { const l = F.lines[+t.dataset.jlNo]; l.no = t.value; refreshJlSum(); }
 });
+/* pemilih akun: buka daftar saat fokus, pilih dengan klik/Enter, tutup saat fokus pindah */
+document.addEventListener('focusin', e => {
+  const t = e.target; if (!(t.dataset && t.dataset.jlQ != null && F)) return;
+  t.select(); acOpen(+t.dataset.jlQ, ''); t.setAttribute('aria-expanded', 'true');
+});
+document.addEventListener('focusout', e => {
+  const t = e.target; if (!(t.dataset && t.dataset.jlQ != null && F)) return;
+  const i = +t.dataset.jlQ;
+  setTimeout(() => { if (document.activeElement === t) return; const box = $(`#acl${i}`); if (box) box.hidden = true; t.setAttribute('aria-expanded', 'false'); if (F && F.lines[i]) t.value = acLabel(F.lines[i].no); }, 150);
+});
+document.addEventListener('pointerdown', e => { if (e.target.closest('.ac-list')) e.preventDefault(); });
+document.addEventListener('click', e => {
+  const o = e.target.closest('[data-jl-opt]'); if (!o || !F) return;
+  e.stopImmediatePropagation(); acPick(+o.dataset.jlOpt, o.dataset.no);
+  const nx = $(`[data-jl-amt="${o.dataset.jlOpt}"]`); if (nx && !nx.value) nx.focus();
+}, true);
+document.addEventListener('keydown', e => {
+  const t = e.target; if (!(t.dataset && t.dataset.jlQ != null && F)) return;
+  const i = +t.dataset.jlQ, box = $(`#acl${i}`); if (!box) return;
+  const opts = $$('.ac-o', box); let k = opts.findIndex(o => o.classList.contains('on'));
+  if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+    e.preventDefault(); if (box.hidden) acOpen(i, '');
+    k = Math.max(0, Math.min(opts.length - 1, k + (e.key === 'ArrowDown' ? 1 : -1)));
+    opts.forEach((o, j) => o.classList.toggle('on', j === k)); if (opts[k]) opts[k].scrollIntoView({ block: 'nearest' });
+  } else if (e.key === 'Enter') {
+    e.preventDefault(); const o = opts[k >= 0 ? k : 0]; if (o && !box.hidden) { acPick(i, o.dataset.no); const nx = $(`[data-jl-amt="${i}"]`); if (nx) nx.focus(); }
+  } else if (e.key === 'Escape' && !box.hidden) { e.stopPropagation(); box.hidden = true; t.value = acLabel(F.lines[i].no); }
+}, true);
 document.addEventListener('submit', e => {
   if (e.target.id === 'connectForm') { e.preventDefault(); doConnect(); return; }
   if (e.target.id === 'txForm') { e.preventDefault(); saveForm(); }
@@ -2714,7 +2943,7 @@ const fmtNum = v => { const neg = /^\s*-/.test(String(v)); const d = String(v ??
 const numStr = n => n ? (n < 0 ? '−' : '') + nf.format(Math.abs(n)) : '';
 function viewSettings() {
   const b = balances(), cls = S.stab, coa = S.raw.coa.filter(c => c.cls === cls);
-  const dom = Object.values(b).filter(a => a.dompet && a.aktif);
+  const dom = Object.values(b).filter(a => a.dompet && a.aktif && a.sign > 0);
   const rowOf = c => {
     const isBS = c.cls === '1' || c.cls === '2', bal = b[c.nama];
     const amt = isBS ? rpk(bal ? bal.saldo : 0) : (IDX.budMap[c.no] ? rpk(IDX.budMap[c.no]) + '/bln' : '');
@@ -2730,11 +2959,11 @@ function viewSettings() {
         <div>${coa.filter(c => c.level === 4 && c.induk === l3.no).map(rowOf).join('') || '<div class="faint" style="font-size:12.5px;padding:6px 2px">Belum ada akun.</div>'}</div>`).join('')}
     </section>`).join('');
   return `<div class="view">
-    <header class="topbar"><div class="grow"><div class="hello-sub">RicashFlow</div><h1 class="page-title">Pengaturan</h1></div><button class="set-add" data-setadd="akun">${ic('plus')}Tambah akun</button></header>
+    <header class="topbar"><div class="grow"><div class="hello-sub">RicashFlow</div><h1 class="page-title">Pengaturan</h1></div><button class="set-add" data-setadd="akun" aria-label="Tambah akun">${ic('plus')}<span class="d-only">Tambah akun</span></button></header>
     <div class="set-tabs" role="tablist" aria-label="Kelompok akun">${SCLS.map(([v, l]) => `<button type="button" role="tab" data-stab="${v}" aria-pressed="${cls === v}">${l}</button>`).join('')}</div>
     ${cls === '1' ? `<section class="card" style="margin-bottom:18px"><div class="card-h"><h3>Dompet · Dana Tersedia</h3><b class="num">${rp(danaTersedia(b))}</b></div>
       <div class="faint" style="font-size:12.5px;font-weight:600;margin:-4px 0 6px">Dana tersedia = saldo − saldo minimal − saldo dikunci, untuk rekening yang ditandai dompet. Ketuk akun untuk mengubah.</div>
-      ${dom.length ? dom.map(a => `<button class="set-row" data-setedit="${a.ano}"><span class="mid"><span class="t1">${esc(a.nama)}</span><span class="t2 num">Saldo ${rpk(a.saldo)} · minimal ${rpk(a.saldoMin)} · dikunci ${rpk(a.dikunci)}</span></span><span class="amt num"${usable(a) < 0 ? ' style="color:var(--warn)"' : ''}>${rpk(usable(a))}</span></button>`).join('') : '<div class="faint" style="font-size:13px;padding:8px 2px">Belum ada dompet. Buka akun kas lalu pilih Dompet: Ya.</div>'}</section>` : ''}
+      ${dom.length ? dom.map(a => `<button class="set-row" data-setedit="${a.ano}"><span class="mid"><span class="t1">${esc(a.nama)}</span><span class="t2 num">Saldo ${rpk(a.saldo)} · minimal ${rpk(a.saldoMin)} · dikunci ${rpk(a.dikunci)}</span></span><span class="amt num"${usable(a) < 0 ? ' style="color:var(--warn)"' : ''}>${rpk(usable(a))}</span></button>`).join('') : '<div class="faint" style="font-size:13px;padding:8px 2px">Belum ada dompet. Buka salah satu akun aset atau utang lalu pilih Dompet: Ya.</div>'}</section>` : ''}
     <div class="set-grid" style="grid-template-columns:minmax(0,1fr)">${blocks || emptyState('Belum ada akun di kelompok ini.', 'file-text')}</div>
     <div class="faint" style="font-size:12.5px;font-weight:600;margin:14px 4px 0">${esc(l1 ? l1.nama : '')}. Akun yang sudah dipakai jurnal tidak dapat dihapus; nonaktifkan agar tidak muncul di formulir.</div>
   </div>`;
@@ -2761,7 +2990,7 @@ function renderSetForm() {
   const sh = $('#setSheet'), A = IDX.A, edit = SF.mode === 'edit';
   const chip = (attr, v, l, on) => `<button type="button" class="chip" ${attr}="${esc(v)}" aria-pressed="${on}">${esc(l)}</button>`;
   const isAkun = SF.level === 4, isBS = SF.cls === '1' || SF.cls === '2', isPL = SF.cls === '4' || SF.cls === '5';
-  const par = A[SF.parent], isKas = isAkun && String(SF.parent).startsWith('11');
+  const par = A[SF.parent], isKas = isAkun && isBS;
   const groups = S.raw.coa.filter(c => c.level === 3 && c.cls === SF.cls);
   const title = edit ? (isAkun ? 'Ubah akun' : 'Ubah grup') : (isAkun ? 'Tambah akun' : 'Tambah sub-grup');
   let body = '';
@@ -2781,10 +3010,10 @@ function renderSetForm() {
     if (isKas) {
       const b = edit ? balances()[SF.nama] : null, sal = b ? b.saldo : 0, use = sal - parseNum(SF.saldo_min) - parseNum(SF.saldo_dikunci);
       body += `<div><div class="field-l">Dompet</div><div class="yn">${chip('data-syn="dompet" data-v', 'Ya', 'Ya, dompet', SF.dompet === 'Ya')}${chip('data-syn="dompet" data-v', 'Tidak', 'Bukan', SF.dompet === 'Tidak')}</div>
-        <div class="b-foot" style="margin-top:6px">Dompet tampil di Beranda dan dihitung ke Dana Tersedia.</div></div>
-      <div><label class="field-l" for="sMin">Saldo minimal <span>tidak ikut dana tersedia</span></label><div class="amount-line set-amt"><span class="rp">Rp</span><input id="sMin" inputmode="numeric" placeholder="0" value="${esc(SF.saldo_min)}" autocomplete="off"></div></div>
+        <div class="b-foot" style="margin-top:6px">Dompet tampil di Beranda dan menjadi pilihan rekening di formulir Catat Pengeluaran/Penerimaan${SF.cls === '1' ? ', serta dihitung ke Dana Tersedia' : ''}.</div></div>
+      ${SF.cls === '1' ? `<div><label class="field-l" for="sMin">Saldo minimal <span>tidak ikut dana tersedia</span></label><div class="amount-line set-amt"><span class="rp">Rp</span><input id="sMin" inputmode="numeric" placeholder="0" value="${esc(SF.saldo_min)}" autocomplete="off"></div></div>
       <div><label class="field-l" for="sKunci">Saldo dikunci <span>tidak boleh dipakai</span></label><div class="amount-line set-amt"><span class="rp">Rp</span><input id="sKunci" inputmode="numeric" placeholder="0" value="${esc(SF.saldo_dikunci)}" autocomplete="off"></div></div>
-      ${edit ? `<div class="b-foot" id="sUse">Bisa dipakai dari akun ini: <b class="num">${rp(use)}</b> (saldo ${rp(sal)})</div>` : ''}`;
+      ${edit ? `<div class="b-foot" id="sUse">Bisa dipakai dari akun ini: <b class="num">${rp(use)}</b> (saldo ${rp(sal)})</div>` : ''}` : ''}`;
     }
     body += `<div><label class="field-l" for="sBud">Anggaran per bulan <span>opsional</span></label><div class="amount-line set-amt"><span class="rp">Rp</span><input id="sBud" inputmode="numeric" placeholder="0" value="${esc(SF.budget)}" autocomplete="off"></div></div>
       <div><label class="field-l" for="sCat">Catatan akun <span>opsional</span></label><textarea class="text-field" id="sCat" maxlength="500" placeholder="Keterangan tambahan">${esc(SF.catatan)}</textarea></div>
@@ -2806,7 +3035,8 @@ async function saveSetForm() {
   if (SF.mode === 'edit') a.no = SF.no; else a.parent = SF.parent;
   if (SF.level === 4) {
     Object.assign(a, { norek: SF.norek, lembaga: SF.lembaga, atas: SF.atas, tglbuka: SF.tglbuka, aktif: SF.aktif });
-    if (String(SF.parent).startsWith('11')) Object.assign(a, { dompet: SF.dompet, saldo_min: parseNum(SF.saldo_min), saldo_dikunci: parseNum(SF.saldo_dikunci) });
+    if (SF.cls === '1') Object.assign(a, { dompet: SF.dompet, saldo_min: parseNum(SF.saldo_min), saldo_dikunci: parseNum(SF.saldo_dikunci) });
+    else if (SF.cls === '2') a.dompet = SF.dompet;
     if (SF.mode === 'new' ? SF.budget !== '' : SF.budget !== SF.orig.budget) a.budget = parseNum(SF.budget);
     if ((SF.cls === '1' || SF.cls === '2') && (SF.mode === 'new' ? SF.saldo_awal !== '' : SF.saldo_awal !== SF.orig.saldo_awal)) a.saldo_awal = parseNum(SF.saldo_awal);
   }
@@ -2871,8 +3101,12 @@ function mpHTML() {
   const sel = new Set(mset(S.month)); let rows = '';
   for (let mo = IDX.lastMonth; mo >= 1; mo--) { const v = `${IDX.year}-${pad2(mo)}`; rows += `<button type="button" class="mp-row" role="checkbox" aria-checked="${sel.has(v)}" data-mpm="${v}"><span class="mp-box">${ic('check')}</span>${BULAN[mo - 1]} ${IDX.year}</button>`; }
   return `<div class="mp-h"><b>Pilih bulan</b><span class="faint" id="mpCount">${monthLabel(S.month)}</span></div>
-    <div class="mp-quick"><button type="button" data-mp="all">Sepanjang ${IDX.year}</button><button type="button" data-mp="last3">3 bulan terakhir</button></div>
+    <div class="mp-quick">${[['now', 'Bulan ini'], ['all', `Sepanjang ${IDX.year}`], ['last3', '3 bulan terakhir']].map(([v, l]) => `<button type="button" data-mp="${v}" aria-pressed="${mpQuick() === v}">${l}</button>`).join('')}</div>
     <div class="mp-list">${rows}</div><button type="button" class="btn-primary mp-done" data-mp="done">Selesai</button>`;
+}
+function mpQuick() {
+  const a = mset(S.month), cur = `${IDX.year}-${pad2(IDX.lastMonth)}`;
+  return S.month === 'all' ? 'all' : (a.length === 1 && a[0] === cur) ? 'now' : (a.length === Math.min(3, IDX.lastMonth) && a.join() === mset('all').slice(-3).join()) ? 'last3' : '';
 }
 function setMonthSel(sel) {
   const a = [...sel].sort(); if (!a.length) return;
@@ -2880,6 +3114,7 @@ function setMonthSel(sel) {
   if (POP) POP.dirty = true;
   const cur = new Set(mset(S.month));
   $$('#pop .mp-row').forEach(b => b.setAttribute('aria-checked', cur.has(b.dataset.mpm)));
+  const q = mpQuick(); $$('#pop .mp-quick [data-mp]').forEach(b => b.setAttribute('aria-pressed', b.dataset.mp === q));
   $$('.pill-select span').forEach(x => { x.textContent = monthLabel(S.month); });
   const c = $('#mpCount'); if (c) c.textContent = monthLabel(S.month);
 }
@@ -2908,7 +3143,7 @@ document.addEventListener('click', e => {
   const mm = T.closest('[data-mpm]');
   if (mm) { e.stopImmediatePropagation(); const sel = new Set(mset(S.month)); if (sel.has(mm.dataset.mpm)) { if (sel.size > 1) sel.delete(mm.dataset.mpm); } else sel.add(mm.dataset.mpm); setMonthSel(sel); return; }
   const mq = T.closest('[data-mp]');
-  if (mq) { e.stopImmediatePropagation(); const a = mq.dataset.mp; if (a === 'all') setMonthSel(new Set(mset('all'))); else if (a === 'last3') setMonthSel(new Set(mset('all').slice(-3))); else closePop(); return; }
+  if (mq) { e.stopImmediatePropagation(); const a = mq.dataset.mp; if (a === 'now') setMonthSel(new Set([`${IDX.year}-${pad2(IDX.lastMonth)}`])); else if (a === 'all') setMonthSel(new Set(mset('all'))); else if (a === 'last3') setMonthSel(new Set(mset('all').slice(-3))); else closePop(); return; }
   if (POP && !T.closest('#pop')) closePop();
 }, true);
 document.addEventListener('keydown', e => { if (e.key === 'Escape' && POP) closePop(); });
