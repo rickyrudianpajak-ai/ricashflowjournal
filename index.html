@@ -1037,11 +1037,11 @@ function derive(raw) {
   });
   const budget = {};
   Object.keys(budMap).forEach(no => { if (A[no] && budMap[no]) budget[A[no].nama] = budMap[no]; });
-  const ICON_NO = { '41101': 'wallet', '41102': 'award', '41103': 'gift', '41104': 'gift', '41201': 'utensils', '41202': 'clock', '41203': 'star', '41301': 'moon-star', '41302': 'moon-star', '41401': 'plane',
-    '42101': 'trending-up', '42102': 'chart-pie', '42103': 'trending-up', '42104': 'trending-up', '42201': 'store', '42301': 'landmark', '42302': 'piggy-bank', '42401': 'tag', '42501': 'circle-plus', '43101': 'sparkles', '43102': 'gift',
+  const ICON_NO = { '41101': 'wallet', '41102': 'award', '41103': 'gift', '41104': 'gift', '41301': 'utensils', '41302': 'clock', '41303': 'star', '41401': 'moon-star', '41402': 'moon-star', '41501': 'plane',
+    '42101': 'trending-up', '42102': 'chart-pie', '42103': 'trending-up', '42104': 'trending-up', '42201': 'store', '42301': 'landmark', '42302': 'piggy-bank', '42401': 'tag', '42501': 'circle-plus', '43401': 'sparkles', '43301': 'gift',
     '51101': 'shopping-basket', '51102': 'heart', '51103': 'house', '51104': 'car', '51105': 'wifi', '51106': 'popcorn', '51107': 'graduation-cap', '51108': 'shirt', '51109': 'pill', '51110': 'cat', '51111': 'tent',
     '51201': 'hand-heart', '51202': 'gift', '51301': 'receipt', '51302': 'file-text', '51401': 'heart-handshake', '51402': 'shield-plus', '51403': 'scissors', '51404': 'calendar-x', '51405': 'credit-card',
-    '52101': 'wrench', '52102': 'paint-roller', '52103': 'hammer', '53101': 'package', '53102': 'trending-down', '53103': 'briefcase', '53104': 'tag', '54101': 'banknote', '54102': 'car-front', '54103': 'credit-card', '54104': 'file-text' };
+    '52201': 'wrench', '52202': 'paint-roller', '52203': 'hammer', '52301': 'package', '52302': 'trending-down', '52303': 'briefcase', '52304': 'tag', '53201': 'banknote', '53202': 'car-front', '53203': 'credit-card', '53204': 'file-text' };
   Object.keys(ICON_AKUN).forEach(k => delete ICON_AKUN[k]);
   raw.coa.forEach(c => { if (c.level === 4) ICON_AKUN[c.nama] = ICON_NO[c.no] || accIconNo(c.no); });
   return { raw, A, byName, budMap, byJ, jorder, openId, awal, data: { trx, rek, coa, budget, cfg: raw.cfg || {}, sheetUrl: raw.sheetUrl } };
@@ -1749,24 +1749,27 @@ const PHA_HARTA = [
   ['D', 'Surat berharga', ['12']], ['E', 'Kas dan setara kas', ['11']], ['F', 'Harta lainnya', ['15']]
 ];
 const PHA_IN = [
-  ['A', 'Penerimaan dari pekerjaan', [['411', 'Gaji dan tunjangan'], ['prof', 'Penghasilan dari profesi/keahlian'], ['412', 'Honorarium'], ['413', 'Tantiem, bonus, jasa produksi, THR'], ['414', 'Penerimaan dari pekerjaan lainnya']]],
+  ['A', 'Penerimaan dari pekerjaan', [['411', 'Gaji dan tunjangan'], ['412', 'Penghasilan dari profesi/keahlian'], ['413', 'Honorarium'], ['414', 'Tantiem, bonus, jasa produksi, THR'], ['415', 'Penerimaan dari pekerjaan lainnya']]],
   ['B', 'Penerimaan dari usaha dan kekayaan', [['421', 'Hasil investasi dalam surat berharga'], ['422', 'Hasil usaha/sewa'], ['423', 'Bunga tabungan/deposito dan lainnya'], ['424', 'Penjualan atau pelepasan harta'], ['425', 'Penerimaan lainnya']]],
-  ['C', 'Penerimaan lainnya', [['utang', 'Penerimaan hutang'], ['waris', 'Penerimaan warisan'], ['hibah', 'Penerimaan hibah/hadiah'], ['lain', 'Lainnya']]]
+  ['C', 'Penerimaan lainnya', [['431', 'Penerimaan hutang'], ['432', 'Penerimaan warisan'], ['433', 'Penerimaan hibah/hadiah'], ['434', 'Lainnya']]]
 ];
 const PHA_OUT = [
   ['A', 'Pengeluaran rutin', [['511', 'Biaya rumah tangga (termasuk transportasi, pendidikan, kesehatan, rekreasi, pembayaran kartu kredit)'], ['512', 'Biaya sosial (antara lain keagamaan, zakat, infaq, sumbangan lain)'], ['513', 'Pembayaran pajak (antara lain PBB, kendaraan, pajak daerah, pajak lain)'], ['514', 'Pengeluaran rutin lainnya']]],
-  ['B', 'Pengeluaran harta', [['beli', 'Pembelian/perolehan harta baru'], ['521', 'Pemeliharaan/modifikasi/rehabilitasi harta'], ['53', 'Pengeluaran non rutin lainnya']]],
-  ['C', 'Pengeluaran lainnya', [['wh', 'Biaya pengurusan waris/hibah'], ['utang', 'Pelunasan/angsuran hutang'], ['lain', 'Pengeluaran lainnya']]]
+  ['B', 'Pengeluaran harta', [['521', 'Pembelian/perolehan harta baru'], ['522', 'Pemeliharaan/modifikasi/rehabilitasi harta'], ['523', 'Pengeluaran non rutin lainnya']]],
+  ['C', 'Pengeluaran lainnya', [['531', 'Biaya pengurusan waris/hibah/hadiah'], ['532', 'Pelunasan/angsuran hutang'], ['533', 'Pengeluaran lainnya']]]
 ];
 const isCashNo = no => String(no).startsWith('11');
+/* pos laporan = nomor header Level 3 akun lawan (hierarki db_coa kelas 4 & 5 mengikuti formulir ini).
+   Lawan neraca: harta dijual/dibeli → 424/521, utang diterima/dibayar → 431/532. */
+const PHA_POS = new Set([...PHA_IN, ...PHA_OUT].flatMap(g => g[2].map(i => i[0])));
+const PHA_SISA = { '41': '415', '42': '425', '43': '434', '51': '514', '52': '523', '53': '533' };
 /* akun lawan → [sisi, pos] ; sisi 'in' = penerimaan, 'out' = pengeluaran */
 function phaKey(no, inflow) {
-  const c = clsOf(no), p2 = no.slice(0, 2), p3 = no.slice(0, 3);
-  if (c === '4') return ['in', p2 === '41' ? (['411', '412', '413', '414'].includes(p3) ? p3 : '414') : p2 === '42' ? (['421', '422', '423', '424', '425'].includes(p3) ? p3 : '425') : no === '43102' ? 'hibah' : 'lain'];
-  if (c === '5') return ['out', p2 === '51' ? (['511', '512', '513', '514'].includes(p3) ? p3 : '514') : p2 === '52' ? '521' : p2 === '53' ? '53' : p2 === '54' ? 'utang' : 'lain'];
-  if (c === '1') return inflow ? ['in', '424'] : ['out', 'beli'];
-  if (c === '2') return [inflow ? 'in' : 'out', 'utang'];
-  return [inflow ? 'in' : 'out', 'lain'];
+  const c = clsOf(no), p3 = no.slice(0, 3);
+  if (c === '4' || c === '5') return [c === '4' ? 'in' : 'out', PHA_POS.has(p3) ? p3 : PHA_SISA[no.slice(0, 2)] || (c === '4' ? '434' : '533')];
+  if (c === '1') return inflow ? ['in', '424'] : ['out', '521'];
+  if (c === '2') return inflow ? ['in', '431'] : ['out', '532'];
+  return inflow ? ['in', '434'] : ['out', '533'];
 }
 function phaData(m) {
   const p = periodRange(m), A = IDX.A, val = { in: {}, out: {} }, det = { in: {}, out: {} };
