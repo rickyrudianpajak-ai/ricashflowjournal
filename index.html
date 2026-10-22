@@ -98,6 +98,16 @@ main{flex:1;min-width:0;padding:0 16px calc(var(--tab-h) + 96px + env(safe-area-
 .wallet .w-name{font-weight:700;font-size:13.5px}
 .wallet .w-amt{font-family:var(--f-display);font-weight:700;font-size:18px;letter-spacing:-.01em}
 .wallet .w-tag{font-size:11px;font-weight:700;opacity:.75}
+.wallet .w-real{display:block;font-size:11px;font-weight:600;color:var(--ink-2);margin:1px 0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.acc-edit{display:inline-flex;align-items:center;gap:6px;border:0;cursor:pointer;background:rgba(255,255,255,.8);color:var(--ink);font-weight:700;font-size:12.5px;border-radius:999px;padding:7px 12px;white-space:nowrap}.acc-edit svg{width:15px;height:15px}
+.cc-row{display:grid;gap:8px;margin-top:14px;position:relative;z-index:1}
+.cc-card{display:flex;align-items:center;gap:10px;width:100%;text-align:left;border:0;cursor:pointer;background:rgba(255,255,255,.72);border-radius:var(--r);padding:10px 12px;color:var(--ink)}
+.cc-card .cc-mid{flex:1;min-width:0;display:flex;flex-direction:column}.cc-card small{font-size:11px;font-weight:700;color:var(--pink-ink)}
+.cc-card .cc-mid b{font-size:13.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.cc-card em{font-style:normal;font-size:11.5px;color:var(--ink-3);font-weight:600}
+.cc-card .cc-amt{font-family:var(--f-display);font-size:16px;font-weight:800;color:var(--pink-ink);white-space:nowrap}
+.acc-lock{position:relative;z-index:1;display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:12px;font-size:13px}
+.acc-lock>div{min-width:0}.acc-lock small{display:block;font-size:11.5px;font-weight:700;color:var(--ink-2)}.acc-lock b{font-size:14px}.acc-lock em{display:block;font-style:normal;font-size:11px;color:var(--ink-3);font-weight:600}
+.acc-lock .eff{grid-column:1/-1;background:rgba(255,255,255,.7);border-radius:12px;padding:8px 10px}.acc-lock .eff b{font-family:var(--f-display);font-size:19px;font-weight:800}
 .t-bank{background:var(--blue);color:var(--blue-ink)} .t-bank .w-amt,.t-bank .w-name{color:var(--ink)}
 .t-save{background:var(--lav);color:var(--lav-ink)} .t-save .w-amt,.t-save .w-name{color:var(--ink)}
 .wallet.empty{background:var(--surface);border:1.5px dashed var(--line);color:var(--ink-3);justify-content:center;align-items:flex-start}
@@ -718,6 +728,7 @@ body.scrolled .topbar .hello-sub{display:none}
 .ak-hero .b-foot{margin-top:6px}
 .topbar .grow{min-width:0}
 .topbar .page-title,.topbar .hello-sub{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media (max-width:420px){.topbar .page-title.pt-2{white-space:normal;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;font-size:22px;line-height:1.15}.topbar .page-title{font-size:28px}body.scrolled .topbar .page-title{font-size:18px}.topbar .grow{min-width:96px}}
 .topbar .pill-select{flex:none;max-width:60%}
 .topbar .pill-select span{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 /* semua kartu memakai radius standar Kartu Estimasi (var(--r-xl) = 24px) */
@@ -792,7 +803,9 @@ body[data-dir="back"] .view{animation:viewBack .32s ease both}
 .pha-flow .rp-l3>summary .rp-n,.pha-flow .rp-row .rp-n{white-space:normal;line-height:1.35}
 /* ponsel: tabel berkolom banyak → nama akun satu baris penuh, angka di baris bawahnya */
 @media (max-width:560px){.rp-multi .rp-head,.rp-multi summary,.rp-multi .rp-l4,.rp-multi .rp-tot,.rp-multi .rp-row{grid-template-columns:repeat(var(--rc),minmax(0,1fr));column-gap:8px;row-gap:2px}
-  .rp-multi .rp-n{grid-column:1/-1;white-space:normal;line-height:1.35}.rp-multi .rp-head>span:first-child{display:none}
+  .rp-multi .rp-n,.rp-multi .rp-tot>span:first-child{grid-column:1/-1;white-space:normal;line-height:1.35}.rp-multi .rp-head>span:first-child{display:none}
+  .rp-multi .rp-l3{margin-left:0}.rp-multi .rp-l3>summary .rp-n,.rp-multi .rp-l3.rp-row .rp-n{padding-left:10px}.rp-multi .rp-l4{padding-left:2px}.rp-multi .rp-l4 .rp-n{padding-left:16px}
+  .rp-multi .rp-tot{row-gap:4px}
   .rp-multi .rp-v{font-size:12.5px}.rp-multi .rp-l2>summary .rp-v{font-size:13px}.rp-multi .rp-l4 .rp-v{color:var(--ink-2)}}
 .rep-sum{display:flex;flex-direction:column;gap:10px}.rep-sum>div{display:flex;justify-content:space-between;gap:12px;font-size:14px}
 .rep-sum>div{align-items:baseline}.rep-sum>div span{color:var(--ink-2);flex:1;min-width:0}.rep-sum>div b{flex:none;white-space:nowrap;text-align:right}.rep-sum .tot{border-top:1.5px solid var(--line,rgba(60,60,67,.18));padding-top:10px;font-weight:800;font-size:15.5px}.rep-sum .tot span{color:var(--ink)}
@@ -833,7 +846,8 @@ body[data-dir="back"] .view{animation:viewBack .32s ease both}
 .set-mini{border:0;background:transparent;color:var(--blue-ink,#0a5ad4);font-weight:700;font-size:12.5px;display:inline-flex;align-items:center;gap:4px;cursor:pointer;padding:4px 6px;border-radius:8px}.set-mini svg.i{width:14px;height:14px}
 .set-row{display:flex;align-items:center;gap:12px;width:100%;text-align:left;border:0;background:transparent;padding:10px 2px;cursor:pointer;min-height:48px;border-top:1px solid var(--line,rgba(60,60,67,.1))}
 .set-row .mid{flex:1;min-width:0}.set-row .t1{font-weight:600;font-size:15px;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.set-row .t2{font-size:12.5px;color:var(--ink-3);font-weight:500;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.set-row .amt{font-weight:700;font-size:14px;text-align:right}
+.set-row .amt{font-weight:700;font-size:14px;text-align:right;white-space:nowrap}
+.set-row .t1.wrap{white-space:normal;overflow:visible;line-height:1.3}.set-row .t2 .tag{margin:0 6px 0 0;vertical-align:0}
 .tag.tag-ut{background:rgba(255,149,0,.16);color:#b25f00}.tag.tag-as{background:rgba(175,82,222,.14);color:#8a3db5}
 .tag{display:inline-block;border-radius:6px;padding:1px 7px;font-size:11px;font-weight:700;margin-left:6px;background:rgba(0,122,255,.12);color:#0a5ad4;vertical-align:1px}.tag.off{background:rgba(120,120,128,.18);color:var(--ink-2)}
 .yn{display:flex;gap:8px}.yn .chip{flex:1;justify-content:center}
@@ -1000,7 +1014,7 @@ function derive(raw) {
   if (openId) byJ[openId].forEach(l => { awal[l.no] = (awal[l.no] || 0) + (l.dk === 'd' ? l.amt : -l.amt); });
   // rekening = akun neraca Level 4 (aset & liabilitas)
   const rek = raw.coa.filter(c => c.level === 4 && (c.cls === '1' || c.cls === '2')).map(c => ({
-    nama: c.nama, no: c.norek || '', ano: c.no, sign: c.sign, awal: c.sign * (awal[c.no] || 0), c, dompet: c.isDompet, saldoMin: c.saldo_min, dikunci: c.saldo_dikunci, aktif: c.on
+    nama: c.nama, no: c.norek || '', ano: c.no, sign: c.sign, awal: c.sign * (awal[c.no] || 0), c, dompet: c.isDompet, saldoMin: c.saldo_min, dikunci: c.saldo_dikunci, aktif: c.on, kunciNo: c.rek_kunci || '', cc: isCCNo(c.no, c.nama)
   }));
   // akun laba rugi Level 4 → daftar kategori
   const coa = raw.coa.filter(c => c.level === 4 && (c.cls === '4' || c.cls === '5')).map(c => ({
@@ -1098,11 +1112,17 @@ function balances(upto) {
     else if (t.ind === 'pengeluaran') { if (a) { a.keluar += t.amt; a.n++; } }
     else if (t.ind === 'transfer') { if (a) { a.tout += t.amt; a.n++; } if (b[t.akun]) { b[t.akun].tin += t.amt; b[t.akun].n++; } }
   });
-  Object.values(b).forEach(a => { a.saldo = a.awal + a.sign * (a.masuk - a.keluar + a.tin - a.tout); });
+  Object.values(b).forEach(a => { a.saldo = a.awal + a.sign * (a.masuk - a.keluar + a.tin - a.tout); a.kunciCC = 0; a.kunciDari = []; });
+  // kartu kredit: saldo utangnya otomatis mengunci saldo rekening kas yang dipilih (rek_kunci)
+  const byNo = {}; Object.values(b).forEach(a => { byNo[a.ano] = a; });
+  Object.values(b).forEach(a => { const t = a.cc && a.kunciNo && byNo[a.kunciNo]; if (t && a.saldo > 0) { t.kunciCC += a.saldo; t.kunciDari.push(a.nama); } });
   return b;
 }
+/* kartu kredit = akun utang konsumtif (211xx) atau bernama "kartu kredit" */
+const isCCNo = (no, nama) => String(no).startsWith('211') || /kartu kredit/i.test(nama || '');
 /* Dana Tersedia = jumlah (saldo − saldo minimal − saldo dikunci) semua rekening yang ditandai dompet */
-const usable = a => a.saldo - a.saldoMin - a.dikunci;
+const lockOf = a => a.dikunci + (a.kunciCC || 0);
+const usable = a => a.saldo - a.saldoMin - lockOf(a);
 function danaTersedia(b) {
   return Object.values(b).reduce((s, a) => s + (a.dompet && a.aktif && a.sign > 0 ? usable(a) : 0), 0);
 }
@@ -1243,6 +1263,7 @@ const demoOps = {
       if (a.dompet != null) me.dompet = a.dompet === 'Ya' ? 'Ya' : 'Tidak';
       if (a.saldo_min != null) me.saldo_min = Number(a.saldo_min) || 0;
       if (a.saldo_dikunci != null) me.saldo_dikunci = Number(a.saldo_dikunci) || 0;
+      if (a.rek_kunci != null) me.rek_kunci = String(a.rek_kunci);
       if (a.budget != null) { const b = R.bud.find(x => x.no === no); if (b) b.budget = Number(a.budget) || 0; else R.bud.push({ no, budget: Number(a.budget) || 0 }); }
       if (a.saldo_awal != null && (me.kelas === 'Aset' || me.kelas === 'Liabilitas')) demoOps.setAwal(no, Number(a.saldo_awal) || 0, me);
     }
@@ -1483,7 +1504,8 @@ function viewHome() {
   const nama = c.nama || 'Ricky';
   const dom = Object.values(b).filter(a => a.dompet && a.aktif).sort((x, y) => y.saldo - x.saldo);
   const kas = Object.values(b).filter(a => rekGroup(a) === 'kas' && a.aktif).reduce((x, a) => x + a.saldo, 0);
-  const minTot = dom.reduce((x, a) => x + a.saldoMin, 0), lockTot = dom.reduce((x, a) => x + a.dikunci, 0);
+  const byAno = {}; Object.values(b).forEach(a => { byAno[a.ano] = a; });
+  const ccs = Object.values(b).filter(a => a.cc && a.aktif && Math.round(a.saldo) !== 0);
   const rest = Object.values(b).filter(a => rekGroup(a) && !a.dompet && a.aktif && (Math.round(a.saldo) !== 0 || a.n)).length;
   const bs = budgetSummary(m);
   return `<div class="view">
@@ -1497,7 +1519,8 @@ function viewHome() {
       <section class="hero" style="--o:1" aria-label="Dana tersedia">
         <div class="hero-label">${ic('wallet')} Dana Tersedia <span class="hero-period">${monthLabel(m)}</span></div>
         <div class="hero-amt num" ${dana < 0 ? 'style="color:var(--warn)"' : ''}><span class="rp">${dana < 0 ? '−Rp' : 'Rp'}</span>${nf.format(Math.abs(Math.round(dana)))}</div>
-        <div class="hero-note">${dom.length ? `Saldo ${dom.length} dompet dikurangi saldo minimal ${rpk(minTot)}${lockTot ? ` dan saldo dikunci ${rpk(lockTot)}` : ''}. ` : 'Belum ada rekening yang ditandai sebagai dompet (Pengaturan → akun kas → Dompet). '}Total kas dan setara kas <b class="num">${rp(kas)}</b>.</div>
+        ${dom.length ? '' : '<div class="hero-note">Belum ada rekening yang ditandai sebagai dompet (Pengaturan → akun → Dompet).</div>'}
+        ${ccs.length ? `<div class="cc-row">${ccs.map(a => { const t = a.kunciNo && byAno[a.kunciNo]; return `<button class="cc-card" data-acc="${esc(a.nama)}"><span class="dot b-out">${ic('credit-card')}</span><span class="cc-mid"><small>Utang kartu kredit</small><b>${esc(pretty(a.nama))}</b><em>${t ? `Dikunci di ${esc(pretty(t.nama))}` : 'Belum dikunci di rekening mana pun'}</em></span><b class="num cc-amt">${rpk(a.saldo)}</b></button>`; }).join('')}</div>` : ''}
         <div class="hero-row">
           <div class="hero-chip"><span class="dot b-in">${ic('arrow-down-left')}</span><span style="min-width:0"><small>Pemasukan</small><b class="num">${rpk(s.inc)}</b></span></div>
           <div class="hero-chip"><span class="dot b-out">${ic('arrow-up-right')}</span><span style="min-width:0"><small>Pengeluaran</small><b class="num">${rpk(outH)}</b></span></div>
@@ -1510,7 +1533,8 @@ function viewHome() {
           ${dom.map(a => `<button class="wallet t-${accType(a.nama)}" data-acc="${esc(a.nama)}" aria-label="Lihat mutasi ${esc(pretty(a.nama))}">
               <span class="w-ic">${ic(accIcon(a.nama))}</span>
               <span><span class="w-tag" style="display:block">${esc(accTag(a.nama))}</span><span class="w-name" style="display:block">${esc(pretty(a.nama))}</span></span>
-              <span class="w-amt num"${a.saldo < 0 ? ' style="color:var(--warn)"' : ''}>${rpk(a.saldo)}</span></button>`).join('')}
+              ${a.sign > 0 ? `<span><span class="w-real">Dapat dipakai</span><span class="w-amt num" style="display:block${usable(a) < 0 ? ';color:var(--warn)' : ''}">${rpk(usable(a))}</span><span class="w-real num">Saldo ${rpk(a.saldo)}</span></span>`
+                : `<span><span class="w-amt num" style="display:block">${rpk(a.saldo)}</span><span class="w-real">sisa utang</span></span>`}</button>`).join('')}
           <button class="wallet empty" data-nav="rek"><span class="w-ic" style="background:var(--surface-2)">${ic(dom.length ? 'chevron-right' : 'plus')}</span><span style="font-size:12.5px;font-weight:700">${dom.length ? (rest ? `${rest} rekening<br>lainnya` : 'Semua<br>rekening') : 'Atur<br>dompet'}</span></button>
         </div>
       </section>
@@ -2250,15 +2274,17 @@ function viewAcc() {
   return `<div class="view">
     <header class="topbar">
       <button class="icon-btn" data-back="rek" aria-label="Kembali">${ic('chevron-left')}</button>
-      <div class="grow"><div class="hello-sub">Mutasi rekening</div><h1 class="page-title">${esc(pretty(A.name))}</h1></div>
+      <div class="grow"><div class="hello-sub">Mutasi rekening</div><h1 class="page-title pt-2">${esc(pretty(A.name))}</h1></div>
       ${monthSelect('mAcc')}
     </header>
     <div class="hist-grid acc-layout">
       <div class="sticky">
         <section class="acc-hero tone-${tone}">
-          <div class="acc-hero-top"><span class="ins-ic">${ic(accIcon(A.name))}</span><span><span class="ins-k" style="display:block">${esc(accTag(A.name))}</span>${A.a0.no ? `<span class="faint" style="font-size:12px;font-weight:600">${esc(A.a0.no)}</span>` : ''}</span></div>
+          <div class="acc-hero-top"><span class="ins-ic">${ic(accIcon(A.name))}</span><span style="flex:1;min-width:0"><span class="ins-k" style="display:block">${esc(accTag(A.name))}</span>${A.a0.no ? `<span class="faint" style="font-size:12px;font-weight:600">${esc(A.a0.no)}</span>` : ''}</span><button class="acc-edit" data-setedit="${esc(A.a0.ano || '')}">${ic('pencil')}Ubah rekening</button></div>
           <div class="eyebrow" style="color:var(--ink-2);margin-top:14px">${A.a0.sign < 0 ? 'Sisa utang saat ini' : 'Saldo saat ini'}</div>
           <div class="hero-amt num" style="margin-top:2px;${A.now < 0 ? 'color:var(--warn)' : ''}"><span class="rp">${A.now < 0 ? '−Rp' : 'Rp'}</span>${nf.format(Math.abs(Math.round(A.now)))}</div>
+          ${(() => { const B = balances()[A.name]; if (!B || B.sign < 0) return B && B.cc ? `<div class="acc-lock"><div style="grid-column:1/-1">${B.kunciNo && S.data.rek.find(r => r.ano === B.kunciNo) ? `Dikunci di <b>${esc(pretty(S.data.rek.find(r => r.ano === B.kunciNo).nama))}</b>` : 'Belum dikunci di rekening mana pun'}</div></div>` : '';
+            const u = usable(B); return `<div class="acc-lock num"><div><small>Saldo minimal</small><b>${rp(B.saldoMin)}</b></div><div><small>Saldo dikunci</small><b>${rp(lockOf(B))}</b>${B.kunciCC ? `<em>termasuk ${rpk(B.kunciCC)} utang ${B.kunciDari.map(n => esc(pretty(n))).join(', ')}</em>` : ''}</div><div class="eff"><small>Saldo efektif (dapat dipakai)</small><b${u < 0 ? ' style="color:var(--warn)"' : ''}>${u < 0 ? '−' : ''}${rp(Math.abs(u))}</b></div></div>`; })()}
           <div class="acc-period num">
             <div><small>Saldo awal ${periodShort(m)}</small><b>${rpk(A.open)}</b></div>
             <span aria-hidden="true">${ic('arrow-right')}</span>
@@ -2985,7 +3011,7 @@ function viewSettings() {
     const amt = isBS ? rpk(bal ? bal.saldo : 0) : (IDX.budMap[c.no] ? rpk(IDX.budMap[c.no]) + '/bln' : '');
     const tone = c.cls === '4' ? 'b-in' : c.cls === '5' ? 'b-out' : (isBS && accType(c.nama) === 'bank') ? 'b-trf' : 'b-save';
     return `<button class="set-row" data-setedit="${c.no}"><span class="bub ${tone}">${ic(ICON_AKUN[c.nama] || accIconNo(c.no))}</span>
-      <span class="mid"><span class="t1">${esc(c.nama)}${c.isDompet ? '<span class="tag">Dompet</span>' : ''}${!c.on ? '<span class="tag off">Nonaktif</span>' : ''}</span><span class="t2">${c.no}${c.norek ? ' · ' + esc(c.norek) : ''}${c.lembaga ? ' · ' + esc(c.lembaga) : ''}</span></span>
+      <span class="mid"><span class="t1 wrap">${esc(c.nama)}</span><span class="t2">${c.isDompet ? '<span class="tag">Dompet</span>' : ''}${!c.on ? '<span class="tag off">Nonaktif</span>' : ''}${c.no}${c.norek ? ' · ' + esc(c.norek) : ''}${c.lembaga ? ' · ' + esc(c.lembaga) : ''}</span></span>
       <span class="amt num"${bal && bal.saldo < 0 && c.sign > 0 ? ' style="color:var(--warn)"' : ''}>${amt}</span></button>`;
   };
   const l1 = IDX.A[cls];
@@ -2999,7 +3025,7 @@ function viewSettings() {
     <div class="set-tabs" role="tablist" aria-label="Kelompok akun">${SCLS.map(([v, l]) => `<button type="button" role="tab" data-stab="${v}" aria-pressed="${cls === v}">${l}</button>`).join('')}</div>
     ${cls === '1' ? `<section class="card" style="margin-bottom:18px"><div class="card-h"><h3>Dompet · Dana Tersedia</h3><b class="num">${rp(danaTersedia(b))}</b></div>
       <div class="faint" style="font-size:12.5px;font-weight:600;margin:-4px 0 6px">Dana tersedia = saldo − saldo minimal − saldo dikunci, untuk rekening yang ditandai dompet. Ketuk akun untuk mengubah.</div>
-      ${dom.length ? dom.map(a => `<button class="set-row" data-setedit="${a.ano}"><span class="mid"><span class="t1">${esc(a.nama)}</span><span class="t2 num">Saldo ${rpk(a.saldo)} · minimal ${rpk(a.saldoMin)} · dikunci ${rpk(a.dikunci)}</span></span><span class="amt num"${usable(a) < 0 ? ' style="color:var(--warn)"' : ''}>${rpk(usable(a))}</span></button>`).join('') : '<div class="faint" style="font-size:13px;padding:8px 2px">Belum ada dompet. Buka salah satu akun aset atau utang lalu pilih Dompet: Ya.</div>'}</section>` : ''}
+      ${dom.length ? dom.map(a => `<button class="set-row" data-setedit="${a.ano}"><span class="mid"><span class="t1">${esc(a.nama)}</span><span class="t2 num">Saldo ${rpk(a.saldo)} · minimal ${rpk(a.saldoMin)} · dikunci ${rpk(lockOf(a))}</span></span><span class="amt num"${usable(a) < 0 ? ' style="color:var(--warn)"' : ''}>${rpk(usable(a))}</span></button>`).join('') : '<div class="faint" style="font-size:13px;padding:8px 2px">Belum ada dompet. Buka salah satu akun aset atau utang lalu pilih Dompet: Ya.</div>'}</section>` : ''}
     <div class="set-grid" style="grid-template-columns:minmax(0,1fr)">${blocks || emptyState('Belum ada akun di kelompok ini.', 'file-text')}</div>
     <div class="faint" style="font-size:12.5px;font-weight:600;margin:14px 4px 0">${esc(l1 ? l1.nama : '')}. Akun yang sudah dipakai jurnal tidak dapat dihapus; nonaktifkan agar tidak muncul di formulir.</div>
   </div>`;
@@ -3007,7 +3033,7 @@ function viewSettings() {
 let SF = null;
 function openSetForm(arg) {
   arg = String(arg || 'akun'); const A = IDX.A;
-  SF = { err: '', mode: 'new', no: '', level: 4, cls: '', parent: '', nama: '', norek: '', lembaga: '', atas: '', tglbuka: '', catatan: '', aktif: 'Ya', dompet: 'Tidak', saldo_min: '', saldo_dikunci: '', budget: '', saldo_awal: '', fixed: false, confirmDel: false };
+  SF = { err: '', mode: 'new', no: '', level: 4, cls: '', parent: '', nama: '', norek: '', lembaga: '', atas: '', tglbuka: '', catatan: '', aktif: 'Ya', dompet: 'Tidak', saldo_min: '', saldo_dikunci: '', rek_kunci: '', budget: '', saldo_awal: '', fixed: false, confirmDel: false };
   if (arg === 'rek') { SF.cls = '1'; SF.clsOpts = ['1', '2']; }
   else if (arg === 'akun') { SF.cls = S.stab === '3' ? '5' : S.stab; SF.clsOpts = ['1', '2', '4', '5']; }
   else if (arg.startsWith('akun:')) { const g = A[arg.slice(5)]; SF.cls = g.cls; SF.parent = g.no; SF.fixed = true; }
@@ -3015,7 +3041,7 @@ function openSetForm(arg) {
   else if (arg.startsWith('edit:')) {
     const c = A[arg.slice(5)], b = balances()[c.nama];
     Object.assign(SF, { mode: 'edit', no: c.no, level: c.level, cls: c.cls, parent: c.induk, fixed: true, nama: c.nama, norek: c.norek || '', lembaga: c.lembaga || '', atas: c.atas || '', tglbuka: c.tglbuka || '', catatan: c.catatan || '', aktif: c.on ? 'Ya' : 'Tidak', dompet: c.isDompet ? 'Ya' : 'Tidak',
-      saldo_min: numStr(c.saldo_min), saldo_dikunci: numStr(c.saldo_dikunci), budget: numStr(IDX.budMap[c.no] || 0), saldo_awal: numStr(c.sign * (IDX.openId ? (IDX.byJ[IDX.openId] || []).reduce((x, l) => x + (l.no === c.no ? (l.dk === 'd' ? l.amt : -l.amt) : 0), 0) : 0)) });
+      saldo_min: numStr(c.saldo_min), saldo_dikunci: numStr(c.saldo_dikunci), rek_kunci: c.rek_kunci || '', budget: numStr(IDX.budMap[c.no] || 0), saldo_awal: numStr(c.sign * (IDX.openId ? (IDX.byJ[IDX.openId] || []).reduce((x, l) => x + (l.no === c.no ? (l.dk === 'd' ? l.amt : -l.amt) : 0), 0) : 0)) });
     SF.orig = { budget: SF.budget, saldo_awal: SF.saldo_awal };
   }
   if (SF.mode === 'new' && SF.level === 4 && SF.parent === '' && SF.cls) SF.parent = '';
@@ -3049,7 +3075,12 @@ function renderSetForm() {
         <div class="b-foot" style="margin-top:6px">Dompet tampil di Beranda dan menjadi pilihan rekening di formulir Catat Pengeluaran/Penerimaan${SF.cls === '1' ? ', serta dihitung ke Dana Tersedia' : ''}.</div></div>
       ${SF.cls === '1' ? `<div><label class="field-l" for="sMin">Saldo minimal <span>tidak ikut dana tersedia</span></label><div class="amount-line set-amt"><span class="rp">Rp</span><input id="sMin" inputmode="numeric" placeholder="0" value="${esc(SF.saldo_min)}" autocomplete="off"></div></div>
       <div><label class="field-l" for="sKunci">Saldo dikunci <span>tidak boleh dipakai</span></label><div class="amount-line set-amt"><span class="rp">Rp</span><input id="sKunci" inputmode="numeric" placeholder="0" value="${esc(SF.saldo_dikunci)}" autocomplete="off"></div></div>
-      ${edit ? `<div class="b-foot" id="sUse">Bisa dipakai dari akun ini: <b class="num">${rp(use)}</b> (saldo ${rp(sal)})</div>` : ''}` : ''}`;
+      ${edit ? `<div class="b-foot" id="sUse">Bisa dipakai dari akun ini: <b class="num">${rp(use)}</b> (saldo ${rp(sal)})</div>` : ''}${b && b.kunciCC ? `<div class="b-foot">Ditambah kunci otomatis ${rp(b.kunciCC)} dari ${b.kunciDari.map(n => esc(pretty(n))).join(', ')}.</div>` : ''}` : ''}`;
+      if (SF.cls === '2' && isCCNo(SF.no || '211', SF.nama) && (SF.no ? isCCNo(SF.no, SF.nama) : String(SF.parent).startsWith('211'))) {
+        const kas = S.data.rek.filter(r => isCashNo(r.ano) && r.aktif);
+        body += `<div><div class="field-l">Kunci saldo di rekening <span>kartu kredit</span></div><div class="chip-row">${chip('data-skunci', '', 'Tidak dikunci', !SF.rek_kunci)}${kas.map(r => chip('data-skunci', r.ano, pretty(r.nama), SF.rek_kunci === r.ano)).join('')}</div>
+          <div class="b-foot" style="margin-top:6px">Saldo dikunci rekening yang dipilih otomatis ditambah sebesar saldo utang kartu kredit ini, sehingga Dana Tersedia sudah memperhitungkan tagihan kartu.</div></div>`;
+      }
     }
     body += `<div><label class="field-l" for="sBud">Anggaran per bulan <span>opsional</span></label><div class="amount-line set-amt"><span class="rp">Rp</span><input id="sBud" inputmode="numeric" placeholder="0" value="${esc(SF.budget)}" autocomplete="off"></div></div>
       <div><label class="field-l" for="sCat">Catatan akun <span>opsional</span></label><textarea class="text-field" id="sCat" maxlength="500" placeholder="Keterangan tambahan">${esc(SF.catatan)}</textarea></div>
@@ -3072,7 +3103,7 @@ async function saveSetForm() {
   if (SF.level === 4) {
     Object.assign(a, { norek: SF.norek, lembaga: SF.lembaga, atas: SF.atas, tglbuka: SF.tglbuka, aktif: SF.aktif });
     if (SF.cls === '1') Object.assign(a, { dompet: SF.dompet, saldo_min: parseNum(SF.saldo_min), saldo_dikunci: parseNum(SF.saldo_dikunci) });
-    else if (SF.cls === '2') a.dompet = SF.dompet;
+    else if (SF.cls === '2') { a.dompet = SF.dompet; a.rek_kunci = SF.rek_kunci || ''; }
     if (SF.mode === 'new' ? SF.budget !== '' : SF.budget !== SF.orig.budget) a.budget = parseNum(SF.budget);
     if ((SF.cls === '1' || SF.cls === '2') && (SF.mode === 'new' ? SF.saldo_awal !== '' : SF.saldo_awal !== SF.orig.saldo_awal)) a.saldo_awal = parseNum(SF.saldo_awal);
   }
@@ -3166,6 +3197,8 @@ document.addEventListener('click', e => {
   if (se) { e.stopImmediatePropagation(); e.preventDefault(); openSetForm('edit:' + se.dataset.setedit); return; }
   const spar = T.closest('[data-sparent]');
   if (spar && SF) { e.stopImmediatePropagation(); SF.parent = spar.dataset.sparent; renderSetForm(); return; }
+  const sku = T.closest('[data-skunci]');
+  if (sku && SF) { e.stopImmediatePropagation(); SF.rek_kunci = sku.dataset.skunci; renderSetForm(); return; }
   const scl = T.closest('[data-scls]');
   if (scl && SF) { e.stopImmediatePropagation(); SF.cls = scl.dataset.scls; SF.parent = ''; renderSetForm(); return; }
   const fe = T.closest('[data-fee]');
