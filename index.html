@@ -11,6 +11,8 @@
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:0}</style>
+<title>RicashFlow</title>
 <style>
 /* Layout: mobile = satu kolom + tab bar bawah + FAB; desktop (>=960px) = sidebar kiri + grid konten 2 kolom.
    Warna: lima pastel dari brief + tinta gelap per pastel untuk teks/ikon agar tetap terbaca. */
@@ -888,9 +890,6 @@ const PWA = true;
    demo = pratinjau dengan data contoh */
 const MODE = (window.google && google.script && google.script.run) ? 'gas' : PWA ? 'api' : 'demo';
 const LIVE = MODE !== 'demo';
-/* versi offline = mode demo berisi data terkini yang dibuat buatOffline() di Code.gs */
-const OFFLINE = !!(DEMO && DEMO.offlineAt);
-const offlineAt = () => { const t = DEMO.offlineAt; return `${+t.slice(8, 10)} ${BLN[+t.slice(5, 7) - 1]} ${t.slice(11, 13)}.${t.slice(14, 16)}`; };
 const store = {
   get(k) { try { return JSON.parse(localStorage.getItem(k) || 'null'); } catch (e) { return null; } },
   set(k, v) { try { v == null ? localStorage.removeItem(k) : localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
@@ -1179,10 +1178,8 @@ function budgetSummary(m) {
 /* ---------- API ---------- */
 const cloneJ = o => JSON.parse(JSON.stringify(o));
 const demoStore = {
-  // versi offline: kunci ikut waktu pembuatan, jadi data baru dari Drive tidak tertimpa perubahan lama di perangkat
-  key: 'ricashflow-demo-v2' + (OFFLINE ? '-' + DEMO.offlineAt : ''),
+  key: 'ricashflow-demo-v2',
   load() {
-    try { Object.keys(localStorage).forEach(k => { if (k.startsWith('ricashflow-demo-v2-') && k !== this.key) localStorage.removeItem(k); }); } catch (e) {}
     const d = cloneJ(DEMO);
     try { const s = localStorage.getItem(this.key); if (s) { const p = JSON.parse(s); if (p && Array.isArray(p.jnl) && Array.isArray(p.coa)) { d.jnl = p.jnl; d.coa = p.coa; d.bud = p.bud || d.bud; } } } catch (e) {}
     return d;
@@ -1333,8 +1330,6 @@ function statusHTML() {
   }
   if (LIVE) return `<div class="status"><span class="led"></span><span style="flex:1">Tersambung</span><button class="link" data-act="reload" aria-label="Muat ulang data">${ic('refresh-cw')}</button></div>
     ${S.data.sheetUrl ? `<a class="link" style="padding:8px 4px" href="${esc(S.data.sheetUrl)}" target="_blank" rel="noopener">Buka Google Sheet ${ic('external-link')}</a>` : ''}`;
-  if (OFFLINE) { const t = DEMO.offlineAt; return `<div class="status demo"><span class="led"></span><span style="flex:1">Versi offline · data per ${+t.slice(8, 10)} ${BLN[+t.slice(5, 7) - 1]} ${t.slice(0, 4)} pukul ${t.slice(11, 13)}.${t.slice(14, 16)}. Tidak tersambung ke Google Sheet; perubahan hanya tersimpan di perangkat ini.</span></div>
-    <button class="link" style="padding:8px 4px" data-act="reset-demo">${ic('refresh-cw')} Kembalikan data offline</button>`; }
   return `<div class="status demo"><span class="led"></span><span style="flex:1">Mode pratinjau. Data dari db_ricashflowjournal; perubahan hanya tersimpan di browser ini.</span></div>
     <button class="link" style="padding:8px 4px" data-act="reset-demo">${ic('refresh-cw')} Kembalikan data awal</button>`;
 }
@@ -1516,7 +1511,7 @@ function viewHome() {
   return `<div class="view">
     <header class="topbar">
       <button class="avatar" data-nav="settings" aria-label="Pengaturan">${esc(nama.charAt(0))}</button>
-      <div class="grow"><div class="hello-sub">${OFFLINE ? `<b style="color:var(--pink-ink);white-space:normal">Offline · ${offlineAt()}</b>` : greet()}</div><h1 class="hello">Halo, ${esc(nama)}!</h1></div>
+      <div class="grow"><div class="hello-sub">${greet()}</div><h1 class="hello">Halo, ${esc(nama)}!</h1></div>
       ${monthSelect('mHome')}
     </header>
     <div class="home-grid">
