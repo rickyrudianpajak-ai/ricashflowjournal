@@ -1077,10 +1077,10 @@ function sums(list) {
   });
   s.net = s.inc - s.exp; return s;
 }
-/* arus kas (basis kas): hanya transaksi yang menyentuh kas & setara kas (11).
+/* arus kas (basis kas): hanya transaksi yang menyentuh kas & setara kas (11) atau kartu kredit (dipakai seperti dompet).
    inc/exp = pendapatan/beban; oin/oout = penerimaan/pengeluaran kas selain pendapatan & beban
-   (terima pinjaman, jual aset / bayar utang, beli aset). Pemindahan antar kas & setara kas tidak dihitung. */
-const kasNm = n => isCashNo((IDX.byName[n] || {}).no || '');
+   (terima pinjaman, jual aset / bayar utang, beli aset). Pemindahan antar kas & kartu kredit (termasuk bayar tagihan kartu) tidak dihitung. */
+const kasNm = n => isFundNo((IDX.byName[n] || {}).no || '');
 function cashKind(t) {
   if (t.ind === 'penerimaan') return kasNm(t.rek) ? 'inc' : null;
   if (t.ind === 'pengeluaran') return kasNm(t.rek) ? 'exp' : null;
@@ -1742,8 +1742,9 @@ function repNeraca() {
 
 /* ===== Perubahan Harta & Arus Kas (format LHKPN) =====
    1. Rekapitulasi harta kekayaan: saldo awal, saldo akhir, perubahan per kelompok harta.
-   2–3. Penerimaan & pengeluaran kas: setiap pasangan jurnal yang menyentuh kas & setara kas (11x) dengan akun non-kas,
-   dikelompokkan menurut akun lawannya. Perpindahan antar kas tidak dihitung, sehingga penerimaan bersih = perubahan kas. */
+   2–3. Penerimaan & pengeluaran kas: setiap pasangan jurnal yang menyentuh kas & setara kas (11x) atau kartu kredit dengan akun lain,
+   dikelompokkan menurut akun lawannya. Kartu kredit diperlakukan seperti dompet: belanja kartu = pengeluaran saat transaksi,
+   bayar tagihan kartu = pemindahan. Penerimaan bersih = perubahan kas − kenaikan utang kartu kredit. */
 const PHA_HARTA = [
   ['A', 'Harta tidak bergerak', ['14']], ['B', 'Harta bergerak (alat transportasi dan mesin)', ['132']], ['C', 'Harta bergerak lainnya', ['131', '133']],
   ['D', 'Surat berharga', ['12']], ['E', 'Kas dan setara kas', ['11']], ['F', 'Harta lainnya', ['15']]
@@ -1759,6 +1760,8 @@ const PHA_OUT = [
   ['C', 'Pengeluaran lainnya', [['531', 'Biaya pengurusan waris/hibah/hadiah'], ['532', 'Pelunasan/angsuran hutang'], ['533', 'Pengeluaran lainnya']]]
 ];
 const isCashNo = no => String(no).startsWith('11');
+/* dana = kas & setara kas + kartu kredit (utang kartu dipakai seperti dompet) */
+const isFundNo = no => isCashNo(no) || (String(no).startsWith('2') && isCCNo(no, (IDX.A[no] || {}).nama));
 /* pos laporan = nomor header Level 3 akun lawan (hierarki db_coa kelas 4 & 5 mengikuti formulir ini).
    Lawan neraca: harta dijual/dibeli → 424/521, utang diterima/dibayar → 431/532. */
 const PHA_POS = new Set([...PHA_IN, ...PHA_OUT].flatMap(g => g[2].map(i => i[0])));
@@ -1778,7 +1781,7 @@ function phaData(m) {
     if (jid === IDX.openId) return;
     const lines = IDX.byJ[jid]; if (!p.ms.includes(lines[0].d.slice(0, 7))) return;
     pairLines(lines, A).forEach(pr => {
-      const dc = isCashNo(pr.d.no), cc = isCashNo(pr.c.no);
+      const dc = isFundNo(pr.d.no), cc = isFundNo(pr.c.no);
       if (dc && cc) { internal += pr.amt; return; }
       if (!dc && !cc) return;
       const inflow = dc, other = dc ? pr.c : pr.d, [side, key] = phaKey(other.no, inflow);
@@ -1795,16 +1798,17 @@ function phaData(m) {
     return { kids, a: kids.reduce((x, k) => x + k.a, 0), e: kids.reduce((x, k) => x + k.e, 0) };
   };
   const harta = PHA_HARTA.map(([L, t, px]) => ({ L, t, ...hartaRow(px) }));
-  const ut = hartaRow(['2']);
+  const ut = hartaRow(['2']), cc = l4.filter(c => isFundNo(c.no) && !isCashNo(c.no)).map(c => c.no);
+  const dCC = cc.reduce((x, no) => x + natBal(no, gE) - natBal(no, gO), 0);
   const subA = harta.reduce((x, h) => x + h.a, 0), subE = harta.reduce((x, h) => x + h.e, 0);
   const sec = (defs, side) => defs.map(([L, t, items]) => { const its = items.map(([k, lbl]) => ({ k, lbl, v: val[side][k] || 0, det: Object.entries(det[side][k] || {}).filter(x => Math.abs(x[1]) >= .5).sort((a, b) => b[1] - a[1]) })); return { L, t, items: its, v: its.reduce((x, i) => x + i.v, 0) }; });
   const pin = sec(PHA_IN, 'in'), pout = sec(PHA_OUT, 'out');
   const tin = pin.reduce((x, g) => x + g.v, 0), tout = pout.reduce((x, g) => x + g.v, 0);
   const kas = harta.find(h => h.L === 'E');
-  return { p, harta, ut, subA, subE, totA: subA - ut.a, totE: subE - ut.e, pin, pout, tin, tout, net: tin - tout, dKas: kas.e - kas.a, internal };
+  return { p, harta, ut, subA, subE, totA: subA - ut.a, totE: subE - ut.e, pin, pout, tin, tout, net: tin - tout, dKas: kas.e - kas.a, dCC, dDana: kas.e - kas.a - dCC, internal };
 }
 function repPHA() {
-  const D = phaData(S.month), p = D.p, dTot = D.totE - D.totA, ok = Math.abs(D.net - D.dKas) < 1;
+  const D = phaData(S.month), p = D.p, dTot = D.totE - D.totA, ok = Math.abs(D.net - D.dDana) < 1;
   const n = v => Math.abs(v) < .5 ? '–' : fmtN(v), dv = v => Math.abs(v) < .5 ? '–' : (v > 0 ? '+' : '') + fmtN(v);
   const bad = (v, debt) => debt ? v > .5 : v < -.5;
   const hRow = (h, cls) => h.kids.length ? `<details class="rp-l2 ${cls || ''}"><summary><span class="rp-n"><i>${h.L}</i>${esc(h.t)}</span><b class="num rp-v">${n(h.a)}</b><b class="num rp-v">${n(h.e)}</b><b class="num rp-v${bad(h.e - h.a, h.debt) ? ' neg-red' : ''}">${dv(h.e - h.a)}</b></summary>
@@ -1825,9 +1829,9 @@ function repPHA() {
         <div class="hero-chip"><span class="dot b-out">${ic('arrow-up-right')}</span><span style="min-width:0"><small>Pengeluaran kas</small><b class="num">${rpk(D.tout)}</b></span></div>
         <div class="hero-chip ${D.net >= 0 ? 'sur' : 'def'}"><span class="dot">${ic(D.net >= 0 ? 'trending-up' : 'trending-down')}</span><span style="min-width:0"><small>Penerimaan bersih</small><b class="num">${D.net < 0 ? '−' : ''}${rpk(Math.abs(D.net))}</b></span></div></div></section>
       <section class="card pha-check">
-        <div class="card-h"><h3>Pemeriksaan</h3>${p.contiguous ? balBadge(ok, 'Cocok', 'Selisih ' + rp(D.net - D.dKas)) : ''}</div>
-        <div class="rep-sum num"><div><span>Penerimaan bersih</span><b>${D.net < 0 ? '−' : ''}${rp(Math.abs(D.net))}</b></div><div><span>Kenaikan/(penurunan) kas dan setara kas</span><b>${D.dKas < 0 ? '−' : ''}${rp(Math.abs(D.dKas))}</b></div></div>
-        <div class="b-foot" style="margin-top:10px">${p.contiguous ? (ok ? 'Penerimaan bersih sama dengan perubahan kas dan setara kas.' : 'Ada selisih: periksa jurnal yang menyentuh kas dan setara kas.') : 'Pemeriksaan hanya berlaku untuk bulan yang berurutan.'} Pemindahan antar kas & setara kas (${rpk(D.internal)}) tidak dihitung sebagai penerimaan atau pengeluaran.</div>
+        <div class="card-h"><h3>Pemeriksaan</h3>${p.contiguous ? balBadge(ok, 'Cocok', 'Selisih ' + rp(D.net - D.dDana)) : ''}</div>
+        <div class="rep-sum num"><div><span>Penerimaan bersih</span><b>${D.net < 0 ? '−' : ''}${rp(Math.abs(D.net))}</b></div><div><span>Kenaikan/(penurunan) kas dan setara kas</span><b>${D.dKas < 0 ? '−' : ''}${rp(Math.abs(D.dKas))}</b></div><div><span>Dikurangi kenaikan/(penurunan) utang kartu kredit</span><b>${D.dCC < 0 ? '−' : ''}${rp(Math.abs(D.dCC))}</b></div><div class="tot"><span>Perubahan dana</span><b>${D.dDana < 0 ? '−' : ''}${rp(Math.abs(D.dDana))}</b></div></div>
+        <div class="b-foot" style="margin-top:10px">${p.contiguous ? (ok ? 'Penerimaan bersih sama dengan perubahan kas dan setara kas setelah dikurangi kenaikan utang kartu kredit.' : 'Ada selisih: periksa jurnal yang menyentuh kas, setara kas, atau kartu kredit.') : 'Pemeriksaan hanya berlaku untuk bulan yang berurutan.'} Kartu kredit diperlakukan seperti dompet: belanja kartu dihitung sebagai pengeluaran pada tanggal transaksi. Pemindahan antar kas & kartu kredit, termasuk bayar tagihan kartu (${rpk(D.internal)}), tidak dihitung sebagai penerimaan atau pengeluaran.</div>
       </section></div>
     <div class="rep-col">
       <section class="card"><div class="card-h"><h3>1. Rekapitulasi harta kekayaan</h3></div>
@@ -1901,7 +1905,7 @@ function breakdownCard(m, list) {
   const isIn = S.rk === 'in', ind = isIn ? 'penerimaan' : 'pengeluaran', byGrup = S.rg === 'grup';
   /* pengeluaran kas yang bukan beban: bayar utang & beli aset (transfer dari kas & setara kas ke akun utang/aset non-kas) */
   const anoOf = n => (IDX.rekBy[n] || {}).ano || '';
-  const kasOut = isIn ? [] : list.filter(t => t.ind === 'transfer' && isCashNo(anoOf(t.rek)) && anoOf(t.akun) && !isCashNo(anoOf(t.akun)));
+  const kasOut = isIn ? [] : list.filter(t => t.ind === 'transfer' && isFundNo(anoOf(t.rek)) && anoOf(t.akun) && !isFundNo(anoOf(t.akun)));
   const kindK = t => (rekOf(t.akun) || {}).sign < 0 ? 'utang' : 'aset';
   const rows = list.filter(t => t.ind === ind);
   const key = byGrup ? (t => t.ind === 'transfer' ? ((IDX.A[anoOf(t.akun).slice(0, 3)] || {}).nama || t.akun) : (IDX.coaBy[ind + '_' + t.akun] || {}).grup || t.akun) : (t => t.akun);
