@@ -1032,6 +1032,7 @@ function derive(raw) {
     c.sign = (c.cls === '2' || c.cls === '3' || c.cls === '4') ? -1 : 1;
     c.on = c.aktif !== 'Tidak'; c.saldo_min = Number(c.saldo_min) || 0; c.saldo_dikunci = Number(c.saldo_dikunci) || 0;
     c.isDompet = c.tipe === 'Detail' && c.dompet === 'Ya';
+    c.anggota = String(c.anggota || '').toUpperCase();
     A[c.no] = c; if (c.level === 4) byName[c.nama] = c;
   });
   const budMap = {};
@@ -1252,8 +1253,14 @@ const demoOps = {
     R.jnl.splice(at, 0, ...lines.map((l, i) => ({ id: 'L-' + String(maxL + 1 + i).padStart(6, '0'), j: id, d: j.tanggal, no: String(l.no), memo: l.memo || '', dk: l.dk === 'd' ? 'd' : 'k', amt: Number(l.amt) })));
     demoStore.save(); return { data: R, id };
   },
-  // sama dengan kodeJurnal_ di Code.gs: P penerimaan, B pengeluaran, T transfer, A beli aset, U bayar utang, J jurnal bebas
+  // sama dengan kodeJurnal_ di Code.gs: pemilik + lawan (akun antar-anggota) + jenis
   kode(lines) {
+    const me = (S.raw.cfg || {}).entitas || '', A = {}; S.raw.coa.forEach(c => { A[c.no] = c; });
+    const law = [...new Set(lines.map(l => String((A[String(l.no)] || {}).anggota || '').toUpperCase()).filter(k => k && k !== me))];
+    return me + (law.length === 1 ? law[0] : '') + demoOps.jenis(lines);
+  },
+  // P penerimaan, B pengeluaran, T transfer, A beli aset, U bayar utang, J jurnal bebas
+  jenis(lines) {
     const D = [], K = []; lines.forEach(l => (l.dk === 'd' ? D : K).push(String(l.no)));
     const all = D.concat(K), kas = n => n.startsWith('11'), naset = n => n[0] === '1' && !kas(n), ut = n => n[0] === '2';
     if (all.includes('31101')) return 'J';
@@ -1284,7 +1291,7 @@ const demoOps = {
       const kids = R.coa.filter(c => c.level === parent.level + 1 && c.no.startsWith(parent.no) && c.no.length === len);
       no = kids.length ? String(Math.max(...kids.map(c => parseInt(c.no, 10))) + 1) : (parent.level === 3 ? parent.no + '01' : parent.no + '1');
       if (no.length !== len || !no.startsWith(parent.no)) throw new Error('Nomor akun di grup ' + parent.no + ' sudah penuh.');
-      me = { no, nama, level: parent.level + 1, tipe: parent.level === 3 ? 'Detail' : 'Header', laporan: parent.laporan, kelas: parent.kelas, normal: parent.normal, norek: '', lembaga: '', atas: '', tglbuka: '', catatan: '', dompet: '', aktif: 'Ya', saldo_min: 0, saldo_dikunci: 0 };
+      me = { no, nama, level: parent.level + 1, tipe: parent.level === 3 ? 'Detail' : 'Header', laporan: parent.laporan, kelas: parent.kelas, normal: parent.normal, norek: '', lembaga: '', atas: '', tglbuka: '', catatan: '', dompet: '', aktif: 'Ya', saldo_min: 0, saldo_dikunci: 0, anggota: '' };
       // sisipkan setelah akun terakhir di bawah induk agar urutan tetap rapi
       let idx = R.coa.indexOf(parent); for (let i = idx + 1; i < R.coa.length && R.coa[i].level > parent.level; i++) idx = i;
       R.coa.splice(idx + 1, 0, me);
@@ -1297,6 +1304,7 @@ const demoOps = {
       if (a.saldo_min != null) me.saldo_min = Number(a.saldo_min) || 0;
       if (a.saldo_dikunci != null) me.saldo_dikunci = Number(a.saldo_dikunci) || 0;
       if (a.rek_kunci != null) me.rek_kunci = String(a.rek_kunci);
+      if (a.anggota != null) { const k = String(a.anggota).toUpperCase(); if (k && !((S.raw.cfg || {}).anggota || {})[k]) throw new Error('Kode anggota ' + k + ' tidak dikenal.'); me.anggota = k; }
       if (a.budget != null) demoOps.setBudget(no, a.budget);
       if (a.saldo_awal != null && (me.kelas === 'Aset' || me.kelas === 'Liabilitas')) demoOps.setAwal(no, Number(a.saldo_awal) || 0, me);
     }
@@ -2918,7 +2926,7 @@ function openDetail(row) {
       <div class="detail-hero"><span class="bub ${KIND_BUB[k]}">${ic(txIcon(t))}</span><div style="font-weight:800;font-size:16px">${esc(txTitle(t))}</div>
         <div class="amt num ${k === 'in' ? 'pos' : ''}">${k === 'in' ? '+' : ''}${rp(t.amt)}</div><div class="faint">${dLong(t.d)}</div></div>
       <dl class="dl">
-        <dt>No. jurnal</dt><dd class="num">${esc(t.j)}${t.idtx ? ` · IDTX ${esc(t.idtx)}` : ''}</dd>
+        <dt>No. jurnal</dt><dd class="num">${esc(t.j)}${lawanOf(t.j) ? ` · dengan ${esc(anggotaNama(lawanOf(t.j)))}` : ''}${t.idtx ? ` · IDTX ${esc(t.idtx)}` : ''}</dd>
         <dt>${t.ind === 'penerimaan' ? 'Diterima di' : t.ind === 'transfer' ? 'Rekening sumber' : 'Dibayar dari'}</dt><dd>${IDX.rekBy[t.rek] ? `<button class="link" data-acc="${esc(t.rek)}">${esc(pretty(t.rek))} ${ic('chevron-right')}</button>` : esc(pretty(t.rek))}</dd>
         ${t.ind === 'transfer' ? `<dt>${(rekOf(t.akun) || {}).sign < 0 ? 'Utang dibayar' : 'Rekening tujuan'}</dt><dd>${isRekAkun ? `<button class="link" data-acc="${esc(t.akun)}">${esc(pretty(t.akun))} ${ic('chevron-right')}</button>` : esc(pretty(t.akun))}</dd>`
           : `<dt>${t.ind === 'penerimaan' ? 'Sumber' : 'Akun'}</dt><dd><button class="link" data-openakun="${esc(t.akun)}">${esc(pretty(t.akun))} ${ic('chevron-right')}</button></dd>`}
@@ -3099,6 +3107,9 @@ const SCLS = [['1', 'Aset'], ['2', 'Utang'], ['3', 'Ekuitas'], ['4', 'Pendapatan
 const parseNum = v => { const neg = /^\s*-/.test(String(v)); const d = String(v ?? '').replace(/[^\d]/g, ''); return (neg ? -1 : 1) * Number(d || 0); };
 const fmtNum = v => { const neg = /^\s*-/.test(String(v)); const d = String(v ?? '').replace(/[^\d]/g, ''); return d ? (neg ? '−' : '') + nf.format(Number(d)) : (neg ? '−' : ''); };
 const numStr = n => n ? (n < 0 ? '−' : '') + nf.format(Math.abs(n)) : '';
+const anggotaNama = k => ((S.raw.cfg || {}).anggota || {})[k] || k;
+/* kode jurnal [pemilik][lawan?][jenis]: RGB-000130 → lawan G */
+const lawanOf = j => { const m = String(j || '').match(/^[A-Z]([A-Z])[PBTAUJ]-/); return m ? m[1] : ''; };
 function viewSettings() {
   const b = balances(), cls = S.stab, coa = S.raw.coa.filter(c => c.cls === cls);
   const dom = Object.values(b).filter(a => a.dompet && a.aktif && a.sign > 0);
@@ -3107,7 +3118,7 @@ function viewSettings() {
     const amt = isBS ? rpk(bal ? bal.saldo : 0) : budLabel(IDX.budMap[c.no]);
     const tone = c.cls === '4' ? 'b-in' : c.cls === '5' ? 'b-out' : (isBS && accType(c.nama) === 'bank') ? 'b-trf' : 'b-save';
     return `<button class="set-row" data-setedit="${c.no}"><span class="bub ${tone}">${ic(ICON_AKUN[c.nama] || accIconNo(c.no))}</span>
-      <span class="mid"><span class="t1 wrap">${esc(c.nama)}</span><span class="t2">${c.isDompet ? '<span class="tag">Dompet</span>' : ''}${!c.on ? '<span class="tag off">Nonaktif</span>' : ''}${c.no}${c.norek ? ' · ' + esc(c.norek) : ''}${c.lembaga ? ' · ' + esc(c.lembaga) : ''}</span></span>
+      <span class="mid"><span class="t1 wrap">${esc(c.nama)}</span><span class="t2">${c.isDompet ? '<span class="tag">Dompet</span>' : ''}${!c.on ? '<span class="tag off">Nonaktif</span>' : ''}${c.anggota ? `<span class="tag">Antar-anggota · ${esc(anggotaNama(c.anggota))}</span>` : ''}${c.no}${c.norek ? ' · ' + esc(c.norek) : ''}${c.lembaga ? ' · ' + esc(c.lembaga) : ''}</span></span>
       <span class="amt num"${bal && bal.saldo < 0 && c.sign > 0 ? ' style="color:var(--warn)"' : ''}>${amt}</span></button>`;
   };
   const l1 = IDX.A[cls];
@@ -3129,7 +3140,7 @@ function viewSettings() {
 let SF = null;
 function openSetForm(arg) {
   arg = String(arg || 'akun'); const A = IDX.A;
-  SF = { err: '', mode: 'new', no: '', level: 4, cls: '', parent: '', nama: '', norek: '', lembaga: '', atas: '', tglbuka: '', catatan: '', aktif: 'Ya', dompet: 'Tidak', saldo_min: '', saldo_dikunci: '', rek_kunci: '', budget: '', saldo_awal: '', fixed: false, confirmDel: false };
+  SF = { err: '', mode: 'new', no: '', level: 4, cls: '', parent: '', nama: '', norek: '', lembaga: '', atas: '', tglbuka: '', catatan: '', aktif: 'Ya', dompet: 'Tidak', saldo_min: '', saldo_dikunci: '', rek_kunci: '', anggota: '', budget: '', saldo_awal: '', fixed: false, confirmDel: false };
   if (arg === 'rek') { SF.cls = '1'; SF.clsOpts = ['1', '2']; }
   else if (arg === 'akun') { SF.cls = S.stab === '3' ? '5' : S.stab; SF.clsOpts = ['1', '2', '4', '5']; }
   else if (arg.startsWith('akun:')) { const g = A[arg.slice(5)]; SF.cls = g.cls; SF.parent = g.no; SF.fixed = true; }
@@ -3137,7 +3148,7 @@ function openSetForm(arg) {
   else if (arg.startsWith('edit:')) {
     const c = A[arg.slice(5)], b = balances()[c.nama];
     Object.assign(SF, { mode: 'edit', no: c.no, level: c.level, cls: c.cls, parent: c.induk, fixed: true, nama: c.nama, norek: c.norek || '', lembaga: c.lembaga || '', atas: c.atas || '', tglbuka: c.tglbuka || '', catatan: c.catatan || '', aktif: c.on ? 'Ya' : 'Tidak', dompet: c.isDompet ? 'Ya' : 'Tidak',
-      saldo_min: numStr(c.saldo_min), saldo_dikunci: numStr(c.saldo_dikunci), rek_kunci: c.rek_kunci || '', budget: '', saldo_awal: numStr(c.sign * (IDX.openId ? (IDX.byJ[IDX.openId] || []).reduce((x, l) => x + (l.no === c.no ? (l.dk === 'd' ? l.amt : -l.amt) : 0), 0) : 0)) });
+      saldo_min: numStr(c.saldo_min), saldo_dikunci: numStr(c.saldo_dikunci), rek_kunci: c.rek_kunci || '', anggota: c.anggota || '', budget: '', saldo_awal: numStr(c.sign * (IDX.openId ? (IDX.byJ[IDX.openId] || []).reduce((x, l) => x + (l.no === c.no ? (l.dk === 'd' ? l.amt : -l.amt) : 0), 0) : 0)) });
     SF.orig = { budget: SF.budget, saldo_awal: SF.saldo_awal };
   }
   if (SF.mode === 'new' && SF.level === 4 && SF.parent === '' && SF.cls) SF.parent = '';
@@ -3178,6 +3189,9 @@ function renderSetForm() {
           <div class="b-foot" style="margin-top:6px">Saldo dikunci rekening yang dipilih otomatis ditambah sebesar saldo utang kartu kredit ini, sehingga Dana Tersedia sudah memperhitungkan tagihan kartu.</div></div>`;
       }
     }
+    const ang = Object.entries((S.raw.cfg || {}).anggota || {});
+    if (ang.length > 1) body += `<div><div class="field-l">Akun antar-anggota</div><div class="chip-row">${chip('data-syn="anggota" data-v', '', 'Bukan', !SF.anggota)}${ang.map(([k, n]) => chip('data-syn="anggota" data-v', k, n, SF.anggota === k)).join('')}</div>
+      <div class="b-foot" style="margin-top:6px">Pilih anggota bila akun ini khusus untuk transaksi dengan anggota itu (mis. Pemberian kepada Ginung, Piutang kepada Ginung). Jurnalnya otomatis berkode lawan (mis. ${esc(((S.raw.cfg || {}).entitas || 'R') + ((ang.find(([k]) => k !== (S.raw.cfg || {}).entitas) || ['G'])[0]))}B-) dan dieliminasi saat konsolidasi.</div></div>`;
     body += `${edit ? `<div><div class="field-l">Anggaran</div><div class="bm-tot num"><span>${hasBud(SF.no) ? `Setahun ${rp(budTot(IDX.budMap[SF.no]))}` : 'Belum ada anggaran'}</span><button type="button" class="link" data-bud="${SF.no}">Atur per bulan ${ic('chevron-right')}</button></div></div>`
       : `<div><label class="field-l" for="sBud">Anggaran per bulan <span>opsional</span></label><div class="amount-line set-amt"><span class="rp">Rp</span><input id="sBud" inputmode="numeric" placeholder="0" value="${esc(SF.budget)}" autocomplete="off"></div><div class="b-foot" style="margin-top:6px">Diisi sama untuk Januari–Desember; ubah per bulan nanti di halaman Anggaran.</div></div>`}
       <div><label class="field-l" for="sCat">Catatan akun <span>opsional</span></label><textarea class="text-field" id="sCat" maxlength="500" placeholder="Keterangan tambahan">${esc(SF.catatan)}</textarea></div>
@@ -3199,6 +3213,7 @@ async function saveSetForm() {
   if (SF.mode === 'edit') a.no = SF.no; else a.parent = SF.parent;
   if (SF.level === 4) {
     Object.assign(a, { norek: SF.norek, lembaga: SF.lembaga, atas: SF.atas, tglbuka: SF.tglbuka, aktif: SF.aktif });
+    if (Object.keys((S.raw.cfg || {}).anggota || {}).length > 1) a.anggota = SF.anggota || '';
     if (SF.cls === '1') Object.assign(a, { dompet: SF.dompet, saldo_min: parseNum(SF.saldo_min), saldo_dikunci: parseNum(SF.saldo_dikunci) });
     else if (SF.cls === '2') { a.dompet = SF.dompet; a.rek_kunci = SF.rek_kunci || ''; }
     if (SF.mode === 'new' && SF.budget !== '') a.budget = parseNum(SF.budget);
