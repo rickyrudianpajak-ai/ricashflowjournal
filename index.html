@@ -206,6 +206,31 @@ main{flex:1;min-width:0;padding:0 16px calc(var(--tab-h) + 96px + env(safe-area-
 .chip svg.i{width:15px;height:15px}
 
 /* ---------- budget page ---------- */
+.by-t{display:flex;flex-direction:column;font-size:13px}
+.by-r{display:grid;grid-template-columns:minmax(52px,.8fr) repeat(3,minmax(0,1fr));gap:6px;align-items:center;padding:9px 8px;border-bottom:1px solid var(--line);text-align:right;width:100%;font:inherit;color:inherit;background:none;border-radius:0}
+.by-r>span:first-child{text-align:left;font-weight:700}
+.by-r>*{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.by-r b{font-weight:800}
+.by-r b.pos{color:var(--mint-ink)} .by-r b.neg{color:var(--warn)}
+button.by-r{cursor:pointer} button.by-r:hover{background:var(--surface-2)}
+.by-r.on{background:var(--blue);border-radius:10px} .by-r.on>span:first-child{color:var(--blue-ink)}
+.by-r.fut{color:var(--ink-3)}
+.by-h{font-size:11px;font-weight:800;color:var(--ink-3);text-transform:uppercase;letter-spacing:.03em;padding-top:2px}
+.by-s{font-weight:700;background:var(--surface-2);border-bottom:0;border-radius:10px;margin-top:6px}
+.by-tot{font-weight:800}
+.bm-list{display:flex;flex-direction:column;gap:8px}
+.bm-row{display:grid;grid-template-columns:84px minmax(0,1fr);gap:8px 10px;align-items:center;padding:8px 10px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface)}
+.bm-row.on{border-color:var(--blue-ink)}
+.bm-row>label{font-weight:700;font-size:13.5px}
+.bm-row .amount-line{margin:0;height:42px;align-items:center}
+.bm-row .bm-sub{grid-column:1/-1;font-size:11.5px;font-weight:600;color:var(--ink-3);margin-top:-2px}
+.bm-sub b{white-space:nowrap}
+.bm-row .bm-sub b{font-weight:800} .bm-sub b.neg{color:var(--warn)} .bm-sub b.pos{color:var(--mint-ink)}
+.bm-all{display:flex;gap:8px;align-items:center}
+.bm-all .amount-line{flex:1;min-width:0;margin:0}
+.bm-all .btn-ghost{flex:none;width:auto;height:50px;padding:0 14px}
+.bm-tot{display:flex;justify-content:space-between;gap:10px;background:var(--surface-2);border-radius:var(--r);padding:10px 14px;font-size:13.5px;font-weight:700}
+.bm-tot b{font-weight:800}
 .b-group{display:flex;flex-direction:column;gap:14px}
 .b-row{display:grid;grid-template-columns:40px 1fr;gap:12px;align-items:center}
 .b-row .bub{width:40px;height:40px}
@@ -923,6 +948,11 @@ function rpk(v, bare) {
 }
 const pct = (a, b) => b ? Math.round(a / b * 100) : 0;
 const pad2 = n => String(n).padStart(2, '0');
+/* anggaran db_bud: 12 angka Januari–Desember (bln); data lama dengan satu kolom budget berlaku sama untuk tiap bulan */
+const budArr = b => Array.isArray(b.bln) && b.bln.length === 12 ? b.bln.map(v => Number(v) || 0) : Array(12).fill(Number(b.budget) || 0);
+const budTot = a => (a || []).reduce((x, v) => x + (Number(v) || 0), 0);
+const budNoIn = (no, ms) => { const a = IDX.budMap[no]; return a ? ms.reduce((x, k) => x + (a[+k.slice(5, 7) - 1] || 0), 0) : 0; };
+const budLabel = a => !budTot(a) ? '' : a.every(v => v === a[0]) ? rpk(a[0]) + '/bln' : rpk(budTot(a)) + '/thn';
 const ymd = d => `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())}`;
 const parseD = s => { const [y, m, d] = s.split('-').map(Number); return new Date(y, m - 1, d); };
 const daysIn = (y, m) => new Date(y, m, 0).getDate();
@@ -1005,7 +1035,7 @@ function derive(raw) {
     A[c.no] = c; if (c.level === 4) byName[c.nama] = c;
   });
   const budMap = {};
-  (raw.bud || []).forEach(b => { b.no = String(b.no); budMap[b.no] = Number(b.budget) || 0; });
+  (raw.bud || []).forEach(b => { b.no = String(b.no); budMap[b.no] = budArr(b); });
   // jurnal per id
   const byJ = {}, jorder = [];
   raw.jnl.forEach(l => { l.amt = Number(l.amt) || 0; if (!byJ[l.j]) { byJ[l.j] = []; jorder.push(l.j); } byJ[l.j].push(l); });
@@ -1036,7 +1066,7 @@ function derive(raw) {
     });
   });
   const budget = {};
-  Object.keys(budMap).forEach(no => { if (A[no] && budMap[no]) budget[A[no].nama] = budMap[no]; });
+  Object.keys(budMap).forEach(no => { if (A[no] && budTot(budMap[no])) budget[A[no].nama] = budMap[no]; });
   const ICON_NO = { '41101': 'wallet', '41102': 'award', '41103': 'gift', '41104': 'gift', '41301': 'utensils', '41302': 'clock', '41303': 'star', '41401': 'moon-star', '41402': 'moon-star', '41501': 'plane',
     '42101': 'trending-up', '42102': 'chart-pie', '42103': 'trending-up', '42104': 'trending-up', '42201': 'store', '42301': 'landmark', '42302': 'piggy-bank', '42401': 'tag', '42501': 'circle-plus', '43401': 'sparkles', '43301': 'gift',
     '51101': 'shopping-basket', '51102': 'heart', '51103': 'house', '51104': 'car', '51105': 'wifi', '51106': 'popcorn', '51107': 'graduation-cap', '51108': 'shirt', '51109': 'pill', '51110': 'cat', '51111': 'tent',
@@ -1134,8 +1164,8 @@ function proyeksi(m) {
   const real = realByAkun(txIn(m)), bud = S.data.budget || {};
   const incAk = new Set(S.data.coa.filter(c => c.induk === 'penerimaan').map(c => c.akun));
   let incLeft = 0, expLeft = 0; const incRows = [], expRows = [];
-  Object.entries(bud).forEach(([ak, b]) => {
-    b = Number(b) || 0; if (!b) return;
+  Object.keys(bud).forEach(ak => {
+    const b = budgetOf(ak, m); if (!b) return;
     const left = Math.max(0, b - (real[ak] || 0)); if (!left) return;
     if (incAk.has(ak)) { incLeft += left; incRows.push([ak, left]); } else { expLeft += left; expRows.push([ak, left]); }
   });
@@ -1146,14 +1176,17 @@ function proyeksi(m) {
 const akByNo = no => (IDX.A[no] || {}).nama || '';
 /* Sisa uang harian = 1 − realisasi/budget akun Uang Harian (51101) */
 function uangHarian(m) {
-  const nm = akByNo('51101'), b = budgetOf(nm) * monthsCount(m); if (!b) return null;
+  const nm = akByNo('51101'), b = budgetOf(nm, m); if (!b) return null;
   const r = realByAkun(txIn(m))[nm] || 0, sisa = b - r;
   const res = { b, r, sisa, pct: Math.max(0, 1 - r / b) };
   if (isCurMonth(m)) { const now = new Date(); res.daysLeft = daysIn(now.getFullYear(), now.getMonth() + 1) - now.getDate() + 1; res.perDay = Math.max(0, sisa) / res.daysLeft; }
   return res;
 }
 const pct1 = v => (Math.round(v * 1000) / 10).toString().replace('.', ',');
-function budgetOf(akun) { return Number((S.data.budget || {})[akun]) || 0; }
+function budgetOf(akun, m) {
+  const a = (S.data.budget || {})[akun]; if (!a) return 0;
+  return m == null ? budTot(a) : mset(m).reduce((x, k) => x + (a[+k.slice(5, 7) - 1] || 0), 0);
+}
 function monthsCount(m) { return m === 'all' ? IDX.lastMonth : isMulti(m) ? mset(m).length : 1; }
 /* realisasi = jumlah transaksi per akun pada periode (akun laba rugi, atau akun neraca yang dianggarkan seperti cicilan/pembelian harta) */
 function realByAkun(list) { const r = {}; list.forEach(t => { r[t.akun] = (r[t.akun] || 0) + t.amt; }); return r; }
@@ -1167,7 +1200,7 @@ function budgetAkunSet() {
 function budgetSummary(m) {
   const k = monthsCount(m), list = txIn(m), real = realByAkun(list), { E } = budgetAkunSet();
   let bud = 0, used = 0, belum = 0, overAmt = 0; const over = [];
-  E.forEach(a => { const b = budgetOf(a) * k, r = real[a] || 0; bud += b; used += r; belum += Math.max(0, b - r); if (r > b) { overAmt += r - b; over.push({ akun: a, b, r }); } });
+  E.forEach(a => { const b = budgetOf(a, m), r = real[a] || 0; bud += b; used += r; belum += Math.max(0, b - r); if (r > b) { overAmt += r - b; over.push({ akun: a, b, r }); } });
   over.sort((x, y) => (y.r - y.b) - (x.r - x.b));
   const res = { bud, used, left: bud - used, belum, overAmt, real, k, over };
   const isCur = m !== 'all' && m === `${IDX.year}-${pad2(IDX.lastMonth)}` && new Date().getFullYear() === IDX.year;
@@ -1255,7 +1288,7 @@ const demoOps = {
       // sisipkan setelah akun terakhir di bawah induk agar urutan tetap rapi
       let idx = R.coa.indexOf(parent); for (let i = idx + 1; i < R.coa.length && R.coa[i].level > parent.level; i++) idx = i;
       R.coa.splice(idx + 1, 0, me);
-      if (me.level === 4 && me.laporan === 'Laba Rugi') R.bud.push({ no, budget: 0 });
+      if (me.level === 4 && me.laporan === 'Laba Rugi') R.bud.push({ no, bln: Array(12).fill(0) });
     }
     me.nama = nama; me.catatan = a.catatan || '';
     if (me.level === 4) {
@@ -1264,7 +1297,7 @@ const demoOps = {
       if (a.saldo_min != null) me.saldo_min = Number(a.saldo_min) || 0;
       if (a.saldo_dikunci != null) me.saldo_dikunci = Number(a.saldo_dikunci) || 0;
       if (a.rek_kunci != null) me.rek_kunci = String(a.rek_kunci);
-      if (a.budget != null) { const b = R.bud.find(x => x.no === no); if (b) b.budget = Number(a.budget) || 0; else R.bud.push({ no, budget: Number(a.budget) || 0 }); }
+      if (a.budget != null) demoOps.setBudget(no, a.budget);
       if (a.saldo_awal != null && (me.kelas === 'Aset' || me.kelas === 'Liabilitas')) demoOps.setAwal(no, Number(a.saldo_awal) || 0, me);
     }
     demoStore.save(); return { data: R, no };
@@ -1290,7 +1323,10 @@ const demoOps = {
     R.coa = R.coa.filter(c => c.no !== no); R.bud = R.bud.filter(b => b.no !== no);
     demoStore.save(); return { data: R };
   },
-  setBudget(no, amt) { const R = S.raw, b = R.bud.find(x => x.no === String(no)); if (b) b.budget = Number(amt) || 0; else R.bud.push({ no: String(no), budget: Number(amt) || 0 }); demoStore.save(); return { data: R }; },
+  setBudget(no, amt) {
+    const R = S.raw, bln = Array.isArray(amt) ? amt.map(v => Number(v) || 0) : Array(12).fill(Number(amt) || 0), b = R.bud.find(x => x.no === String(no));
+    if (b) { b.bln = bln; delete b.budget; } else R.bud.push({ no: String(no), bln }); demoStore.save(); return { data: R };
+  },
   deleteBudget(no) { const R = S.raw; R.bud = R.bud.filter(x => x.no !== String(no)); demoStore.save(); return { data: R }; }
 };
 const api = {
@@ -1701,8 +1737,8 @@ function repLR() {
   const p = periodRange(S.month), g = agg(l => l.j !== IDX.openId && p.ms.includes(l.d.slice(0, 7)));
   const inc = buildTree(['4'], no => [natBal(no, g)]), exp = buildTree(['5'], no => [natBal(no, g)]);
   const ti = treeSum(inc), te = treeSum(exp), net = ti - te;
-  const bi = Object.entries(IDX.budMap).filter(([no]) => clsOf(no) === '4').reduce((x, [, v]) => x + v, 0) * p.k, be = Object.entries(IDX.budMap).filter(([no]) => clsOf(no) === '5').reduce((x, [, v]) => x + v, 0) * p.k;
-  const sub = k => { const b = (IDX.budMap[k.c.no] || 0) * p.k; return b ? `<small>Anggaran ${rpk(b)}</small>` : ''; };
+  const bi = Object.keys(IDX.budMap).filter(no => clsOf(no) === '4').reduce((x, no) => x + budNoIn(no, p.ms), 0), be = Object.keys(IDX.budMap).filter(no => clsOf(no) === '5').reduce((x, no) => x + budNoIn(no, p.ms), 0);
+  const sub = k => { const b = budNoIn(k.c.no, p.ms); return b ? `<small>Anggaran ${rpk(b)}</small>` : ''; };
   const card = (title, nodes, tot, tone, bud) => `<section class="card"><div class="card-h"><h3>${title}</h3><b class="num">${rp(tot)}</b></div>
     ${bud ? `<div class="faint" style="font-size:12.5px;font-weight:600;margin:-4px 0 8px">Anggaran ${rpk(bud)}</div>` : ''}
     ${nodes.length ? treeHTML(nodes, { sub }) : repEmpty('Belum ada data di periode ini.')}</section>`;
@@ -1950,15 +1986,15 @@ function viewBudget() {
   const used = pct(bs.used, bs.bud), over = bs.left < 0;
   const groups = {};
   S.data.coa.filter(c => c.induk === 'pengeluaran').forEach(c => {
-    const b = budgetOf(c.akun) * k, r = real[c.akun] || 0;
+    const b = budgetOf(c.akun, m), r = real[c.akun] || 0;
     if (!b && !r) return;
     (groups[c.kat] = groups[c.kat] || []).push({ c, b, r });
   });
-  const inc = S.data.coa.filter(c => c.induk === 'penerimaan').map(c => ({ c, b: budgetOf(c.akun) * k, r: list.filter(t => t.ind === 'penerimaan' && t.akun === c.akun).reduce((x, t) => x + t.amt, 0) })).filter(x => x.b || x.r);
+  const inc = S.data.coa.filter(c => c.induk === 'penerimaan').map(c => ({ c, b: budgetOf(c.akun, m), r: list.filter(t => t.ind === 'penerimaan' && t.akun === c.akun).reduce((x, t) => x + t.amt, 0) })).filter(x => x.b || x.r);
   const incB = inc.reduce((x, a) => x + a.b, 0), incR = inc.reduce((x, a) => x + a.r, 0);
-  const hn = akByNo('51101'), daily = { b: budgetOf(hn) * k, r: real[hn] || 0 };
+  const hn = akByNo('51101'), daily = { b: budgetOf(hn, m), r: real[hn] || 0 };
   const covered = new Set(S.data.coa.map(c => c.akun));
-  const bsb = Object.keys(S.data.budget || {}).filter(a => !covered.has(a)).map(a => ({ c: { akun: a, induk: 'transfer' }, b: budgetOf(a) * k, r: real[a] || 0 })).filter(x => x.b || x.r);
+  const bsb = Object.keys(S.data.budget || {}).filter(a => !covered.has(a)).map(a => ({ c: { akun: a, induk: 'transfer' }, b: budgetOf(a, m), r: real[a] || 0 })).filter(x => x.b || x.r);
   const saveB = bsb.reduce((x, a) => x + a.b, 0), saveR = bsb.reduce((x, a) => x + a.r, 0);
   const row = (x, tone) => {
     const ind = x.c.induk, p = x.b ? x.r / x.b * 100 : (x.r ? 100 : 0), ov = ind !== 'penerimaan' && x.r > x.b, noB = !x.b && x.r;
@@ -1968,7 +2004,7 @@ function viewBudget() {
       <div class="b-foot ${ov ? 'over' : ''} num">${ov ? `Lewat ${rp(x.r - x.b)}` : ind === 'penerimaan' ? (noB || x.r >= x.b ? 'Sudah diterima' : `Belum diterima ${rp(x.b - x.r)}`) : `Sisa ${rp(x.b - x.r)}`}</div></div></div>`;
   };
   return `<div class="view">
-    <header class="topbar"><div class="grow"><div class="hello-sub">${k > 1 ? `Anggaran bulanan × ${k} bulan` : 'Rencana & realisasi'}</div><h1 class="page-title">Anggaran</h1></div><button class="set-add" data-bud="new" aria-label="Tambah anggaran">${ic('plus')}<span class="d-only">Tambah anggaran</span></button>${monthSelect('mBud')}</header>
+    <header class="topbar"><div class="grow"><div class="hello-sub">${k > 1 ? `Jumlah anggaran ${k} bulan` : 'Rencana & realisasi'}</div><h1 class="page-title">Anggaran</h1></div><button class="set-add" data-bud="new" aria-label="Tambah anggaran">${ic('plus')}<span class="d-only">Tambah anggaran</span></button>${monthSelect('mBud')}</header>
     <div class="budget-grid">
       <div style="display:flex;flex-direction:column;gap:inherit">
         ${proyeksiCard(m)}
@@ -2001,35 +2037,78 @@ function viewBudget() {
           return `<div class="sub-h">${esc(pretty(kat))} · <span class="num">${rpk(tr)} / ${rpk(tb)}</span></div>` + rows.sort((a, b) => b.b - a.b || b.r - a.r).map(x => row(x)).join('');
         }).join('') || emptyState('Belum ada data anggaran.', 'target')}</div></section>
     </div>
+    ${budYearCard(m)}
   </div>`;
+}
+/* Anggaran setahun: anggaran, realisasi, dan selisih per bulan Januari–Desember (tahun aktif) */
+function budYearCard(m) {
+  const isIn = S.bk === 'in', { inc, E } = budgetAkunSet(), set = isIn ? inc : E, y = IDX.year, cur = new Set(mset(m));
+  const tx = IDX.sorted.filter(t => +t.d.slice(0, 4) === y && set.has(t.akun) && (!isIn || t.ind === 'penerimaan'));
+  const rows = BULAN.map((_, i) => {
+    const k = `${y}-${pad2(i + 1)}`, done = i + 1 <= IDX.lastMonth;
+    let b = 0; set.forEach(a => { b += budgetOf(a, k); });
+    const r = tx.filter(t => t.d.slice(0, 7) === k).reduce((x, t) => x + t.amt, 0);
+    return { i, k, b, r, done, sel: isIn ? r - b : b - r };
+  });
+  const tb = rows.reduce((x, r) => x + r.b, 0), tr = rows.reduce((x, r) => x + r.r, 0), done = rows.filter(r => r.done);
+  const db = done.reduce((x, r) => x + r.b, 0), dr = done.reduce((x, r) => x + r.r, 0), dsel = isIn ? dr - db : db - dr;
+  const sel = v => `<b class="num ${v < 0 ? 'neg' : 'pos'}">${v > 0 ? '+' : ''}${rpk(v, true)}</b>`;
+  return `<section class="card by-card">
+    <div class="card-h"><h3>Anggaran per bulan ${y}</h3><div class="seg small" data-seg="bk" style="width:210px"><span class="knob"></span><button data-val="out" aria-pressed="${!isIn}">Pengeluaran</button><button data-val="in" aria-pressed="${isIn}">Penerimaan</button></div></div>
+    <div class="by-t num" role="table" aria-label="Anggaran, realisasi, dan selisih per bulan">
+      <div class="by-r by-h" role="row"><span>Bulan</span><span>Anggaran</span><span>Realisasi</span><span>Selisih</span></div>
+      ${rows.map(r => `<${r.done ? `button type="button" data-bmon="${r.k}"` : 'div'} class="by-r ${cur.has(r.k) ? 'on' : ''} ${r.done ? '' : 'fut'}" role="row"><span>${BLN[r.i]}</span><span>${rpk(r.b, true)}</span><span>${r.done ? rpk(r.r, true) : '–'}</span>${r.done ? sel(r.sel) : '<span class="faint">–</span>'}</${r.done ? 'button' : 'div'}>`).join('')}
+      ${done.length < 12 ? `<div class="by-r by-s" role="row"><span>s.d. ${BLN[IDX.lastMonth - 1]}</span><span>${rpk(db, true)}</span><span>${rpk(dr, true)}</span>${sel(dsel)}</div>` : ''}
+      <div class="by-r by-s by-tot" role="row"><span>Setahun</span><span>${rpk(tb, true)}</span><span>${rpk(tr, true)}</span>${sel(isIn ? tr - tb : tb - tr)}</div>
+    </div>
+    <div class="b-foot" style="margin-top:10px">${isIn ? 'Selisih = realisasi − anggaran; minus berarti penerimaan kurang dari rencana.' : 'Selisih = anggaran − realisasi; minus berarti lewat anggaran.'} Ketuk bulan untuk melihat rinciannya. Ubah anggaran per bulan lewat ikon pensil di tiap pos.</div>
+  </section>`;
 }
 
 /* ---------- tambah / ubah / hapus anggaran (db_bud) ---------- */
 let BF = null;
-const budAccts = () => S.raw.coa.filter(c => c.level === 4 && c.cls !== '3' && (c.on || IDX.budMap[c.no]));
+const budAccts = () => S.raw.coa.filter(c => c.level === 4 && c.cls !== '3' && (c.on || budTot(IDX.budMap[c.no])));
+const hasBud = no => budTot(IDX.budMap[no]) > 0;
 function openBudForm(arg) {
-  const edit = arg && arg !== 'new' && IDX.budMap[arg] > 0;
-  BF = { no: arg && arg !== 'new' ? arg : '', edit, amt: arg && IDX.budMap[arg] ? numStr(IDX.budMap[arg]) : '', q: '', confirmDel: false, err: '' };
+  const no = arg && arg !== 'new' ? arg : '';
+  BF = { no, edit: !!no && hasBud(no), amts: budStrs(no), all: '', q: '', confirmDel: false, err: '' };
   renderBudForm(); openSheet('#budSheet');
-  setTimeout(() => { const a = $(BF.no ? '#bAmt' : '#bQ'); if (a && matchMedia('(pointer:fine)').matches) a.focus(); }, 320);
+  setTimeout(() => { const a = $(BF.no ? '#bAll' : '#bQ'); if (a && matchMedia('(pointer:fine)').matches) a.focus(); }, 320);
+}
+const budStrs = no => (IDX.budMap[no] || Array(12).fill(0)).map(v => numStr(v));
+/* realisasi akun per bulan pada tahun aktif */
+function realMonths(no) {
+  const c = IDX.A[no], r = Array(12).fill(0); if (!c) return r;
+  IDX.sorted.forEach(t => { if (t.akun === c.nama && +t.d.slice(0, 4) === IDX.year && (c.cls !== '4' || t.ind === 'penerimaan')) r[+t.d.slice(5, 7) - 1] += t.amt; });
+  return r;
 }
 function budOptHTML() {
   const toks = qToks(BF.q), A = IDX.A;
-  const list = budAccts().filter(c => !(IDX.budMap[c.no] > 0)).filter(c => qMatch(`${c.no} ${c.nama} ${(A[c.induk] || {}).nama || ''}`, toks));
+  const list = budAccts().filter(c => !hasBud(c.no)).filter(c => qMatch(`${c.no} ${c.nama} ${(A[c.induk] || {}).nama || ''}`, toks));
   if (!list.length) return `<div class="ac-none">${toks.length ? `Tidak ada akun yang cocok dengan “${esc(BF.q)}”.` : 'Semua akun sudah punya anggaran.'}</div>`;
   let last = null;
   return list.slice(0, 120).map(c => { const g = (A[c.induk] || {}).nama || ''; const h = g !== last ? `<div class="ac-g">${esc(g)}</div>` : ''; last = g;
     return h + `<button type="button" class="ac-o" data-bopt="${c.no}" aria-selected="${BF.no === c.no}"><small class="num">${c.no}</small><span>${esc(c.nama)}</span></button>`; }).join('');
 }
+function bmSub(i) {
+  const c = IDX.A[BF.no]; if (!c || i + 1 > IDX.lastMonth) return '<span>Belum berjalan</span>';
+  const r = BF.real[i], b = parseNum(BF.amts[i]), d = c.cls === '4' ? r - b : b - r;
+  return `Realisasi <b>${rp(r)}</b> · Selisih <b class="${d < 0 ? 'neg' : 'pos'}">${d > 0 ? '+' : ''}${rp(d)}</b>`;
+}
+const bmTotal = () => BF.amts.reduce((x, v) => x + parseNum(v), 0);
 function renderBudForm() {
   const sh = $('#budSheet'), c = BF.no ? IDX.A[BF.no] : null, A = IDX.A;
+  BF.real = c ? realMonths(c.no) : Array(12).fill(0);
+  const cur = new Set(mset(S.month).map(k => +k.slice(5, 7) - 1));
   sh.innerHTML = `<div class="grab"></div>
     <div class="sheet-h"><h2>${BF.edit ? 'Ubah anggaran' : 'Tambah anggaran'}</h2><button class="icon-btn" data-act="close" aria-label="Tutup">${ic('x')}</button></div>
     <form class="sheet-b" id="budForm" novalidate>
       ${c ? `<div class="bud-acc"><span class="bub ${c.cls === '4' ? 'b-in' : c.cls === '5' ? 'b-out' : 'b-save'}">${ic(ICON_AKUN[c.nama] || accIconNo(c.no))}</span><span style="min-width:0;flex:1"><b>${esc(c.nama)}</b><small>${c.no} · ${esc((A[c.induk] || {}).nama || '')}</small></span>${BF.edit ? '' : `<button type="button" class="link" data-act="bud-change">Ganti</button>`}</div>`
         : `<div><div class="field-l">Pilih akun</div><label class="search">${ic('search')}<input id="bQ" placeholder="Cari nama atau nomor akun…" value="${esc(BF.q)}" autocomplete="off"></label><div class="ac-list" id="bList" style="max-height:340px">${budOptHTML()}</div></div>`}
-      ${c ? `<div><label class="field-l" for="bAmt">Anggaran per bulan</label><div class="amount-line set-amt"><span class="rp">Rp</span><input id="bAmt" inputmode="numeric" placeholder="0" value="${esc(BF.amt)}" autocomplete="off"></div>
-        <div class="b-foot" style="margin-top:6px">Berlaku untuk setiap bulan. Pada pilihan beberapa bulan, anggaran dikalikan jumlah bulannya.</div></div>` : ''}
+      ${c ? `<div><label class="field-l" for="bAll">Isi semua bulan <span>opsional</span></label><div class="bm-all"><div class="amount-line set-amt"><span class="rp">Rp</span><input id="bAll" inputmode="numeric" placeholder="0" value="${esc(BF.all)}" autocomplete="off"></div><button type="button" class="btn-ghost" data-act="bud-all">Terapkan</button></div>
+        <div class="b-foot" style="margin-top:6px">Mengisi Januari–Desember dengan angka yang sama. Setelah itu tiap bulan masih bisa diubah sendiri.</div></div>
+      <div><div class="field-l">Anggaran per bulan ${IDX.year}</div><div class="bm-list num">${BULAN.map((n, i) => `<div class="bm-row ${cur.has(i) ? 'on' : ''}"><label for="bM${i}">${n}</label><div class="amount-line set-amt"><span class="rp">Rp</span><input id="bM${i}" data-bm="${i}" inputmode="numeric" placeholder="0" value="${esc(BF.amts[i])}" autocomplete="off"></div><div class="bm-sub" id="bS${i}">${bmSub(i)}</div></div>`).join('')}</div></div>
+      <div class="bm-tot num"><span>Total setahun</span><b id="bTot">${rp(bmTotal())}</b></div>` : ''}
       <div id="bErr" ${BF.err ? '' : 'hidden'} class="form-err">${esc(BF.err)}</div>
       ${BF.edit ? `<button type="button" class="btn-ghost btn-danger" data-act="bud-del">${ic('trash-2')}${BF.confirmDel ? 'Ketuk lagi untuk menghapus anggaran' : 'Hapus anggaran'}</button>` : ''}
     </form>
@@ -2038,9 +2117,11 @@ function renderBudForm() {
 async function saveBudForm() {
   const err = m => { BF.err = m; const e = $('#bErr'); e.textContent = m; e.hidden = false; };
   if (!BF.no) return err('Pilih akun terlebih dulu.');
-  const amt = parseNum(BF.amt); if (!(amt > 0)) return err('Isi anggaran per bulan (lebih dari 0). Untuk menghapus, pakai tombol Hapus anggaran.');
+  const amts = BF.amts.map(v => parseNum(v));
+  if (amts.some(v => v < 0)) return err('Anggaran tidak boleh minus.');
+  if (!amts.some(v => v > 0)) return err('Isi anggaran minimal satu bulan (lebih dari 0). Untuk menghapus, pakai tombol Hapus anggaran.');
   const btn = $('#bSave'); btn.disabled = true; btn.innerHTML = `${ic('refresh-cw')}Menyimpan…`;
-  try { const res = await api.setBudget(BF.no, amt); setData(res.data); closeSheets(); render(); toast(`Anggaran ${akByNo(BF.no)} ${rp(amt)}/bulan tersimpan`); }
+  try { const res = await api.setBudget(BF.no, amts); setData(res.data); closeSheets(); render(); toast(`Anggaran ${akByNo(BF.no)} tersimpan (setahun ${rp(budTot(amts))})`); }
   catch (e) { btn.disabled = false; btn.innerHTML = `${ic('check')}Simpan anggaran`; err(e.message || 'Gagal menyimpan.'); }
 }
 async function deleteBud() {
@@ -2050,16 +2131,24 @@ async function deleteBud() {
 }
 document.addEventListener('click', e => {
   const T = e.target, b = T.closest('[data-bud]');
-  if (b) { e.stopImmediatePropagation(); e.preventDefault(); openBudForm(b.dataset.bud); return; }
+  if (b) { e.stopImmediatePropagation(); e.preventDefault(); if ($('.sheet.open')) closeSheets(); openBudForm(b.dataset.bud); return; }
   const o = T.closest('[data-bopt]');
-  if (o && BF) { e.stopImmediatePropagation(); BF.no = o.dataset.bopt; BF.amt = IDX.budMap[BF.no] ? numStr(IDX.budMap[BF.no]) : ''; BF.err = ''; renderBudForm(); setTimeout(() => { const a = $('#bAmt'); if (a) a.focus(); }, 30); return; }
-  const a = T.closest('[data-act="bud-change"],[data-act="bud-del"]');
-  if (a && BF) { e.stopImmediatePropagation(); if (a.dataset.act === 'bud-del') deleteBud(); else { BF.no = ''; BF.q = ''; renderBudForm(); } }
+  if (o && BF) { e.stopImmediatePropagation(); BF.no = o.dataset.bopt; BF.amts = budStrs(BF.no); BF.err = ''; renderBudForm(); setTimeout(() => { const a = $('#bAll'); if (a) a.focus(); }, 30); return; }
+  const mo = T.closest('[data-bmon]');
+  if (mo) { e.stopImmediatePropagation(); S.month = mo.dataset.bmon; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); return; }
+  const a = T.closest('[data-act="bud-change"],[data-act="bud-del"],[data-act="bud-all"]');
+  if (a && BF) {
+    e.stopImmediatePropagation();
+    if (a.dataset.act === 'bud-del') deleteBud();
+    else if (a.dataset.act === 'bud-all') { if (BF.all === '') return; BF.amts = Array(12).fill(numStr(parseNum(BF.all))); BF.err = ''; renderBudForm(); }
+    else { BF.no = ''; BF.q = ''; renderBudForm(); }
+  }
 }, true);
 document.addEventListener('input', e => {
   const t = e.target; if (!BF) return;
   if (t.id === 'bQ') { BF.q = t.value; $('#bList').innerHTML = budOptHTML(); }
-  else if (t.id === 'bAmt') { const f = fmtNum(t.value); if (t.value !== f) t.value = f; BF.amt = f; }
+  else if (t.id === 'bAll') { const f = fmtNum(t.value); if (t.value !== f) t.value = f; BF.all = f; }
+  else if (t.dataset.bm) { const i = +t.dataset.bm, f = fmtNum(t.value); if (t.value !== f) t.value = f; BF.amts[i] = f; $('#bS' + i).innerHTML = bmSub(i); $('#bTot').textContent = rp(bmTotal()); }
 });
 document.addEventListener('submit', e => { if (e.target.id === 'budForm') { e.preventDefault(); saveBudForm(); } });
 function proyeksiCard(m) {
@@ -2175,7 +2264,7 @@ function viewAkun() {
   if (!S.ak) { S.view = 'hist'; return viewHist(); }
   const m = S.month, rows = akRows(), info = akunInfo(S.ak), tot = rows.reduce((x, t) => x + t.amt, 0), n = rows.length;
   const isInc = info.induk === 'penerimaan', tone = isInc ? 'mint' : info.induk === 'pengeluaran' ? 'pink' : 'lav';
-  const bud = budgetOf(S.ak) * monthsCount(m), over = !isInc && bud > 0 && tot > bud, noB = !isInc && !bud && tot > 0;
+  const bud = budgetOf(S.ak, m), over = !isInc && bud > 0 && tot > bud, noB = !isInc && !bud && tot > 0;
   const kind = isInc ? 'Penerimaan' : info.induk === 'pengeluaran' ? 'Pengeluaran' : 'Transfer / tabungan';
   const bub = isInc ? 'b-in' : info.induk === 'pengeluaran' ? 'b-out' : 'b-save';
   return `<div class="view">
@@ -3015,7 +3104,7 @@ function viewSettings() {
   const dom = Object.values(b).filter(a => a.dompet && a.aktif && a.sign > 0);
   const rowOf = c => {
     const isBS = c.cls === '1' || c.cls === '2', bal = b[c.nama];
-    const amt = isBS ? rpk(bal ? bal.saldo : 0) : (IDX.budMap[c.no] ? rpk(IDX.budMap[c.no]) + '/bln' : '');
+    const amt = isBS ? rpk(bal ? bal.saldo : 0) : budLabel(IDX.budMap[c.no]);
     const tone = c.cls === '4' ? 'b-in' : c.cls === '5' ? 'b-out' : (isBS && accType(c.nama) === 'bank') ? 'b-trf' : 'b-save';
     return `<button class="set-row" data-setedit="${c.no}"><span class="bub ${tone}">${ic(ICON_AKUN[c.nama] || accIconNo(c.no))}</span>
       <span class="mid"><span class="t1 wrap">${esc(c.nama)}</span><span class="t2">${c.isDompet ? '<span class="tag">Dompet</span>' : ''}${!c.on ? '<span class="tag off">Nonaktif</span>' : ''}${c.no}${c.norek ? ' · ' + esc(c.norek) : ''}${c.lembaga ? ' · ' + esc(c.lembaga) : ''}</span></span>
@@ -3048,7 +3137,7 @@ function openSetForm(arg) {
   else if (arg.startsWith('edit:')) {
     const c = A[arg.slice(5)], b = balances()[c.nama];
     Object.assign(SF, { mode: 'edit', no: c.no, level: c.level, cls: c.cls, parent: c.induk, fixed: true, nama: c.nama, norek: c.norek || '', lembaga: c.lembaga || '', atas: c.atas || '', tglbuka: c.tglbuka || '', catatan: c.catatan || '', aktif: c.on ? 'Ya' : 'Tidak', dompet: c.isDompet ? 'Ya' : 'Tidak',
-      saldo_min: numStr(c.saldo_min), saldo_dikunci: numStr(c.saldo_dikunci), rek_kunci: c.rek_kunci || '', budget: numStr(IDX.budMap[c.no] || 0), saldo_awal: numStr(c.sign * (IDX.openId ? (IDX.byJ[IDX.openId] || []).reduce((x, l) => x + (l.no === c.no ? (l.dk === 'd' ? l.amt : -l.amt) : 0), 0) : 0)) });
+      saldo_min: numStr(c.saldo_min), saldo_dikunci: numStr(c.saldo_dikunci), rek_kunci: c.rek_kunci || '', budget: '', saldo_awal: numStr(c.sign * (IDX.openId ? (IDX.byJ[IDX.openId] || []).reduce((x, l) => x + (l.no === c.no ? (l.dk === 'd' ? l.amt : -l.amt) : 0), 0) : 0)) });
     SF.orig = { budget: SF.budget, saldo_awal: SF.saldo_awal };
   }
   if (SF.mode === 'new' && SF.level === 4 && SF.parent === '' && SF.cls) SF.parent = '';
@@ -3089,7 +3178,8 @@ function renderSetForm() {
           <div class="b-foot" style="margin-top:6px">Saldo dikunci rekening yang dipilih otomatis ditambah sebesar saldo utang kartu kredit ini, sehingga Dana Tersedia sudah memperhitungkan tagihan kartu.</div></div>`;
       }
     }
-    body += `<div><label class="field-l" for="sBud">Anggaran per bulan <span>opsional</span></label><div class="amount-line set-amt"><span class="rp">Rp</span><input id="sBud" inputmode="numeric" placeholder="0" value="${esc(SF.budget)}" autocomplete="off"></div></div>
+    body += `${edit ? `<div><div class="field-l">Anggaran</div><div class="bm-tot num"><span>${hasBud(SF.no) ? `Setahun ${rp(budTot(IDX.budMap[SF.no]))}` : 'Belum ada anggaran'}</span><button type="button" class="link" data-bud="${SF.no}">Atur per bulan ${ic('chevron-right')}</button></div></div>`
+      : `<div><label class="field-l" for="sBud">Anggaran per bulan <span>opsional</span></label><div class="amount-line set-amt"><span class="rp">Rp</span><input id="sBud" inputmode="numeric" placeholder="0" value="${esc(SF.budget)}" autocomplete="off"></div><div class="b-foot" style="margin-top:6px">Diisi sama untuk Januari–Desember; ubah per bulan nanti di halaman Anggaran.</div></div>`}
       <div><label class="field-l" for="sCat">Catatan akun <span>opsional</span></label><textarea class="text-field" id="sCat" maxlength="500" placeholder="Keterangan tambahan">${esc(SF.catatan)}</textarea></div>
       ${edit ? `<div><div class="field-l">Status</div><div class="yn">${chip('data-syn="aktif" data-v', 'Ya', 'Aktif', SF.aktif === 'Ya')}${chip('data-syn="aktif" data-v', 'Tidak', 'Nonaktif', SF.aktif === 'Tidak')}</div></div>` : ''}`;
   } else if (edit) body += `<div><label class="field-l" for="sCat">Catatan <span>opsional</span></label><textarea class="text-field" id="sCat" maxlength="500">${esc(SF.catatan)}</textarea></div>`;
@@ -3111,7 +3201,7 @@ async function saveSetForm() {
     Object.assign(a, { norek: SF.norek, lembaga: SF.lembaga, atas: SF.atas, tglbuka: SF.tglbuka, aktif: SF.aktif });
     if (SF.cls === '1') Object.assign(a, { dompet: SF.dompet, saldo_min: parseNum(SF.saldo_min), saldo_dikunci: parseNum(SF.saldo_dikunci) });
     else if (SF.cls === '2') { a.dompet = SF.dompet; a.rek_kunci = SF.rek_kunci || ''; }
-    if (SF.mode === 'new' ? SF.budget !== '' : SF.budget !== SF.orig.budget) a.budget = parseNum(SF.budget);
+    if (SF.mode === 'new' && SF.budget !== '') a.budget = parseNum(SF.budget);
     if ((SF.cls === '1' || SF.cls === '2') && (SF.mode === 'new' ? SF.saldo_awal !== '' : SF.saldo_awal !== SF.orig.saldo_awal)) a.saldo_awal = parseNum(SF.saldo_awal);
   }
   const btn = $('#sSave'); btn.disabled = true; btn.innerHTML = `${ic('refresh-cw')}Menyimpan…`;
