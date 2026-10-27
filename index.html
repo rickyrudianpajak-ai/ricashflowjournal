@@ -1032,9 +1032,17 @@ function derive(raw) {
     c.sign = (c.cls === '2' || c.cls === '3' || c.cls === '4') ? -1 : 1;
     c.on = c.aktif !== 'Tidak'; c.saldo_min = Number(c.saldo_min) || 0; c.saldo_dikunci = Number(c.saldo_dikunci) || 0;
     c.isDompet = c.tipe === 'Detail' && c.dompet === 'Ya';
-    c.anggota = String(c.anggota || '').toUpperCase();
+    c.anggota = String(c.anggota || '').toUpperCase(); c.pemilik = String(c.pemilik || '').toUpperCase();
     A[c.no] = c; if (c.level === 4) byName[c.nama] = c;
   });
+  // akun milik anggota lain disembunyikan dari seluruh aplikasi (daftar, pilihan, kategori, anggaran, pengaturan):
+  // rekening dengan pemilik lain, dan akun antar-anggota tanpa pemilik yang lawannya buku ini (mis. 41105 Penerimaan Ayah di buku R).
+  // Pengaman: akun yang sudah dipakai jurnal buku ini tetap tampil agar saldo tidak hilang.
+  const me = (raw.cfg || {}).entitas || '', dipakai = {};
+  raw.jnl.forEach(l => { if (Number(l.amt)) dipakai[String(l.no)] = 1; });
+  raw.coa.forEach(c => { c.lain = !!(me && c.level === 4 && (c.pemilik ? c.pemilik !== me : c.anggota === me) && !dipakai[c.no]); });
+  // grup yang semua akunnya milik anggota lain ikut disembunyikan
+  raw.coa.forEach(g => { if (g.level !== 3) return; const k = raw.coa.filter(c => c.level === 4 && c.induk === g.no); g.lain = k.length > 0 && k.every(c => c.lain); });
   const budMap = {};
   (raw.bud || []).forEach(b => { b.no = String(b.no); budMap[b.no] = budArr(b); });
   // jurnal per id
@@ -1044,11 +1052,11 @@ function derive(raw) {
   const awal = {};
   if (openId) byJ[openId].forEach(l => { awal[l.no] = (awal[l.no] || 0) + (l.dk === 'd' ? l.amt : -l.amt); });
   // rekening = akun neraca Level 4 (aset & liabilitas)
-  const rek = raw.coa.filter(c => c.level === 4 && (c.cls === '1' || c.cls === '2')).map(c => ({
+  const rek = raw.coa.filter(c => c.level === 4 && (c.cls === '1' || c.cls === '2') && !c.lain).map(c => ({
     nama: c.nama, no: c.norek || '', ano: c.no, sign: c.sign, awal: c.sign * (awal[c.no] || 0), c, dompet: c.isDompet, saldoMin: c.saldo_min, dikunci: c.saldo_dikunci, aktif: c.on, kunciNo: c.rek_kunci || '', cc: isCCNo(c.no, c.nama)
   }));
   // akun laba rugi Level 4 → daftar kategori
-  const coa = raw.coa.filter(c => c.level === 4 && (c.cls === '4' || c.cls === '5')).map(c => ({
+  const coa = raw.coa.filter(c => c.level === 4 && (c.cls === '4' || c.cls === '5') && !c.lain).map(c => ({
     induk: c.cls === '4' ? 'penerimaan' : 'pengeluaran', kat: (A[c.no.slice(0, 2)] || {}).nama || '', grup: (A[c.no.slice(0, 3)] || {}).nama || '', akun: c.nama, no: c.no, aktif: c.on
   }));
   // transaksi
@@ -1078,7 +1086,8 @@ function derive(raw) {
   return { raw, A, byName, budMap, byJ, jorder, openId, awal, data: { trx, rek, coa, budget, cfg: raw.cfg || {}, sheetUrl: raw.sheetUrl } };
 }
 function setData(raw) {
-  const D = derive(raw), d = D.data;
+  const D = derive(raw), d = D.data, mp = ((raw.cfg || {}).master || {}).pesan;
+  if (mp && !setData.mp) { setData.mp = 1; setTimeout(() => toast(mp), 600); }
   S.raw = raw; S.data = d;
   if (MODE === 'api') store.set('rcf-cache', { at: S.syncAt || Date.now(), data: raw });
   const years = d.trx.map(t => +t.d.slice(0, 4));
@@ -2075,7 +2084,7 @@ function budYearCard(m) {
 
 /* ---------- tambah / ubah / hapus anggaran (db_bud) ---------- */
 let BF = null;
-const budAccts = () => S.raw.coa.filter(c => c.level === 4 && c.cls !== '3' && (c.on || budTot(IDX.budMap[c.no])));
+const budAccts = () => S.raw.coa.filter(c => c.level === 4 && c.cls !== '3' && !c.lain && (c.on || budTot(IDX.budMap[c.no])));
 const hasBud = no => budTot(IDX.budMap[no]) > 0;
 function openBudForm(arg) {
   const no = arg && arg !== 'new' ? arg : '';
@@ -2690,8 +2699,8 @@ const qToks = q => String(q || '').toLowerCase().split(/[^a-z0-9]+/).filter(Bool
 const acLabel = no => { const c = IDX.A[no]; return c ? c.nama : ''; };
 function acMatches(q, sel) {
   const toks = qToks(q), out = [];
-  S.raw.coa.filter(c => c.level === 3).forEach(g => {
-    const kids = S.raw.coa.filter(c => c.level === 4 && c.induk === g.no && (c.on || c.no === sel))
+  S.raw.coa.filter(c => c.level === 3 && !c.lain).forEach(g => {
+    const kids = S.raw.coa.filter(c => c.level === 4 && c.induk === g.no && ((c.on && !c.lain) || c.no === sel))
       .filter(c => qMatch(`${c.no} ${c.nama} ${g.nama}`, toks));
     if (kids.length) out.push({ g, kids });
   });
@@ -3107,18 +3116,25 @@ const SCLS = [['1', 'Aset'], ['2', 'Utang'], ['3', 'Ekuitas'], ['4', 'Pendapatan
 const parseNum = v => { const neg = /^\s*-/.test(String(v)); const d = String(v ?? '').replace(/[^\d]/g, ''); return (neg ? -1 : 1) * Number(d || 0); };
 const fmtNum = v => { const neg = /^\s*-/.test(String(v)); const d = String(v ?? '').replace(/[^\d]/g, ''); return d ? (neg ? '−' : '') + nf.format(Number(d)) : (neg ? '−' : ''); };
 const numStr = n => n ? (n < 0 ? '−' : '') + nf.format(Math.abs(n)) : '';
+/* db_coa bersama: buku anggota mengikuti daftar akun master (buku pertama di ANGGOTA, mis. Ricky) */
+const masterNote = () => {
+  const c = cfg(), m = c.master || {}, ang = c.anggota || {}, mk = Object.keys(ang)[0];
+  if (Object.keys(ang).length < 2) return '';
+  if (c.peran !== 'anggota') return ' Daftar akun ini juga dipakai buku ' + Object.keys(ang).filter(k => k !== c.entitas).map(k => esc(ang[k])).join(', ') + '; perubahan akun ikut ke sana.';
+  return ' Daftar akun mengikuti buku ' + esc(ang[mk] || 'master') + '; tambah, ubah, dan hapus akun langsung dikirim ke sana.' + (m.ok === false || m.pesan ? ' <span style="color:var(--warn)">' + esc(m.pesan) + '</span>' : '');
+};
 const anggotaNama = k => ((S.raw.cfg || {}).anggota || {})[k] || k;
 /* kode jurnal [pemilik][lawan?][jenis]: RGB-000130 → lawan G */
 const lawanOf = j => { const m = String(j || '').match(/^[A-Z]([A-Z])[PBTAUJ]-/); return m ? m[1] : ''; };
 function viewSettings() {
-  const b = balances(), cls = S.stab, coa = S.raw.coa.filter(c => c.cls === cls);
+  const b = balances(), cls = S.stab, coa = S.raw.coa.filter(c => c.cls === cls && !c.lain);
   const dom = Object.values(b).filter(a => a.dompet && a.aktif && a.sign > 0);
   const rowOf = c => {
     const isBS = c.cls === '1' || c.cls === '2', bal = b[c.nama];
     const amt = isBS ? rpk(bal ? bal.saldo : 0) : budLabel(IDX.budMap[c.no]);
     const tone = c.cls === '4' ? 'b-in' : c.cls === '5' ? 'b-out' : (isBS && accType(c.nama) === 'bank') ? 'b-trf' : 'b-save';
     return `<button class="set-row" data-setedit="${c.no}"><span class="bub ${tone}">${ic(ICON_AKUN[c.nama] || accIconNo(c.no))}</span>
-      <span class="mid"><span class="t1 wrap">${esc(c.nama)}</span><span class="t2">${c.isDompet ? '<span class="tag">Dompet</span>' : ''}${!c.on ? '<span class="tag off">Nonaktif</span>' : ''}${c.anggota ? `<span class="tag">Antar-anggota · ${esc(anggotaNama(c.anggota))}</span>` : ''}${c.no}${c.norek ? ' · ' + esc(c.norek) : ''}${c.lembaga ? ' · ' + esc(c.lembaga) : ''}</span></span>
+      <span class="mid"><span class="t1 wrap">${esc(c.nama)}</span><span class="t2">${c.isDompet ? '<span class="tag">Dompet</span>' : ''}${!c.on ? '<span class="tag off">Nonaktif</span>' : ''}${c.pemilik && c.pemilik !== cfg().entitas ? `<span class="tag">Milik ${esc(anggotaNama(c.pemilik))}</span>` : ''}${c.anggota ? `<span class="tag">Antar-anggota · ${esc(anggotaNama(c.anggota))}</span>` : ''}${c.no}${c.norek ? ' · ' + esc(c.norek) : ''}${c.lembaga ? ' · ' + esc(c.lembaga) : ''}</span></span>
       <span class="amt num"${bal && bal.saldo < 0 && c.sign > 0 ? ' style="color:var(--warn)"' : ''}>${amt}</span></button>`;
   };
   const l1 = IDX.A[cls];
@@ -3134,13 +3150,13 @@ function viewSettings() {
       <div class="faint" style="font-size:12.5px;font-weight:600;margin:-4px 0 6px">Dana tersedia = saldo − saldo minimal − saldo dikunci, untuk rekening yang ditandai dompet. Ketuk akun untuk mengubah.</div>
       ${dom.length ? dom.map(a => `<button class="set-row" data-setedit="${a.ano}"><span class="mid"><span class="t1">${esc(a.nama)}</span><span class="t2 num">Saldo ${rpk(a.saldo)} · minimal ${rpk(a.saldoMin)} · dikunci ${rpk(lockOf(a))}</span></span><span class="amt num"${usable(a) < 0 ? ' style="color:var(--warn)"' : ''}>${rpk(usable(a))}</span></button>`).join('') : '<div class="faint" style="font-size:13px;padding:8px 2px">Belum ada dompet. Buka salah satu akun aset atau utang lalu pilih Dompet: Ya.</div>'}</section>` : ''}
     <div class="set-grid" style="grid-template-columns:minmax(0,1fr)">${blocks || emptyState('Belum ada akun di kelompok ini.', 'file-text')}</div>
-    <div class="faint" style="font-size:12.5px;font-weight:600;margin:14px 4px 0">${esc(l1 ? l1.nama : '')}. Akun yang sudah dipakai jurnal tidak dapat dihapus; nonaktifkan agar tidak muncul di formulir.</div>
+    <div class="faint" style="font-size:12.5px;font-weight:600;margin:14px 4px 0">${esc(l1 ? l1.nama : '')}. Akun yang sudah dipakai jurnal tidak dapat dihapus; nonaktifkan agar tidak muncul di formulir.${masterNote()}</div>
   </div>`;
 }
 let SF = null;
 function openSetForm(arg) {
   arg = String(arg || 'akun'); const A = IDX.A;
-  SF = { err: '', mode: 'new', no: '', level: 4, cls: '', parent: '', nama: '', norek: '', lembaga: '', atas: '', tglbuka: '', catatan: '', aktif: 'Ya', dompet: 'Tidak', saldo_min: '', saldo_dikunci: '', rek_kunci: '', anggota: '', budget: '', saldo_awal: '', fixed: false, confirmDel: false };
+  SF = { err: '', mode: 'new', no: '', level: 4, cls: '', parent: '', nama: '', norek: '', lembaga: '', atas: '', tglbuka: '', catatan: '', aktif: 'Ya', dompet: 'Tidak', saldo_min: '', saldo_dikunci: '', rek_kunci: '', anggota: '', pemilik: '', budget: '', saldo_awal: '', fixed: false, confirmDel: false };
   if (arg === 'rek') { SF.cls = '1'; SF.clsOpts = ['1', '2']; }
   else if (arg === 'akun') { SF.cls = S.stab === '3' ? '5' : S.stab; SF.clsOpts = ['1', '2', '4', '5']; }
   else if (arg.startsWith('akun:')) { const g = A[arg.slice(5)]; SF.cls = g.cls; SF.parent = g.no; SF.fixed = true; }
@@ -3148,9 +3164,10 @@ function openSetForm(arg) {
   else if (arg.startsWith('edit:')) {
     const c = A[arg.slice(5)], b = balances()[c.nama];
     Object.assign(SF, { mode: 'edit', no: c.no, level: c.level, cls: c.cls, parent: c.induk, fixed: true, nama: c.nama, norek: c.norek || '', lembaga: c.lembaga || '', atas: c.atas || '', tglbuka: c.tglbuka || '', catatan: c.catatan || '', aktif: c.on ? 'Ya' : 'Tidak', dompet: c.isDompet ? 'Ya' : 'Tidak',
-      saldo_min: numStr(c.saldo_min), saldo_dikunci: numStr(c.saldo_dikunci), rek_kunci: c.rek_kunci || '', anggota: c.anggota || '', budget: '', saldo_awal: numStr(c.sign * (IDX.openId ? (IDX.byJ[IDX.openId] || []).reduce((x, l) => x + (l.no === c.no ? (l.dk === 'd' ? l.amt : -l.amt) : 0), 0) : 0)) });
+      saldo_min: numStr(c.saldo_min), saldo_dikunci: numStr(c.saldo_dikunci), rek_kunci: c.rek_kunci || '', anggota: c.anggota || '', pemilik: c.pemilik || '', budget: '', saldo_awal: numStr(c.sign * (IDX.openId ? (IDX.byJ[IDX.openId] || []).reduce((x, l) => x + (l.no === c.no ? (l.dk === 'd' ? l.amt : -l.amt) : 0), 0) : 0)) });
     SF.orig = { budget: SF.budget, saldo_awal: SF.saldo_awal };
   }
+  if (SF.mode === 'new') SF.pemilik = cfg().entitas || '';    // rekening baru: milik pemilik buku ini
   if (SF.mode === 'new' && SF.level === 4 && SF.parent === '' && SF.cls) SF.parent = '';
   renderSetForm(); openSheet('#setSheet');
   setTimeout(() => { const a = $('#sNama'); if (a && matchMedia('(pointer:fine)').matches) a.focus(); }, 320);
@@ -3160,7 +3177,7 @@ function renderSetForm() {
   const chip = (attr, v, l, on) => `<button type="button" class="chip" ${attr}="${esc(v)}" aria-pressed="${on}">${esc(l)}</button>`;
   const isAkun = SF.level === 4, isBS = SF.cls === '1' || SF.cls === '2', isPL = SF.cls === '4' || SF.cls === '5';
   const par = A[SF.parent], isKas = isAkun && isBS;
-  const groups = S.raw.coa.filter(c => c.level === 3 && c.cls === SF.cls);
+  const groups = S.raw.coa.filter(c => c.level === 3 && c.cls === SF.cls && !c.lain);
   const title = edit ? (isAkun ? 'Ubah akun' : 'Ubah grup') : (isAkun ? 'Tambah akun' : 'Tambah sub-grup');
   let body = '';
   if (!edit && !SF.fixed) {
@@ -3190,6 +3207,8 @@ function renderSetForm() {
       }
     }
     const ang = Object.entries((S.raw.cfg || {}).anggota || {});
+    if (ang.length > 1 && isBS) body += `<div><div class="field-l">Pemilik rekening</div><div class="chip-row">${ang.map(([k, n]) => chip('data-syn="pemilik" data-v', k, n, SF.pemilik === k)).join('')}${chip('data-syn="pemilik" data-v', '', 'Bersama', !SF.pemilik)}</div>
+      <div class="b-foot" style="margin-top:6px">Rekening milik anggota lain tidak muncul di daftar rekening Anda selama belum dipakai di buku Anda.</div></div>`;
     if (ang.length > 1) body += `<div><div class="field-l">Akun antar-anggota</div><div class="chip-row">${chip('data-syn="anggota" data-v', '', 'Bukan', !SF.anggota)}${ang.map(([k, n]) => chip('data-syn="anggota" data-v', k, n, SF.anggota === k)).join('')}</div>
       <div class="b-foot" style="margin-top:6px">Pilih anggota bila akun ini khusus untuk transaksi dengan anggota itu (mis. Pemberian kepada Ginung, Piutang kepada Ginung). Jurnalnya otomatis berkode lawan (mis. ${esc(((S.raw.cfg || {}).entitas || 'R') + ((ang.find(([k]) => k !== (S.raw.cfg || {}).entitas) || ['G'])[0]))}B-) dan dieliminasi saat konsolidasi.</div></div>`;
     body += `${edit ? `<div><div class="field-l">Anggaran</div><div class="bm-tot num"><span>${hasBud(SF.no) ? `Setahun ${rp(budTot(IDX.budMap[SF.no]))}` : 'Belum ada anggaran'}</span><button type="button" class="link" data-bud="${SF.no}">Atur per bulan ${ic('chevron-right')}</button></div></div>`
@@ -3213,7 +3232,7 @@ async function saveSetForm() {
   if (SF.mode === 'edit') a.no = SF.no; else a.parent = SF.parent;
   if (SF.level === 4) {
     Object.assign(a, { norek: SF.norek, lembaga: SF.lembaga, atas: SF.atas, tglbuka: SF.tglbuka, aktif: SF.aktif });
-    if (Object.keys((S.raw.cfg || {}).anggota || {}).length > 1) a.anggota = SF.anggota || '';
+    if (Object.keys((S.raw.cfg || {}).anggota || {}).length > 1) { a.anggota = SF.anggota || ''; if (SF.cls === '1' || SF.cls === '2') a.pemilik = SF.pemilik || ''; }
     if (SF.cls === '1') Object.assign(a, { dompet: SF.dompet, saldo_min: parseNum(SF.saldo_min), saldo_dikunci: parseNum(SF.saldo_dikunci) });
     else if (SF.cls === '2') { a.dompet = SF.dompet; a.rek_kunci = SF.rek_kunci || ''; }
     if (SF.mode === 'new' && SF.budget !== '') a.budget = parseNum(SF.budget);
