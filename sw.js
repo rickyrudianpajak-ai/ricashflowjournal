@@ -1,6 +1,6 @@
 /* RicashFlow service worker: simpan "cangkang" aplikasi agar terbuka cepat & tetap tampil saat offline.
    Data keuangan TIDAK disimpan di sini (permintaan ke Apps Script selalu lewat jaringan). */
-const CACHE = 'ricashflow-v28';
+const CACHE = 'ricashflow-v29';
 const SHELL = ['./', './index.html', './manifest.webmanifest', './icon-192.png', './icon-512.png', './icon-maskable-512.png', './favicon-32.png'];
 
 self.addEventListener('install', e => {

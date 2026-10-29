@@ -1555,7 +1555,8 @@ function viewHome() {
   const bsH = budgetSummary(m), outH = bsH.used, net = s.inc - outH; // realisasi anggaran pengeluaran, surplus/defisit
   const dana = danaTersedia(b);
   const nama = c.nama || 'Ricky';
-  const dom = Object.values(b).filter(a => a.dompet && a.aktif).sort((x, y) => y.saldo - x.saldo);
+  // urut: rekening dengan saldo dapat dipakai terbanyak lebih dulu; utang (kartu kredit dsb.) di belakang, sisa utang terbesar dulu
+  const dom = Object.values(b).filter(a => a.dompet && a.aktif).sort((x, y) => (y.sign > 0) - (x.sign > 0) || (x.sign > 0 ? usable(y) - usable(x) : y.saldo - x.saldo));
   const kas = Object.values(b).filter(a => rekGroup(a) === 'kas' && a.aktif).reduce((x, a) => x + a.saldo, 0);
   const byAno = {}; Object.values(b).forEach(a => { byAno[a.ano] = a; });
   const ccs = Object.values(b).filter(a => a.cc && a.aktif && Math.round(a.saldo) !== 0);
@@ -1927,8 +1928,7 @@ function viewRingkas() {
         <section class="card">
           <div class="card-h"><h3>${chartTitle}</h3>${isMonthly(m) ? '' : `<div class="seg small" data-seg="cm" style="width:180px"><span class="knob"></span><button data-val="cum" aria-pressed="${S.cm === 'cum'}">Kumulatif</button><button data-val="day" aria-pressed="${S.cm === 'day'}">Harian</button></div>`}</div>
           <div class="chart" id="flowChart" role="img" aria-label="Grafik penerimaan dan pengeluaran kas"></div>
-          <div class="chart-legend wrap"><span><i style="background:var(--mint-mid)"></i>Pendapatan</span><span><i style="background:var(--lav-mid)"></i>Penerimaan lain</span><span><i style="background:var(--pink-mid)"></i>Beban</span><span><i style="background:var(--lav-ink)"></i>Pengeluaran lain</span></div>
-          <div class="b-foot" style="margin-top:8px">Hanya transaksi kas & setara kas. Lain-lain: terima pinjaman, jual aset, bayar utang (termasuk kartu kredit), beli aset.</div>
+          <div class="chart-legend wrap"><span><i style="background:var(--mint-mid)"></i>Penerimaan kas</span><span><i style="background:var(--pink-mid)"></i>Pengeluaran kas</span></div>
         </section>
         <div class="sum3">
           <div style="background:var(--mint)"><small>Penerimaan kas</small><b class="num">${rpk(c.tin)}</b>${c.oin ? `<em class="s3-sub">lain ${rpk(c.oin)}</em>` : ''}</div>
@@ -2563,14 +2563,12 @@ function drawCharts() {
   }
 }
 const flowArr = n => ({ inc: Array(n).fill(0), oin: Array(n).fill(0), exp: Array(n).fill(0), oout: Array(n).fill(0) });
-/* batang: pendapatan + penerimaan lain ditumpuk (g 0), beban + pengeluaran lain ditumpuk (g 1); lain-lain berwarna ungu */
+/* dua seri: penerimaan kas (pendapatan + penerimaan lain) dan pengeluaran kas (beban + pengeluaran lain); rinciannya di tooltip */
 const flowSeries = (F, bar) => [
-  { name: 'Pendapatan', v: F.inc, g: 0, fill: bar ? 'var(--mint-mid)' : 'var(--mint)', ink: 'var(--mint-ink)' },
-  { name: 'Penerimaan lain', v: F.oin, g: 0, fill: bar ? 'var(--lav-mid)' : 'var(--lav)', ink: 'var(--lav-mid)' },
-  { name: 'Beban', v: F.exp, g: 1, fill: bar ? 'var(--pink-mid)' : 'var(--pink)', ink: 'var(--pink-ink)' },
-  { name: 'Pengeluaran lain', v: F.oout, g: 1, fill: bar ? 'var(--lav-ink)' : 'var(--lav)', ink: 'var(--lav-ink)', dash: true }];
+  { name: 'Penerimaan kas', v: F.inc.map((v, i) => v == null ? null : v + F.oin[i]), fill: bar ? 'var(--mint-mid)' : 'var(--mint)', ink: 'var(--mint-ink)' },
+  { name: 'Pengeluaran kas', v: F.exp.map((v, i) => v == null ? null : v + F.oout[i]), fill: bar ? 'var(--pink-mid)' : 'var(--pink)', ink: 'var(--pink-ink)' }];
 const flowExtra = F => i => { if (F.inc[i] == null) return ''; const n = F.inc[i] + F.oin[i] - F.exp[i] - F.oout[i];
-  return `<br><span class="k" style="background:var(--blue-mid)"></span>${n >= 0 ? 'Kenaikan' : 'Penurunan'} kas <b class="num">${n < 0 ? '−' : ''}${rp(Math.abs(n))}</b>`; };
+  return `<br><small style="opacity:.8">Pendapatan ${rp(F.inc[i])} · lain ${rp(F.oin[i])}<br>Beban ${rp(F.exp[i])} · lain ${rp(F.oout[i])}</small><br><span class="k" style="background:var(--blue-mid)"></span>${n >= 0 ? 'Kenaikan' : 'Penurunan'} kas <b class="num">${n < 0 ? '−' : ''}${rp(Math.abs(n))}</b>`; };
 function chart(el, o) {
   const W = Math.max(280, el.clientWidth), H = el.clientHeight || 220, P = { l: 46, r: 8, t: 14, b: 24 };
   const n = o.labels.length, iw = W - P.l - P.r, ih = H - P.t - P.b;
