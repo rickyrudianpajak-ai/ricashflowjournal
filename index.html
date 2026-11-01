@@ -800,7 +800,26 @@ body.scrolled .topbar .hello-sub{display:none}
 .sheet .acc-chip[aria-pressed="true"] b{color:var(--blue-ink)}
 .sheet .chip[aria-pressed="true"]{box-shadow:0 0 0 1.5px var(--blue-ink) inset}
 .fee-chips{display:flex;gap:8px;flex-wrap:wrap}
-.fee-chips .chip{flex:1 1 auto;white-space:nowrap}
+.fee-chips .chip{flex:1 1 auto;white-space:nowrap;justify-content:center;text-align:center}
+/* pengingat transaksi rutin di Beranda */
+.rh .card-h{margin-bottom:2px}
+.rh-sub{font-size:12.5px;color:var(--ink-3);font-weight:600;margin-bottom:6px}
+.rh-list{display:flex;flex-direction:column}
+.rh-i{display:flex;align-items:center;gap:12px;padding:9px 0}
+.rh-i+.rh-i{border-top:1px solid var(--line)}
+.rh-i .bub{width:40px;height:40px}
+.rh-i .mid{flex:1;min-width:0;display:flex;flex-direction:column}
+.rh-i .t1{font-weight:700;font-size:14.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rh-i .t2{font-size:12.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.rh-when.today{color:var(--blue-ink);font-weight:700}
+.rh-when.late{color:var(--warn);font-weight:700}
+.rh-i .btn-primary.rh-go{width:auto;height:38px;min-height:0;padding:0 14px;font-size:13px;flex:none}
+.rh-none{font-size:13px;color:var(--ink-2);padding:6px 0}
+.rh-more{margin-top:4px;border-top:1px dashed var(--line)}
+.rh-more summary{list-style:none;cursor:pointer;display:flex;align-items:center;justify-content:space-between;padding:10px 0 4px;font-size:13px;font-weight:700;color:var(--ink-2)}
+.rh-more summary::-webkit-details-marker{display:none}
+.rh-more summary svg.i{width:16px;height:16px;transition:transform .2s}
+.rh-more[open] summary svg.i{transform:rotate(180deg)}
 .sheet-h{background:transparent}
 @media (prefers-reduced-transparency:reduce){.sheet{-webkit-backdrop-filter:none;backdrop-filter:none}}
 /* ---- fitur: laporan akun, sortir, pilih beberapa bulan, kartu total aset geser ---- */
@@ -2029,6 +2048,12 @@ html[data-tema="l"] .page-title,html[data-tema="l"] .topbar .page-title{font-siz
 @container (max-width:300px){
   .hero-row .hero-chip{flex-direction:row;align-items:center;gap:10px}
 }
+@container (max-width:340px){
+  .hero .hero-row .hero-chip{flex-direction:row;align-items:center;gap:10px;padding:9px 12px}
+  .hero .hero-row .hero-chip>span:last-child{flex:1;display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .hero .hero-row .hero-chip small{font-size:13px}
+  .hero .hero-row .hero-chip b{font-size:16px}
+}
 .ms{container-type:inline-size}
 @container (max-width:150px){.ms b{font-size:13px;letter-spacing:-.01em}}
 
@@ -2786,7 +2811,6 @@ function viewHome() {
   const kas = Object.values(b).filter(a => rekGroup(a) === 'kas' && a.aktif).reduce((x, a) => x + a.saldo, 0);
   const byAno = {}; Object.values(b).forEach(a => { byAno[a.ano] = a; });
   const ccs = Object.values(b).filter(a => a.cc && a.aktif && Math.round(a.saldo) !== 0);
-  const rest = Object.values(b).filter(a => rekGroup(a) && !a.dompet && a.aktif && (Math.round(a.saldo) !== 0 || a.n)).length;
   const bs = budgetSummary(m);
   return `<div class="view">
     <header class="topbar">
@@ -2807,6 +2831,7 @@ function viewHome() {
           <div class="hero-chip ${net >= 0 ? 'sur' : 'def'}"><span class="dot">${ic(net >= 0 ? 'trending-up' : 'trending-down')}</span><span style="min-width:0"><small>${net >= 0 ? 'Surplus' : 'Defisit'}</small><b class="num">${net < 0 ? '−' : ''}${rpk(Math.abs(net))}</b></span></div>
         </div>
       </section>
+      ${rutinHome()}
       <section style="--o:2;min-width:0" aria-label="Dompet dan rekening">
         <div class="card-h" style="margin-bottom:10px"><h3>Dompet & rekening</h3><button class="link" data-nav="rek">Semua ${ic('chevron-right')}</button></div>
         <div class="hscroll">
@@ -2815,10 +2840,8 @@ function viewHome() {
               <span><span class="w-tag" style="display:block">${esc(accTag(a.nama))}</span><span class="w-name" style="display:block">${esc(pretty(a.nama))}</span></span>
               ${a.sign > 0 ? `<span><span class="w-real">Dapat dipakai</span><span class="w-amt num" style="display:block${usable(a) < 0 ? ';color:var(--warn)' : ''}">${rpk(usable(a))}</span><span class="w-real num">Saldo ${rpk(a.saldo)}</span></span>`
                 : `<span><span class="w-amt num" style="display:block">${rpk(a.saldo)}</span><span class="w-real">sisa utang</span></span>`}</button>`).join('')}
-          <button class="wallet empty" data-nav="rek"><span class="w-ic" style="background:var(--surface-2)">${ic(dom.length ? 'chevron-right' : 'plus')}</span><span style="font-size:12.5px;font-weight:700">${dom.length ? (rest ? `${rest} rekening<br>lainnya` : 'Semua<br>rekening') : 'Atur<br>dompet'}</span></button>
         </div>
       </section>
-      <section class="card" style="--o:4">${donutCard(m, list, s)}</section>
       <section class="card" style="--o:6">
         <div class="card-h"><h3>Transaksi terakhir</h3><button class="link" data-act="see-all">Lihat semua ${ic('chevron-right')}</button></div>
         <div class="tx-list">${IDX.sorted.slice(0, 6).map(t => txRow(t, { date: true })).join('') || emptyState('Belum ada transaksi. Tekan tombol + untuk mencatat yang pertama.')}</div>
@@ -2826,10 +2849,6 @@ function viewHome() {
       </div>
       <div class="hc hc-r">
       <section class="card" style="--o:3">${budgetMini(m, bs)}</section>
-      <section style="--o:5;min-width:0">
-        <div class="card-h" style="margin-bottom:10px"><h3>Catatan kecil untukmu</h3></div>
-        <div class="insights">${insights(m).map(x => `<article class="ins tone-${x.tone}"><span class="ins-ic">${ic(x.icon)}</span><span class="ins-k">${x.k}</span><p>${x.html}</p></article>`).join('')}</div>
-      </section>
       </div>
     </div>
     ${MODE === 'api' && installEvt && !isStandalone() ? `<button class="install-banner m-only" data-act="install"><span class="brand-mark">${ic('sprout')}</span><span style="flex:1;text-align:left"><b>Pasang RicashFlow</b><small>Buka langsung dari layar utama, tanpa browser</small></span>${ic('download')}</button>` : ''}
@@ -3161,12 +3180,6 @@ function viewRingkas() {
           <div style="background:var(--pink)"><small>Pengeluaran kas</small><b class="num">${rpk(c.tout)}</b>${c.oout ? `<em class="s3-sub">lain ${rpk(c.oout)}</em>` : ''}</div>
           <div style="background:${c.net >= 0 ? 'var(--blue)' : 'var(--warn-bg)'}"><small>${c.net >= 0 ? 'Kenaikan kas' : 'Penurunan kas'}</small><b class="num" style="${c.net < 0 ? 'color:var(--warn)' : ''}">${c.net < 0 ? '−' : ''}${rpk(Math.abs(c.net))}</b></div>
         </div>
-        <section class="card"><div class="b-group">
-          ${factRow('calendar', 'Rata-rata pengeluaran per hari', rp(s.exp / Math.max(1, days)), `${days} hari berjalan`)}
-          ${worst ? factRow('flame', 'Hari paling boros', rp(worst[1]), dLong(worst[0])) : ''}
-          ${often ? factRow(ICON_AKUN[often[0]] || 'circle', 'Paling sering dicatat', pretty(often[0]), `${often[1]} kali`) : ''}
-          ${factRow('arrow-left-right', 'Transfer antar rekening', rp(s.trf), `${list.filter(t => t.ind === 'transfer').length} transaksi`)}
-        </div></section>
       </div>
       <div class="rep-col">
       ${breakdownCard(m, list)}
@@ -4782,6 +4795,37 @@ function viewRutin() {
     <div class="rt-note">Simpan transaksi yang berulang (listrik, internet, gaji, iuran) lalu ketuk <b>Catat</b> untuk membuka formulir yang sudah terisi dengan tanggal hari ini. Daftar ini milik buku ${esc(me)} saja. Transaksi yang sudah dicatat bisa dijadikan rutin dari detail transaksi.</div>
     <div class="rt-list">${L.length ? L.map(card).join('') : emptyState('Belum ada transaksi rutin. Ketuk + untuk menambah.', 'repeat')}</div>
   </div>`;
+}
+/* ---- pengingat di Beranda: transaksi rutin bulan ini yang belum dicatat ----
+   Dianggap sudah dicatat bila bulan ini ada jurnal dengan akun kategori yang sama (pengeluaran: debit, penerimaan: kredit);
+   rutin jenis jurnal: semua baris akun + sisi D/K-nya ada dalam satu jurnal. Tanggal > jumlah hari bulan itu = hari terakhir.
+   Tampil terbuka: jatuh tempo hari ini dan yang terlewat; sisanya (belum jatuh tempo, tanggal tidak tentu) dilipat. */
+function rtSudah(r, ym) {
+  const want = r.jenis === 'jurnal' ? (r.lines || []).filter(l => l.no).map(l => l.no + l.dk) : [r.akun + (r.jenis === 'penerimaan' ? 'k' : 'd')];
+  if (!want.length) return false;
+  return Object.values(IDX.byJ).some(L => L[0].d.slice(0, 7) === ym && want.every(w => L.some(l => l.no + l.dk === w)));
+}
+function rutinHome() {
+  const L = rutinList(); if (!L.length) return '';
+  const now = new Date(), ym = ymd(now).slice(0, 7), today = now.getDate(), last = daysIn(now.getFullYear(), now.getMonth() + 1);
+  const open = L.filter(r => !rtSudah(r, ym)).map(r => ({ r, due: r.tgl ? Math.min(r.tgl, last) : 0 }));
+  const now1 = open.filter(x => x.due && x.due <= today).sort((a, b) => b.due - a.due), later = open.filter(x => !x.due || x.due > today);
+  const done = L.length - open.length;
+  const row = ({ r, due }) => {
+    const k = r.jenis === 'penerimaan' ? 'in' : r.jenis === 'jurnal' ? 'trf' : 'out', amt = rtAmt(r);
+    const icon = r.jenis === 'jurnal' ? 'repeat' : (ICON_AKUN[akNama(r.akun)] || (r.jenis === 'penerimaan' ? 'circle-plus' : 'circle'));
+    const when = !due ? 'Tanggal tidak tentu' : due === today ? 'Jatuh tempo hari ini' : due < today ? `Terlewat · tgl ${due}` : `Tgl ${due}`;
+    return `<div class="rh-i"><span class="bub ${KIND_BUB[k]}">${ic(icon)}</span>
+      <span class="mid"><span class="t1">${esc(r.nama)}</span><span class="t2"><span class="rh-when${due && due < today ? ' late' : due === today ? ' today' : ''}">${when}</span>${amt ? ` · <span class="num">${r.jenis === 'penerimaan' ? '+' : ''}${rpk(amt)}</span>` : ''}</span></span>
+      <button type="button" class="btn-primary rh-go" data-rt-use="${esc(r.id)}">${ic('plus')}Catat</button></div>`;
+  };
+  const sub = open.length ? `${open.length} belum dicatat bulan ini${done ? ` · ${done} sudah` : ''}` : `Semua ${L.length} sudah dicatat bulan ini`;
+  return `<section class="card rh" style="--o:2" aria-label="Pengingat transaksi rutin">
+    <div class="card-h"><h3>Transaksi rutin</h3><button class="link" data-nav="rutin">Atur ${ic('chevron-right')}</button></div>
+    <div class="rh-sub">${sub}</div>
+    ${now1.length ? `<div class="rh-list">${now1.map(row).join('')}</div>` : open.length ? '<div class="rh-none">Tidak ada yang jatuh tempo hari ini.</div>' : ''}
+    ${later.length ? `<details class="rh-more"><summary>${later.length} lainnya bulan ini ${ic('chevron-down')}</summary><div class="rh-list">${later.sort((a, b) => (a.due || 99) - (b.due || 99)).map(row).join('')}</div></details>` : ''}
+  </section>`;
 }
 /* buka formulir Catat transaksi dari transaksi rutin */
 function pakaiRutin(id) {
